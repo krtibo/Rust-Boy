@@ -1,5 +1,4 @@
 # Rust Boy
------------
 
 This is project **Rust Boy**, which is my thesis for the master's degree.
 

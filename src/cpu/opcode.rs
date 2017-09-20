@@ -8,6 +8,8 @@ pub struct Opcode {
     pub rhs : u8,
     pub opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
     pub cb_opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
+    pub last_instruction :  &'static str,
+
 }
 
 impl Opcode {
@@ -17,6 +19,8 @@ impl Opcode {
             rhs : 0,
             opc : [Opcode::default; 256],
             cb_opc : [Opcode::default; 256],
+            last_instruction : "",
+
         }
     }
 
@@ -89,54 +93,60 @@ impl Opcode {
         hl
     }
 
-
     //////  O P C O D E S  //////
 
 
     fn default(&mut self, cpu : &mut CPU) -> u8 {
         println!("DEFAULT");
+        self.last_instruction = "Default";
         1
     }
 
 
     fn ld_nnn_06(&mut self, cpu : &mut CPU) -> u8 {
         cpu.B = self.fetch(cpu);
-        println!("LD nnn");
+        println!("LD B, nnn");
+        self.last_instruction = "LD B, nnn";
         8
     }
 
 
     fn ld_nnn_0e(&mut self, cpu : &mut CPU) -> u8 {
         cpu.C = self.fetch(cpu);
-        println!("LD nnn");
+        println!("LD C, nnn");
+        self.last_instruction = "LD C, nnn";
         8
     }
 
 
     fn ld_nnn_16(&mut self, cpu : &mut CPU) -> u8 {
         cpu.D = self.fetch(cpu);
-        println!("LD nnn");
+        println!("LD D, nnn");
+        self.last_instruction = "LD D, nnn";
         8
     }
 
 
     fn ld_nnn_1e(&mut self, cpu : &mut CPU) -> u8 {
         cpu.E = self.fetch(cpu);
-        println!("LD nnn");
+        println!("LD E, nnn");
+        self.last_instruction = "LD E, nnn";
         8
     }
 
 
     fn ld_nnn_26(&mut self, cpu : &mut CPU) -> u8 {
         cpu.H = self.fetch(cpu);
-        println!("LD nnn");
+        println!("LD H, nnn");
+        self.last_instruction = "LD H, nnn";
         8
     }
 
 
     fn ld_nnn_2e(&mut self, cpu : &mut CPU) -> u8 {
         cpu.L = self.fetch(cpu);
-        println!("LD nnn");
+        println!("LD L, nnn");
+        self.last_instruction = "LD L, nnn";
         8
     }
 

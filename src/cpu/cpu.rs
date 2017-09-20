@@ -1,0 +1,102 @@
+use std::io::prelude::*;
+use std::fs::File;
+use opcode::Opcode;
+#[allow(dead_code)]
+
+const CYCLES : u32 = 69905; // 4194304 (clock cycle) / 60
+
+#[allow(non_snake_case)]
+pub struct CPU {
+    pub A : u8,
+    pub B : u8,
+    pub C : u8,
+    pub D : u8,
+    pub E : u8,
+    pub F : u8,
+    pub H : u8,
+    pub L : u8,
+    pub SP : u16,
+    pub PC : u16,
+    pub FLAG : [u8; 4],
+    // C (carry), H (half carry), N (substract), Z (zero)
+    // C H N Z
+    pub RAM : [u8; 8192],
+    pub STACK : Vec<u16>,
+}
+
+impl CPU {
+    pub fn new() -> CPU {
+        CPU {
+            A : 0,
+            B : 0,
+            C : 0,
+            D : 0,
+            E : 0,
+            F : 0,
+            H : 0,
+            L : 0,
+            SP : 0xFFFE,
+            PC : 0,
+            FLAG : [0; 4],
+            RAM : [0; 8192],
+            STACK : Vec::new(),
+        }
+    }
+
+
+
+    pub fn cycle(&mut self) {
+        let mut cycle : u32 = 0;
+        let mut opcode : Opcode = Opcode::new();
+        opcode.init();
+
+
+        while cycle < CYCLES {
+            // fetch and decode opcode
+            //opcode.fetch(self);
+            cycle += opcode.execute(self) as u32;
+            println!("Program Counter: {}", self.PC);
+        }
+        // render screen
+    }
+
+
+
+    pub fn load_rom(&mut self, path : String) {
+        let mut rom_buffer : Vec<u8> = Vec::new();
+        let mut f = File::open(path)
+        .expect("Error with file loading!");
+
+        f.read_to_end(&mut rom_buffer)
+        .expect("Error with file reading!");
+
+        for i in 0..rom_buffer.len() {
+            print!("{:x} ", &rom_buffer[i]);
+            if i % 16 == 0 && i > 0 {
+                println!();
+            }
+        }
+        println!("\nROM length (in bytes): {}", rom_buffer.len());
+
+        for i in 0..rom_buffer.len() {
+            self.RAM[i] = rom_buffer[i];
+        }
+        println!("ROM copying done!");
+    }
+
+    /*
+    fn fetch_opcode(&mut self, opcode : &mut Opcode) {
+        opcode.lhs = self.read_ram(self.PC);
+    }
+
+    fn execute_opcode(&mut self, opcode : &mut Opcode) -> u8 {
+        opcode.execute(self)
+    }
+    */
+
+
+#[allow(dead_code)]
+    pub fn read_ram(&self, address : u16) -> u8 {
+        self.RAM[address as usize]
+    }
+}

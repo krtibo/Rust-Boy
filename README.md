@@ -10,7 +10,10 @@ In the initial commit, I already made the project structure (which may be change
 
 ## Current TODOs
 
-- [x] Initial commit.
-- [ ] Combine the emulator with the debugger/tester I wrote for debugging the already implemented instructions.
+- [x] ~~Initial commit.~~
+- [ ] Combine the emulator with the debugger/tester I wrote for debugging the instructions.
+  - [x] ~~Collecting data from the CPU side.~~
+  - [ ] Recieve and store data on the debugger/tester side.
+  - [ ] Testing.
 - [ ] Test the already written instructions.
 - [ ] Code cleaning.

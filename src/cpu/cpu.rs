@@ -1,6 +1,11 @@
 use std::io::prelude::*;
 use std::fs::File;
 use opcode::Opcode;
+use cpu::debugger::Debugger;
+use cpu::debugger::DebugData;
+use std::{thread, time};
+extern crate minifb;
+use self::minifb::{Key, KeyRepeat};
 #[allow(dead_code)]
 
 const CYCLES : u32 = 69905; // 4194304 (clock cycle) / 60
@@ -48,6 +53,8 @@ impl CPU {
     pub fn cycle(&mut self) {
         let mut cycle : u32 = 0;
         let mut opcode : Opcode = Opcode::new();
+        let mut debugger : Debugger = Debugger::new();
+        let mut debug_data : DebugData = DebugData::new();
         opcode.init();
 
 
@@ -55,9 +62,25 @@ impl CPU {
             // fetch and decode opcode
             //opcode.fetch(self);
             cycle += opcode.execute(self) as u32;
-            let (a, b) = self.assemble_debug_data(opcode.last_instruction.to_string());
-            println!("Program Counter: {} \n Last instruction: {} \n Registers: {:?}", self.PC, a, b);
+            let data = self.assemble_debug_data(opcode.last_instruction.to_string());
+            debug_data.parse_data_from_cpu(data);
+            debugger.update_window(&debug_data);
+            thread::sleep(time::Duration::from_millis(100));
 
+            if debugger.window.is_key_pressed(Key::P, KeyRepeat::No) {
+                loop {
+                    debugger.update_window(&debug_data);
+                    if debugger.window.is_key_pressed(Key::P, KeyRepeat::No) {
+                        break;
+                    }
+                }
+            }
+
+
+        }
+
+        while debugger.window.is_open() && !debugger.window.is_key_down(Key::Escape){
+            debugger.update_window(&debug_data);
         }
         // render screen
     }

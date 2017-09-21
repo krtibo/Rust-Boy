@@ -97,7 +97,7 @@ impl Opcode {
 
 
     fn default(&mut self, cpu : &mut CPU) -> u8 {
-        println!("DEFAULT");
+        //println!("DEFAULT");
         self.last_instruction = "Default";
         1
     }

@@ -284,7 +284,7 @@ impl Debugger {
 
     pub fn render_text(&mut self, x : u32, y : u32, text : &String) {
 
-        let caps_abc : [u16;29] = [
+        let caps_abc : [u16;31] = [
             0b1011011111010100,     // A
             0b0111010111010110,     // B -
             0b1100010010011100,     // C
@@ -314,6 +314,8 @@ impl Debugger {
             0b0000001110000000,     // -
             0b0000000000000000,     // space
             0b0010100000000000,     // ,
+            0b1000100100101000,     // (
+            0b0010100100100010,     // )
         ];
 
         let abc : [u16; 26] = [
@@ -394,6 +396,8 @@ impl Debugger {
                 '-' => self.render_char(x + i as u32 *4 , y, caps_abc[26]),
                 ' ' => self.render_char(x + i as u32 *4 , y, caps_abc[27]),
                 ',' => self.render_char(x + i as u32 *4 , y, caps_abc[28]),
+                '(' => self.render_char(x + i as u32 *4 , y, caps_abc[29]),
+                ')' => self.render_char(x + i as u32 *4 , y, caps_abc[30]),
                 'a' => self.render_char(x + i as u32 *4 , y, abc[0]),
                 'b' => self.render_char(x + i as u32 *4 , y, abc[1]),
                 'c' => self.render_char(x + i as u32 *4 , y, abc[2]),

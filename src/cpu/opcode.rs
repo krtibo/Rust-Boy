@@ -5,7 +5,7 @@ use cpu::CPU;
 
 pub struct Opcode {
     pub lhs : u8,
-    pub rhs : u8,
+    pub rhs : u16,
     pub opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
     pub cb_opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
     pub last_instruction :  &'static str,
@@ -104,49 +104,55 @@ impl Opcode {
 
 
     fn ld_nnn_06(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.B = self.fetch(cpu);
-        println!("LD B, nnn");
-        self.last_instruction = "LD B, nnn";
+        let data : u8 = self.fetch(cpu);
+        cpu.B = data;
+        self.rhs = data as u16;
+        self.last_instruction = "LD B,";
         8
     }
 
 
     fn ld_nnn_0e(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.C = self.fetch(cpu);
-        println!("LD C, nnn");
-        self.last_instruction = "LD C, nnn";
+        let data : u8 = self.fetch(cpu);
+        cpu.C = data;
+        self.rhs = data as u16;
+        self.last_instruction = "LD C,";
         8
     }
 
 
     fn ld_nnn_16(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.D = self.fetch(cpu);
-        println!("LD D, nnn");
-        self.last_instruction = "LD D, nnn";
+        let data : u8 = self.fetch(cpu);
+        cpu.D = data;
+        self.rhs = data as u16;
+        self.last_instruction = "LD D,";
         8
     }
 
 
     fn ld_nnn_1e(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.E = self.fetch(cpu);
-        println!("LD E, nnn");
-        self.last_instruction = "LD E, nnn";
+        let data : u8 = self.fetch(cpu);
+        cpu.E = data;
+        self.rhs = data as u16;
+        self.last_instruction = "LD E,";
         8
     }
 
 
     fn ld_nnn_26(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.H = self.fetch(cpu);
-        println!("LD H, nnn");
-        self.last_instruction = "LD H, nnn";
+        let data : u8 = self.fetch(cpu);
+        cpu.H = data;
+        self.rhs = data as u16;
+        self.last_instruction = "LD H,";
         8
     }
 
 
     fn ld_nnn_2e(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.L = self.fetch(cpu);
-        println!("LD L, nnn");
-        self.last_instruction = "LD L, nnn";
+        let data : u8 = self.fetch(cpu);
+        cpu.L = data;
+        self.rhs = data as u16;
+        self.last_instruction = "LD L,";
         8
     }
 

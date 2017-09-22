@@ -62,7 +62,7 @@ impl CPU {
             // fetch and decode opcode
             //opcode.fetch(self);
             cycle += opcode.execute(self) as u32;
-            let data = self.assemble_debug_data(opcode.last_instruction.to_string());
+            let data = self.assemble_debug_data(opcode.last_instruction.to_string(), opcode.rhs);
             debug_data.parse_data_from_cpu(data);
             debugger.update_window(&debug_data);
             thread::sleep(time::Duration::from_millis(100));
@@ -116,7 +116,7 @@ impl CPU {
     }
 
 
-    pub fn assemble_debug_data(&self, last_instruction : String) -> (String, Vec<String>) {
+    pub fn assemble_debug_data(&self, last_instruction : String, rhs : u16) -> (String, Vec<String>) {
 
            let actual_reg : Vec<String> = vec![
            format!("0x{:X}", self.A),
@@ -133,7 +133,12 @@ impl CPU {
            format!("{}", self.STACK.len()),
            ];
 
-       (last_instruction, actual_reg)
+
+           if last_instruction != "Default" {
+               (format!("{} 0x{:X}", last_instruction, rhs), actual_reg)
+           } else {
+               (last_instruction, actual_reg)
+           }
     }
 
 }

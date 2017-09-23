@@ -72,6 +72,37 @@ impl Opcode {
         self.opc[0x5c] = Opcode::ld_r1r2_5c;
         self.opc[0x5d] = Opcode::ld_r1r2_5d;
         self.opc[0x5e] = Opcode::ld_r1r2_5e;
+        self.opc[0x60] = Opcode::ld_r1r2_60;
+        self.opc[0x61] = Opcode::ld_r1r2_61;
+        self.opc[0x62] = Opcode::ld_r1r2_62;
+        self.opc[0x63] = Opcode::ld_r1r2_63;
+        self.opc[0x64] = Opcode::ld_r1r2_64;
+        self.opc[0x65] = Opcode::ld_r1r2_65;
+        self.opc[0x66] = Opcode::ld_r1r2_66;
+        self.opc[0x68] = Opcode::ld_r1r2_68;
+        self.opc[0x69] = Opcode::ld_r1r2_69;
+        self.opc[0x6a] = Opcode::ld_r1r2_6a;
+        self.opc[0x6b] = Opcode::ld_r1r2_6b;
+        self.opc[0x6c] = Opcode::ld_r1r2_6c;
+        self.opc[0x6d] = Opcode::ld_r1r2_6d;
+        self.opc[0x6e] = Opcode::ld_r1r2_6e;
+        // LD A,n
+        self.opc[0x0a] = Opcode::ld_an_0a;
+        self.opc[0x1a] = Opcode::ld_an_1a;
+        self.opc[0xfa] = Opcode::ld_an_fa;
+        self.opc[0x3e] = Opcode::ld_an_3e;
+        // LD n,A
+        self.opc[0x47] = Opcode::ld_na_47;
+        self.opc[0x4f] = Opcode::ld_na_4f;
+        self.opc[0x57] = Opcode::ld_na_57;
+        self.opc[0x5f] = Opcode::ld_na_5f;
+        self.opc[0x67] = Opcode::ld_na_67;
+        self.opc[0x6f] = Opcode::ld_na_6f;
+        self.opc[0x02] = Opcode::ld_na_02;
+        self.opc[0x12] = Opcode::ld_na_12;
+        self.opc[0x77] = Opcode::ld_na_77;
+        self.opc[0xea] = Opcode::ld_na_ea;
+
     }
 
 
@@ -505,5 +536,343 @@ impl Opcode {
         8
     }
 
+
+    fn ld_r1r2_60(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = cpu.B;
+
+        self.last_instruction = "LD H, B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_61(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = cpu.C;
+
+        self.last_instruction = "LD H, C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_62(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = cpu.D;
+
+        self.last_instruction = "LD H, D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_63(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = cpu.E;
+
+        self.last_instruction = "LD H, E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_64(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = cpu.H;
+
+        self.last_instruction = "LD H, H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_65(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = cpu.L;
+
+        self.last_instruction = "LD H, L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_66(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = cpu.RAM[
+                Opcode::byte_cat(cpu.H, cpu.L)
+                as usize];
+
+        self.last_instruction = "LD H, (HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_r1r2_68(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.B;
+
+        self.last_instruction = "LD L, B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_69(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.C;
+
+        self.last_instruction = "LD L, C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_6a(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.D;
+
+        self.last_instruction = "LD L, D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_6b(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.E;
+
+        self.last_instruction = "LD L, E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_6c(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.H;
+
+        self.last_instruction = "LD L, H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_6d(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.L;
+
+        self.last_instruction = "LD L, L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_r1r2_6e(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.RAM[
+                Opcode::byte_cat(cpu.H, cpu.L)
+                as usize];
+
+        self.last_instruction = "LD L, (HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_r1r2_70(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.B;
+
+        self.last_instruction = "LD (HL), B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_r1r2_71(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.C;
+
+        self.last_instruction = "LD (HL), C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_r1r2_72(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.D;
+
+        self.last_instruction = "LD (HL), D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_r1r2_73(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.E;
+
+        self.last_instruction = "LD (HL), E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_r1r2_74(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.H;
+
+        self.last_instruction = "LD (HL), H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_r1r2_75(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.L;
+
+        self.last_instruction = "LD (HL), L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_r1r2_36(&mut self, cpu : &mut CPU) -> u8 {
+        let data : u8 = self.fetch(cpu);
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = data;
+        self.rhs = data as u16;
+
+        self.last_instruction = "LD (HL),";
+        self.operand_mode = 1;
+        12
+    }
+
+
+    fn ld_an_0a(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.RAM[
+                Opcode::byte_cat(cpu.B, cpu.C)
+                as usize];
+
+        self.last_instruction = "LD A, (BC)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_an_1a(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.RAM[
+                Opcode::byte_cat(cpu.D, cpu.E)
+                as usize];
+
+        self.last_instruction = "LD A, (DE)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_an_fa(&mut self, cpu : &mut CPU) -> u8 {
+        let data_l : u8 = self.fetch(cpu);
+        let data_h : u8 = self.fetch(cpu);
+
+        cpu.A = cpu.RAM[
+                Opcode::byte_cat(data_h, data_l)
+                as usize];
+
+        self.lhs = data_h as u16;
+        self.rhs = data_l as u16;
+        self.last_instruction = "LD A,";
+        self.operand_mode = 2;
+        16
+    }
+
+
+    fn ld_an_3e(&mut self, cpu : &mut CPU) -> u8 {
+        let data : u8 = self.fetch(cpu);
+        cpu.A = data;
+
+        self.lhs = data as u16;
+        self.last_instruction = "LD A,";
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn ld_na_47(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = cpu.A;
+
+        self.last_instruction = "LD B,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_na_4f(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = cpu.A;
+
+        self.last_instruction = "LD C,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_na_57(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = cpu.A;
+
+        self.last_instruction = "LD D,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_na_5f(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = cpu.A;
+
+        self.last_instruction = "LD E,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_na_67(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = cpu.A;
+
+        self.last_instruction = "LD H,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_na_6f(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.A;
+
+        self.last_instruction = "LD L,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ld_na_02(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.B, cpu.C) as usize] = cpu.A;
+
+        self.last_instruction = "LD (BC),A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_na_12(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.D, cpu.E) as usize] = cpu.A;
+
+        self.last_instruction = "LD (DE),A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_na_77(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.A;
+
+        self.last_instruction = "LD (HL),A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ld_na_ea(&mut self, cpu : &mut CPU) -> u8 {
+        let data_l : u8 = self.fetch(cpu);
+        let data_h : u8 = self.fetch(cpu);
+
+        cpu.RAM[Opcode::byte_cat(data_h, data_l) as usize] = cpu.A;
+
+        self.lhs = data_h as u16;
+        self.rhs = data_l as u16;
+        self.last_instruction = "LD (nn),A";
+        self.operand_mode = 2;
+        16
+    }
 
 }

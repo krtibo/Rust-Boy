@@ -741,8 +741,8 @@ impl Opcode {
     fn ld_r1r2_36(&mut self, cpu : &mut CPU) -> u8 {
         let data : u8 = self.fetch(cpu);
         cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = data;
-        self.rhs = data as u16;
 
+        self.rhs = data as u16;
         self.last_instruction = "LD (HL),";
         self.operand_mode = 1;
         12
@@ -791,7 +791,7 @@ impl Opcode {
         let data : u8 = self.fetch(cpu);
         cpu.A = data;
 
-        self.lhs = data as u16;
+        self.rhs = data as u16;
         self.last_instruction = "LD A,";
         self.operand_mode = 1;
         8
@@ -967,6 +967,7 @@ impl Opcode {
         let n : u8 = self.fetch(cpu);
         cpu.RAM[0xFF00 + n as usize] = cpu.A;
 
+        self.rhs = n as u16;
         self.last_instruction = "LDH (n),A";
         self.operand_mode = 1;
         12
@@ -977,6 +978,7 @@ impl Opcode {
         let n : u8 = self.fetch(cpu);
         cpu.A = cpu.RAM[0xFF00 + n as usize];
 
+        self.rhs = n as u16;
         self.last_instruction = "LDH A, (n)";
         self.operand_mode = 1;
         12
@@ -1057,7 +1059,7 @@ impl Opcode {
         cpu.RAM[Opcode::byte_cat(data_h, data_l) as usize] =
         (cpu.SP >> 8) as u8;
 
-        cpu.RAM[(Opcode::byte_cat(data_h, data_l) + (1 as u16)) as usize] = 
+        cpu.RAM[(Opcode::byte_cat(data_h, data_l) + (1 as u16)) as usize] =
         (cpu.SP & 0x00FF) as u8;
 
         self.lhs = data_h as u16;

@@ -118,7 +118,27 @@ impl Opcode {
         self.opc[0x31] = Opcode::ld_nnn_31;
         self.opc[0xf9] = Opcode::ld_sphl_f9;
         self.opc[0x08] = Opcode::ld_nnsp_08;
-
+        //push
+        // TODO check these
+        self.opc[0xf5] = Opcode::push_nn_f5;
+        self.opc[0xc5] = Opcode::push_nn_c5;
+        self.opc[0xd5] = Opcode::push_nn_d5;
+        self.opc[0xe5] = Opcode::push_nn_e5;
+        // pop
+        // TODO check these as well
+        self.opc[0xf1] = Opcode::pop_nn_f1;
+        self.opc[0xc1] = Opcode::pop_nn_c1;
+        self.opc[0xd1] = Opcode::pop_nn_d1;
+        self.opc[0xe1] = Opcode::pop_nn_e1;
+        // inc, dec
+        self.opc[0x03] = Opcode::inc_nn_03;
+        self.opc[0x13] = Opcode::inc_nn_13;
+        self.opc[0x23] = Opcode::inc_nn_23;
+        self.opc[0x33] = Opcode::inc_nn_33;
+        self.opc[0x0b] = Opcode::dec_nn_0b;
+        self.opc[0x1b] = Opcode::dec_nn_1b;
+        self.opc[0x2b] = Opcode::dec_nn_2b;
+        self.opc[0x3b] = Opcode::dec_nn_3b;
 
     }
 
@@ -1067,6 +1087,184 @@ impl Opcode {
         self.last_instruction = "LD (nn),SP";
         self.operand_mode = 2;
         20
+    }
+
+
+    fn push_nn_f5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.STACK.push_front(cpu.A);
+        cpu.STACK.push_front(cpu.F);
+        cpu.SP -= 2;
+
+        self.last_instruction = "PUSH AF";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn push_nn_c5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.STACK.push_front(cpu.B);
+        cpu.STACK.push_front(cpu.C);
+        cpu.SP -= 2;
+
+        self.last_instruction = "PUSH BC";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn push_nn_d5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.STACK.push_front(cpu.D);
+        cpu.STACK.push_front(cpu.E);
+        cpu.SP -= 2;
+
+        self.last_instruction = "PUSH DE";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn push_nn_e5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.STACK.push_front(cpu.H);
+        cpu.STACK.push_front(cpu.L);
+        cpu.SP -= 2;
+
+        self.last_instruction = "PUSH HL";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn pop_nn_f1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.F = cpu.STACK.pop_front().unwrap();
+        cpu.A = cpu.STACK.pop_front().unwrap();
+        cpu.SP += 2;
+
+        self.last_instruction = "POP AF";
+        self.operand_mode = 0;
+        12
+    }
+
+
+    fn pop_nn_c1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = cpu.STACK.pop_front().unwrap();
+        cpu.B = cpu.STACK.pop_front().unwrap();
+        cpu.SP += 2;
+
+        self.last_instruction = "POP BC";
+        self.operand_mode = 0;
+        12
+    }
+
+
+    fn pop_nn_d1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = cpu.STACK.pop_front().unwrap();
+        cpu.D = cpu.STACK.pop_front().unwrap();
+        cpu.SP += 2;
+
+        self.last_instruction = "POP DE";
+        self.operand_mode = 0;
+        12
+    }
+
+
+    fn pop_nn_e1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = cpu.STACK.pop_front().unwrap();
+        cpu.H = cpu.STACK.pop_front().unwrap();
+        cpu.SP += 2;
+
+        self.last_instruction = "POP HL";
+        self.operand_mode = 0;
+        12
+    }
+
+
+    fn inc_nn_03(&mut self, cpu : &mut CPU) -> u8 {
+        let mut bc : u16 = Opcode::byte_cat(cpu.B, cpu.C);
+        bc += 1;
+        cpu.B = (bc >> 8) as u8;
+        cpu.C = (bc & 0x00FF) as u8;
+
+        self.last_instruction = "INC BC";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn inc_nn_13(&mut self, cpu : &mut CPU) -> u8 {
+        let mut de : u16 = Opcode::byte_cat(cpu.D, cpu.E);
+        de += 1;
+        cpu.D = (de >> 8) as u8;
+        cpu.E = (de & 0x00FF) as u8;
+
+        self.last_instruction = "INC DE";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn inc_nn_23(&mut self, cpu : &mut CPU) -> u8 {
+        let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        hl += 1;
+        cpu.H = (hl >> 8) as u8;
+        cpu.L = (hl & 0x00FF) as u8;
+
+        self.last_instruction = "INC HL";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn inc_nn_33(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.SP += 1;
+
+        self.last_instruction = "INC SP";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn dec_nn_0b(&mut self, cpu : &mut CPU) -> u8 {
+        let mut bc : u16 = Opcode::byte_cat(cpu.B, cpu.C);
+        bc -= 1;
+        cpu.B = (bc >> 8) as u8;
+        cpu.C = (bc & 0x00FF) as u8;
+
+        self.last_instruction = "DEC BC";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn dec_nn_1b(&mut self, cpu : &mut CPU) -> u8 {
+        let mut de : u16 = Opcode::byte_cat(cpu.D, cpu.E);
+        de -= 1;
+        cpu.D = (de >> 8) as u8;
+        cpu.E = (de & 0x00FF) as u8;
+
+        self.last_instruction = "DEC DE";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn dec_nn_2b(&mut self, cpu : &mut CPU) -> u8 {
+        let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        hl -= 1;
+        cpu.H = (hl >> 8) as u8;
+        cpu.L = (hl & 0x00FF) as u8;
+
+        self.last_instruction = "DEC HL";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn dec_nn_3b(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.SP -= 1;
+
+        self.last_instruction = "DEC SP";
+        self.operand_mode = 0;
+        8
     }
 
 }

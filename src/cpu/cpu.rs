@@ -1,5 +1,6 @@
 use std::io::prelude::*;
 use std::fs::File;
+use std::collections::LinkedList;
 use opcode::Opcode;
 use cpu::debugger::Debugger;
 use cpu::debugger::DebugData;
@@ -26,7 +27,7 @@ pub struct CPU {
     // C (carry), H (half carry), N (substract), Z (zero)
     // C H N Z
     pub RAM : [u8; 8192],
-    pub STACK : Vec<u16>,
+    pub STACK : LinkedList<u8>,
 }
 
 impl CPU {
@@ -44,7 +45,7 @@ impl CPU {
             PC : 0,
             FLAG : 0,
             RAM : [0; 8192],
-            STACK : Vec::new(),
+            STACK : LinkedList::new(),
         }
     }
 

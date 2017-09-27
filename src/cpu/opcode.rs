@@ -139,6 +139,26 @@ impl Opcode {
         self.opc[0x1b] = Opcode::dec_nn_1b;
         self.opc[0x2b] = Opcode::dec_nn_2b;
         self.opc[0x3b] = Opcode::dec_nn_3b;
+        // and 
+        self.opc[0xa7] = Opcode::and_n_a7;
+        self.opc[0xa0] = Opcode::and_n_a0;
+        self.opc[0xa1] = Opcode::and_n_a1;
+        self.opc[0xa2] = Opcode::and_n_a2;
+        self.opc[0xa3] = Opcode::and_n_a3;
+        self.opc[0xa4] = Opcode::and_n_a4;
+        self.opc[0xa5] = Opcode::and_n_a5;
+        self.opc[0xa6] = Opcode::and_n_a6;
+        self.opc[0xe6] = Opcode::and_n_e6;
+        // or
+        self.opc[0xb7] = Opcode::or_n_b7;
+        self.opc[0xb0] = Opcode::or_n_b0;
+        self.opc[0xb1] = Opcode::or_n_b1;
+        self.opc[0xb2] = Opcode::or_n_b2;
+        self.opc[0xb3] = Opcode::or_n_b3;
+        self.opc[0xb4] = Opcode::or_n_b4;
+        self.opc[0xb5] = Opcode::or_n_b5;
+        self.opc[0xb6] = Opcode::or_n_b6;
+        self.opc[0xf6] = Opcode::or_n_f6;
 
     }
 
@@ -1264,6 +1284,280 @@ impl Opcode {
 
         self.last_instruction = "DEC SP";
         self.operand_mode = 0;
+        8
+    }
+
+
+    fn and_n_a7(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A & cpu.A;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.last_instruction = "AND A,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn and_n_a0(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A & cpu.B;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.last_instruction = "AND A,B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn and_n_a1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A & cpu.C;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.last_instruction = "AND A,C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn and_n_a2(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A & cpu.D;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.last_instruction = "AND A,D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn and_n_a3(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A & cpu.E;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.last_instruction = "AND A,E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn and_n_a4(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A & cpu.H;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.last_instruction = "AND A,H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn and_n_a5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A & cpu.L;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.last_instruction = "AND A,L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn and_n_a6(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A & cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.last_instruction = "AND A,(HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn and_n_e6(&mut self, cpu : &mut CPU) -> u8 {
+        let data : u8 = self.fetch(cpu);
+        cpu.A = cpu.A & data;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1010_0000;
+        } else {
+            cpu.FLAG = 0b0010_0000;
+        }
+
+        self.rhs = data as u16;
+        self.last_instruction = "AND A,";
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn or_n_b7(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A | cpu.A;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "OR A,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn or_n_b0(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A | cpu.B;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "OR A,B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn or_n_b1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A | cpu.C;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "OR A,C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn or_n_b2(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A | cpu.D;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "OR A,D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn or_n_b3(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A | cpu.E;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "OR A,E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn or_n_b4(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A | cpu.H;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "OR A,H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn or_n_b5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A | cpu.L;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "OR A,L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn or_n_b6(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A | cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "OR A,(HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn or_n_f6(&mut self, cpu : &mut CPU) -> u8 {
+        let data : u8 = self.fetch(cpu);
+        cpu.A = cpu.A | data;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.rhs = data as u16;
+        self.last_instruction = "OR A,";
+        self.operand_mode = 1;
         8
     }
 

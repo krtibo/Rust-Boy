@@ -25,7 +25,6 @@
 #![allow(unused_variables)]
 
 extern crate minifb;
-extern crate rand;
 
 use self::minifb::{WindowOptions, Window, Scale};
 use std::collections::LinkedList;

@@ -23,9 +23,9 @@ pub struct CPU {
     pub L : u8,
     pub SP : u16,
     pub PC : u16,
-    pub FLAG : u8,
+    pub FLAG : u8, // ZNHC0000
     // C (carry), H (half carry), N (substract), Z (zero)
-    // C H N Z
+    
     pub RAM : [u8; 8192],
     pub STACK : LinkedList<u8>,
 }

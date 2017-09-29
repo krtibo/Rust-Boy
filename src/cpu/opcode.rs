@@ -28,6 +28,7 @@ impl Opcode {
 
 
     pub fn init(&mut self) {
+        //self.opc[0x00] = Opcode::nop_00;
         // LD nnn
         self.opc[0x06] = Opcode::ld_nnn_06;
         self.opc[0x0e] = Opcode::ld_nnn_0e;
@@ -159,6 +160,16 @@ impl Opcode {
         self.opc[0xb5] = Opcode::or_n_b5;
         self.opc[0xb6] = Opcode::or_n_b6;
         self.opc[0xf6] = Opcode::or_n_f6;
+        // xor
+        self.opc[0xaf] = Opcode::xor_n_af;
+        self.opc[0xa8] = Opcode::xor_n_a8;
+        self.opc[0xa9] = Opcode::xor_n_a9;
+        self.opc[0xaa] = Opcode::xor_n_aa;
+        self.opc[0xab] = Opcode::xor_n_ab;
+        self.opc[0xac] = Opcode::xor_n_ac;
+        self.opc[0xad] = Opcode::xor_n_ad;
+        self.opc[0xae] = Opcode::xor_n_ae;
+        self.opc[0xee] = Opcode::xor_n_ee;
 
     }
 
@@ -191,6 +202,10 @@ impl Opcode {
         self.last_instruction = "Default";
         self.operand_mode = 0;
         1
+    }
+
+    fn nop_00(&mut self, cpu : &mut CPU) -> u8 {
+        4
     }
 
 
@@ -1557,6 +1572,143 @@ impl Opcode {
 
         self.rhs = data as u16;
         self.last_instruction = "OR A,";
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn xor_n_af(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A ^ cpu.A;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "XOR A,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn xor_n_a8(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A ^ cpu.B;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "XOR A,B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn xor_n_a9(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A ^ cpu.C;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "XOR A,C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn xor_n_aa(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A ^ cpu.D;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "XOR A,D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn xor_n_ab(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A ^ cpu.E;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "XOR A,E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn xor_n_ac(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A ^ cpu.H;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "XOR A,H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn xor_n_ad(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A ^ cpu.L;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "XOR A,L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn xor_n_ae(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = cpu.A ^ cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.last_instruction = "XOR A,(HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn xor_n_ee(&mut self, cpu : &mut CPU) -> u8 {
+        let data : u8 = self.fetch(cpu);
+        cpu.A = cpu.A ^ data;
+        
+        if cpu.A == 0 {
+            cpu.FLAG = 0b1000_0000;
+        } else {
+            cpu.FLAG = 0b0000_0000;
+        }
+
+        self.rhs = data as u16;
+        self.last_instruction = "XOR A,";
         self.operand_mode = 1;
         8
     }

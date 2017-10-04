@@ -170,6 +170,27 @@ impl Opcode {
         self.opc[0xad] = Opcode::xor_n_ad;
         self.opc[0xae] = Opcode::xor_n_ae;
         self.opc[0xee] = Opcode::xor_n_ee;
+        // add
+        self.opc[0x87] = Opcode::add_an_87;
+        self.opc[0x80] = Opcode::add_an_80;
+        self.opc[0x81] = Opcode::add_an_81;
+        self.opc[0x82] = Opcode::add_an_82;
+        self.opc[0x83] = Opcode::add_an_83;
+        self.opc[0x84] = Opcode::add_an_84;
+        self.opc[0x85] = Opcode::add_an_85;
+        self.opc[0x86] = Opcode::add_an_86;
+        self.opc[0xc6] = Opcode::add_an_c6;
+        // adc
+        self.opc[0x8f] = Opcode::adc_an_8f;
+        self.opc[0x88] = Opcode::adc_an_88;
+        self.opc[0x89] = Opcode::adc_an_89;
+        self.opc[0x8a] = Opcode::adc_an_8a;
+        self.opc[0x8b] = Opcode::adc_an_8b;
+        self.opc[0x8c] = Opcode::adc_an_8c;
+        self.opc[0x8d] = Opcode::adc_an_8d;
+        self.opc[0x8e] = Opcode::adc_an_8e;
+        self.opc[0xce] = Opcode::adc_an_ce;
+
 
     }
 
@@ -1709,6 +1730,548 @@ impl Opcode {
 
         self.rhs = data as u16;
         self.last_instruction = "XOR A,";
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn add_an_87(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = cpu.A as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.A;
+        }
+
+        self.last_instruction = "ADD A,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn add_an_80(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = cpu.B as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.B;
+        }
+
+        self.last_instruction = "ADD A,B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn add_an_81(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = cpu.C as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.C;
+        }
+
+        self.last_instruction = "ADD A,C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn add_an_82(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = cpu.D as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.D;
+        }
+
+        self.last_instruction = "ADD A,D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn add_an_83(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = cpu.E as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.E;
+        }
+
+        self.last_instruction = "ADD A,E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn add_an_84(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = cpu.H as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.H;
+        }
+
+        self.last_instruction = "ADD A,H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn add_an_85(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = cpu.L as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.L;
+        }
+
+        self.last_instruction = "ADD A,L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn add_an_86(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        }
+
+        self.last_instruction = "ADD A,(HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn add_an_c6(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let b : u16 = self.fetch(cpu) as u16;
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += b as u8;
+        }
+
+        self.rhs = b;
+        self.last_instruction = "ADD A,";
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn adc_an_8f(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = cpu.A as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.A + carry;
+        }
+
+        self.last_instruction = "ADC A,A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn adc_an_88(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = cpu.B as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.B + carry;
+        }
+
+        self.last_instruction = "ADC A,B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn adc_an_89(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = cpu.C as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.C + carry;
+        }
+
+        self.last_instruction = "ADC A,C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn adc_an_8a(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = cpu.D as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.D + carry;
+        }
+
+        self.last_instruction = "ADC A,D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn adc_an_8b(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = cpu.E as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.E + carry;
+        }
+
+        self.last_instruction = "ADC A,E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn adc_an_8c(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = cpu.H as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.H + carry;
+        }
+
+        self.last_instruction = "ADC A,H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn adc_an_8d(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = cpu.L as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.L + carry;
+        }
+
+        self.last_instruction = "ADC A,L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn adc_an_8e(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] + carry;
+        }
+
+        self.last_instruction = "ADC A,(HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn adc_an_ce(&mut self, cpu : &mut CPU) -> u8 {
+        let a : u16 = cpu.A as u16;
+        let mut b : u16 = self.fetch(cpu) as u16;
+        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+
+        if carry > 0 {
+            carry = 1;
+            b += carry as u16;
+        }
+
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;
+        }
+
+        if a + b == 0 {
+            cpu.FLAG |= 0b1000_0000;
+        }
+
+        cpu.FLAG &= 0b1011_1111;
+
+        if (a + b) > 255 {
+            cpu.FLAG |= 0b0001_0000;
+            cpu.A = 255;
+        } else {
+            cpu.A += b as u8 + carry;
+        }
+
+        self.rhs = b;
+        self.last_instruction = "ADC A,";
         self.operand_mode = 1;
         8
     }

@@ -10,7 +10,6 @@ pub struct Opcode {
     pub opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
     pub cb_opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
     pub last_instruction :  &'static str,
-
 }
 
 impl Opcode {
@@ -22,7 +21,6 @@ impl Opcode {
             opc : [Opcode::default; 256],
             cb_opc : [Opcode::default; 256],
             last_instruction : "",
-
         }
     }
 
@@ -127,7 +125,7 @@ impl Opcode {
         self.opc[0xe5] = Opcode::push_nn_e5;
         // pop
         // TODO check these as well
-        self.opc[0xf1] = Opcode::pop_nn_f1;     // FLAG?
+        self.opc[0xf1] = Opcode::pop_nn_f1;
         self.opc[0xc1] = Opcode::pop_nn_c1;
         self.opc[0xd1] = Opcode::pop_nn_d1;
         self.opc[0xe1] = Opcode::pop_nn_e1;
@@ -136,28 +134,28 @@ impl Opcode {
         self.opc[0x13] = Opcode::inc_nn_13;
         self.opc[0x23] = Opcode::inc_nn_23;
         self.opc[0x33] = Opcode::inc_nn_33;
-        self.opc[0x04] = Opcode::inc_b_04;     // FLAG?
-        self.opc[0x0c] = Opcode::inc_c_0c;     // FLAG?
-        self.opc[0x14] = Opcode::inc_d_14;     // FLAG?
-        self.opc[0x1c] = Opcode::inc_e_1c;     // FLAG?
-        self.opc[0x24] = Opcode::inc_h_24;     // FLAG?
-        self.opc[0x2c] = Opcode::inc_l_2c;     // FLAG?
-        self.opc[0x34] = Opcode::inc_hl_34;     // FLAG?
-        self.opc[0x3c] = Opcode::inc_a_3c;     // FLAG?
+        self.opc[0x04] = Opcode::inc_b_04;
+        self.opc[0x0c] = Opcode::inc_c_0c;
+        self.opc[0x14] = Opcode::inc_d_14;
+        self.opc[0x1c] = Opcode::inc_e_1c;
+        self.opc[0x24] = Opcode::inc_h_24;
+        self.opc[0x2c] = Opcode::inc_l_2c;
+        self.opc[0x34] = Opcode::inc_hl_34;
+        self.opc[0x3c] = Opcode::inc_a_3c;
         self.opc[0x0b] = Opcode::dec_nn_0b;
         self.opc[0x1b] = Opcode::dec_nn_1b;
         self.opc[0x2b] = Opcode::dec_nn_2b;
         self.opc[0x3b] = Opcode::dec_nn_3b;
-        self.opc[0x05] = Opcode::dec_b_05;     // FLAG?
-        self.opc[0x0d] = Opcode::dec_c_0d;     // FLAG?
-        self.opc[0x15] = Opcode::dec_d_15;     // FLAG?
-        self.opc[0x1d] = Opcode::dec_e_1d;     // FLAG?
-        self.opc[0x25] = Opcode::dec_h_25;     // FLAG?
-        self.opc[0x2d] = Opcode::dec_l_2d;     // FLAG?
-        self.opc[0x35] = Opcode::dec_hl_35;     // FLAG?
-        self.opc[0x3d] = Opcode::dec_a_3d;     // FLAG?
+        self.opc[0x05] = Opcode::dec_b_05;
+        self.opc[0x0d] = Opcode::dec_c_0d;
+        self.opc[0x15] = Opcode::dec_d_15;
+        self.opc[0x1d] = Opcode::dec_e_1d;
+        self.opc[0x25] = Opcode::dec_h_25;
+        self.opc[0x2d] = Opcode::dec_l_2d;
+        self.opc[0x35] = Opcode::dec_hl_35;
+        self.opc[0x3d] = Opcode::dec_a_3d;
 
-        // and      // FLAG?
+        // and
         self.opc[0xa7] = Opcode::and_n_a7;
         self.opc[0xa0] = Opcode::and_n_a0;
         self.opc[0xa1] = Opcode::and_n_a1;
@@ -167,7 +165,7 @@ impl Opcode {
         self.opc[0xa5] = Opcode::and_n_a5;
         self.opc[0xa6] = Opcode::and_n_a6;
         self.opc[0xe6] = Opcode::and_n_e6;
-        // or     // FLAG?
+        // or
         self.opc[0xb7] = Opcode::or_n_b7;
         self.opc[0xb0] = Opcode::or_n_b0;
         self.opc[0xb1] = Opcode::or_n_b1;
@@ -177,7 +175,7 @@ impl Opcode {
         self.opc[0xb5] = Opcode::or_n_b5;
         self.opc[0xb6] = Opcode::or_n_b6;
         self.opc[0xf6] = Opcode::or_n_f6;
-        // xor     // FLAG?
+        // xor
         self.opc[0xaf] = Opcode::xor_n_af;
         self.opc[0xa8] = Opcode::xor_n_a8;
         self.opc[0xa9] = Opcode::xor_n_a9;
@@ -187,7 +185,7 @@ impl Opcode {
         self.opc[0xad] = Opcode::xor_n_ad;
         self.opc[0xae] = Opcode::xor_n_ae;
         self.opc[0xee] = Opcode::xor_n_ee;
-        // add     // FLAG?
+        // add
         self.opc[0x87] = Opcode::add_an_87;
         self.opc[0x80] = Opcode::add_an_80;
         self.opc[0x81] = Opcode::add_an_81;
@@ -201,7 +199,7 @@ impl Opcode {
         self.opc[0x19] = Opcode::add_hl_n_19;
         self.opc[0x29] = Opcode::add_hl_n_29;
         self.opc[0x39] = Opcode::add_hl_n_39;
-        // adc     // FLAG?
+        // adc
         self.opc[0x8f] = Opcode::adc_an_8f;
         self.opc[0x88] = Opcode::adc_an_88;
         self.opc[0x89] = Opcode::adc_an_89;
@@ -381,9 +379,7 @@ impl Opcode {
 
 
     fn ld_r1r2_7e(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.A = cpu.RAM[
-                Opcode::byte_cat(cpu.H, cpu.L)
-                as usize];
+        cpu.A = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         self.last_instruction = "LD A, (HL)";
         self.operand_mode = 0;
@@ -511,9 +507,7 @@ impl Opcode {
 
 
     fn ld_r1r2_4e(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.C = cpu.RAM[
-                Opcode::byte_cat(cpu.H, cpu.L)
-                as usize];
+        cpu.C = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         self.last_instruction = "LD C, (HL)";
         self.operand_mode = 0;
@@ -576,9 +570,7 @@ impl Opcode {
 
 
     fn ld_r1r2_56(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.D = cpu.RAM[
-                Opcode::byte_cat(cpu.H, cpu.L)
-                as usize];
+        cpu.D = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         self.last_instruction = "LD D, (HL)";
         self.operand_mode = 0;
@@ -641,9 +633,7 @@ impl Opcode {
 
 
     fn ld_r1r2_5e(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.E = cpu.RAM[
-                Opcode::byte_cat(cpu.H, cpu.L)
-                as usize];
+        cpu.E = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         self.last_instruction = "LD E, (HL)";
         self.operand_mode = 0;
@@ -706,9 +696,7 @@ impl Opcode {
 
 
     fn ld_r1r2_66(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.H = cpu.RAM[
-                Opcode::byte_cat(cpu.H, cpu.L)
-                as usize];
+        cpu.H = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         self.last_instruction = "LD H, (HL)";
         self.operand_mode = 0;
@@ -771,9 +759,7 @@ impl Opcode {
 
 
     fn ld_r1r2_6e(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.L = cpu.RAM[
-                Opcode::byte_cat(cpu.H, cpu.L)
-                as usize];
+        cpu.L = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         self.last_instruction = "LD L, (HL)";
         self.operand_mode = 0;
@@ -847,9 +833,7 @@ impl Opcode {
 
 
     fn ld_an_0a(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.A = cpu.RAM[
-                Opcode::byte_cat(cpu.B, cpu.C)
-                as usize];
+        cpu.A = cpu.RAM[Opcode::byte_cat(cpu.B, cpu.C) as usize];
 
         self.last_instruction = "LD A, (BC)";
         self.operand_mode = 0;
@@ -858,9 +842,7 @@ impl Opcode {
 
 
     fn ld_an_1a(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.A = cpu.RAM[
-                Opcode::byte_cat(cpu.D, cpu.E)
-                as usize];
+        cpu.A = cpu.RAM[Opcode::byte_cat(cpu.D, cpu.E) as usize];
 
         self.last_instruction = "LD A, (DE)";
         self.operand_mode = 0;
@@ -872,9 +854,7 @@ impl Opcode {
         let data_l : u8 = self.fetch(cpu);
         let data_h : u8 = self.fetch(cpu);
 
-        cpu.A = cpu.RAM[
-                Opcode::byte_cat(data_h, data_l)
-                as usize];
+        cpu.A = cpu.RAM[Opcode::byte_cat(data_h, data_l) as usize];
 
         self.lhs = data_h as u16;
         self.rhs = data_l as u16;
@@ -1257,14 +1237,19 @@ impl Opcode {
 
     fn inc_b_04(&mut self, cpu : &mut CPU) -> u8 {
 
-        if cpu.B + 1 == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        if cpu.B + 1 == 0 { 
+            cpu.set_flag("Z"); 
+        } else { 
+            cpu.reset_flag("Z"); 
         }
+ 
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (((cpu.B & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.B += 1;
@@ -1278,13 +1263,17 @@ impl Opcode {
     fn inc_c_0c(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.C + 1 == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (((cpu.C & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.C += 1;
@@ -1298,13 +1287,17 @@ impl Opcode {
     fn inc_d_14(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.D + 1 == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (((cpu.D & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.D += 1;
@@ -1318,13 +1311,17 @@ impl Opcode {
     fn inc_e_1c(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.E + 1 == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (((cpu.E & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.E += 1;
@@ -1338,13 +1335,17 @@ impl Opcode {
     fn inc_h_24(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.H + 1 == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (((cpu.H & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.H += 1;
@@ -1358,13 +1359,17 @@ impl Opcode {
     fn inc_l_2c(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.L + 1 == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (((cpu.L & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.L += 1;
@@ -1380,13 +1385,17 @@ impl Opcode {
         let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         if hl + 1 == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (((hl & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] += 1;
@@ -1400,13 +1409,17 @@ impl Opcode {
     fn inc_a_3c(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.A + 1 == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (((cpu.A & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.A += 1;
@@ -1510,13 +1523,17 @@ impl Opcode {
     fn dec_b_05(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.B - 1  == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG |= 0b0100_0000;    // set N flag
+        cpu.set_flag("N");    // set N flag
 
         if (cpu.B & 0x0F) < (1 & 0x0F) {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.B -= 1;
@@ -1530,13 +1547,17 @@ impl Opcode {
     fn dec_c_0d(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.C - 1  == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG |= 0b0100_0000;    // set N flag
+        cpu.set_flag("N");    // set N flag
 
         if (cpu.C & 0x0F) < (1 & 0x0F) {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.C -= 1;
@@ -1550,13 +1571,17 @@ impl Opcode {
     fn dec_d_15(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.D - 1  == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG |= 0b0100_0000;    // set N flag
+        cpu.set_flag("N");    // set N flag
 
         if (cpu.D & 0x0F) < (1 & 0x0F) {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.D -= 1;
@@ -1570,13 +1595,17 @@ impl Opcode {
     fn dec_e_1d(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.E - 1  == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG |= 0b0100_0000;    // set N flag
+        cpu.set_flag("N");    // set N flag
 
         if (cpu.E & 0x0F) < (1 & 0x0F) {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.E -= 1;
@@ -1590,13 +1619,17 @@ impl Opcode {
     fn dec_h_25(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.H - 1  == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG |= 0b0100_0000;    // set N flag
+        cpu.set_flag("N");    // set N flag
 
         if (cpu.H & 0x0F) < (1 & 0x0F) {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.H -= 1;
@@ -1610,13 +1643,17 @@ impl Opcode {
     fn dec_l_2d(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.L - 1  == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG |= 0b0100_0000;    // set N flag
+        cpu.set_flag("N");    // set N flag
 
         if (cpu.L & 0x0F) < (1 & 0x0F) {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.L -= 1;
@@ -1632,13 +1669,17 @@ impl Opcode {
         let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         if hl - 1  == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG |= 0b0100_0000;    // set N flag
+        cpu.set_flag("N");    // set N flag
 
         if (hl & 0x0F) < (1 & 0x0F) {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] -= 1;
@@ -1652,13 +1693,17 @@ impl Opcode {
     fn dec_a_3d(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.A - 1  == 0 {
-            cpu.FLAG |= 0b1000_0000;    // set Z flag
+            cpu.set_flag("Z");    // set Z flag
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG |= 0b0100_0000;    // set N flag
+        cpu.set_flag("N");    // set N flag
 
         if (cpu.A & 0x0F) < (1 & 0x0F) {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
         cpu.A -= 1;
@@ -1673,9 +1718,15 @@ impl Opcode {
         cpu.A = cpu.A & cpu.A;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "AND A,A";
@@ -1688,9 +1739,15 @@ impl Opcode {
         cpu.A = cpu.A & cpu.B;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "AND A,B";
@@ -1703,9 +1760,15 @@ impl Opcode {
         cpu.A = cpu.A & cpu.C;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "AND A,C";
@@ -1718,9 +1781,15 @@ impl Opcode {
         cpu.A = cpu.A & cpu.D;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "AND A,D";
@@ -1733,9 +1802,15 @@ impl Opcode {
         cpu.A = cpu.A & cpu.E;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "AND A,E";
@@ -1748,9 +1823,15 @@ impl Opcode {
         cpu.A = cpu.A & cpu.H;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "AND A,H";
@@ -1763,9 +1844,15 @@ impl Opcode {
         cpu.A = cpu.A & cpu.L;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "AND A,L";
@@ -1778,9 +1865,15 @@ impl Opcode {
         cpu.A = cpu.A & cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "AND A,(HL)";
@@ -1794,9 +1887,15 @@ impl Opcode {
         cpu.A = cpu.A & data;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1010_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0010_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.set_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.rhs = data as u16;
@@ -1810,9 +1909,15 @@ impl Opcode {
         cpu.A = cpu.A | cpu.A;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "OR A,A";
@@ -1825,9 +1930,15 @@ impl Opcode {
         cpu.A = cpu.A | cpu.B;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "OR A,B";
@@ -1840,9 +1951,15 @@ impl Opcode {
         cpu.A = cpu.A | cpu.C;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "OR A,C";
@@ -1855,9 +1972,15 @@ impl Opcode {
         cpu.A = cpu.A | cpu.D;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "OR A,D";
@@ -1870,9 +1993,15 @@ impl Opcode {
         cpu.A = cpu.A | cpu.E;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "OR A,E";
@@ -1885,9 +2014,15 @@ impl Opcode {
         cpu.A = cpu.A | cpu.H;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "OR A,H";
@@ -1900,9 +2035,15 @@ impl Opcode {
         cpu.A = cpu.A | cpu.L;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "OR A,L";
@@ -1915,9 +2056,15 @@ impl Opcode {
         cpu.A = cpu.A | cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "OR A,(HL)";
@@ -1931,9 +2078,15 @@ impl Opcode {
         cpu.A = cpu.A | data;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.rhs = data as u16;
@@ -1947,9 +2100,15 @@ impl Opcode {
         cpu.A = cpu.A ^ cpu.A;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "XOR A,A";
@@ -1962,9 +2121,15 @@ impl Opcode {
         cpu.A = cpu.A ^ cpu.B;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "XOR A,B";
@@ -1977,9 +2142,15 @@ impl Opcode {
         cpu.A = cpu.A ^ cpu.C;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "XOR A,C";
@@ -1992,9 +2163,15 @@ impl Opcode {
         cpu.A = cpu.A ^ cpu.D;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "XOR A,D";
@@ -2007,9 +2184,15 @@ impl Opcode {
         cpu.A = cpu.A ^ cpu.E;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "XOR A,E";
@@ -2022,9 +2205,15 @@ impl Opcode {
         cpu.A = cpu.A ^ cpu.H;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "XOR A,H";
@@ -2037,9 +2226,15 @@ impl Opcode {
         cpu.A = cpu.A ^ cpu.L;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "XOR A,L";
@@ -2052,9 +2247,15 @@ impl Opcode {
         cpu.A = cpu.A ^ cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "XOR A,(HL)";
@@ -2068,9 +2269,15 @@ impl Opcode {
         cpu.A = cpu.A ^ data;
         
         if cpu.A == 0 {
-            cpu.FLAG = 0b1000_0000;
+            cpu.set_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         } else {
-            cpu.FLAG = 0b0000_0000;
+            cpu.reset_flag("Z");
+            cpu.reset_flag("N");
+            cpu.reset_flag("H");
+            cpu.reset_flag("C");
         }
 
         self.rhs = data as u16;
@@ -2085,19 +2292,24 @@ impl Opcode {
         let b : u16 = cpu.A as u16;
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.A;
         }
 
@@ -2112,19 +2324,24 @@ impl Opcode {
         let b : u16 = cpu.B as u16;
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.B;
         }
 
@@ -2139,19 +2356,24 @@ impl Opcode {
         let b : u16 = cpu.C as u16;
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.C;
         }
 
@@ -2166,19 +2388,24 @@ impl Opcode {
         let b : u16 = cpu.D as u16;
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.D;
         }
 
@@ -2193,19 +2420,24 @@ impl Opcode {
         let b : u16 = cpu.E as u16;
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.E;
         }
 
@@ -2220,19 +2452,24 @@ impl Opcode {
         let b : u16 = cpu.H as u16;
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.H;
         }
 
@@ -2247,19 +2484,24 @@ impl Opcode {
         let b : u16 = cpu.L as u16;
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.L;
         }
 
@@ -2273,20 +2515,25 @@ impl Opcode {
         let a : u16 = cpu.A as u16;
         let b : u16 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] as u16;
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
         }
 
@@ -2301,19 +2548,24 @@ impl Opcode {
         let b : u16 = self.fetch(cpu) as u16;
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += b as u8;
         }
 
@@ -2335,19 +2587,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.A + carry;
         }
 
@@ -2368,19 +2625,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.B + carry;
         }
 
@@ -2401,19 +2663,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.C + carry;
         }
 
@@ -2434,19 +2701,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.D + carry;
         }
 
@@ -2467,19 +2739,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.E + carry;
         }
 
@@ -2500,19 +2777,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.H + carry;
         }
 
@@ -2533,19 +2815,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.L + carry;
         }
 
@@ -2566,19 +2853,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] + carry;
         }
 
@@ -2599,19 +2891,24 @@ impl Opcode {
         }
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.FLAG |= 0b0010_0000;
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
         }
 
         if a + b == 0 {
-            cpu.FLAG |= 0b1000_0000;
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
 
-        cpu.FLAG &= 0b1011_1111;
+        cpu.reset_flag("N");
 
         if (a + b) > 255 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             cpu.A = 255;
         } else {
+            cpu.reset_flag("C");
             cpu.A += b as u8 + carry;
         }
 
@@ -2627,15 +2924,18 @@ impl Opcode {
         let b : u16 = Opcode::byte_cat(cpu.B, cpu.C);
 
         if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (a + b) as u32 > 65535 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             a = 65535;
         } else {
+            cpu.reset_flag("C");
             a += b;
         }
 
@@ -2653,15 +2953,18 @@ impl Opcode {
         let b : u16 = Opcode::byte_cat(cpu.D, cpu.E);
 
         if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (a + b) as u32 > 65535 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             a = 65535;
         } else {
+            cpu.reset_flag("C");
             a += b;
         }
 
@@ -2679,15 +2982,18 @@ impl Opcode {
         let b : u16 = Opcode::byte_cat(cpu.H, cpu.L);
 
         if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (a + b) as u32 > 65535 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             a = 65535;
         } else {
+            cpu.reset_flag("C");
             a += b;
         }
 
@@ -2705,15 +3011,18 @@ impl Opcode {
         let b : u16 = cpu.SP;
 
         if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
-            cpu.FLAG |= 0b0010_0000;    // set H flag
+            cpu.set_flag("H");    // set H flag
+        } else {
+            cpu.reset_flag("H");
         }
 
-        cpu.FLAG &= 0b1011_1111;    // reset N flag
+        cpu.reset_flag("N");    // reset N flag
 
         if (a + b) as u32 > 65535 {
-            cpu.FLAG |= 0b0001_0000;
+            cpu.set_flag("C");
             a = 65535;
         } else {
+            cpu.reset_flag("C");
             a += b;
         }
 

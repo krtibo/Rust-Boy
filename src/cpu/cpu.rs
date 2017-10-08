@@ -151,4 +151,44 @@ impl CPU {
            }
     }
 
+
+    pub fn set_flag(&mut self, f : &str) {
+
+        if f == "Z" {
+            self.FLAG |= 0b1000_0000;
+        }
+
+        if f == "N" {
+            self.FLAG |= 0b0100_0000;
+        }
+
+        if f == "H" {
+            self.FLAG |= 0b0010_0000;
+        }
+
+        if f == "C" {
+            self.FLAG |= 0b0001_0000;
+        }
+    }
+
+
+    pub fn reset_flag(&mut self, f : &str) {
+
+        if f == "Z" {
+            self.FLAG &= 0b0111_1111;
+        }
+
+        if f == "N" {
+            self.FLAG &= 0b1011_1111;
+        }
+
+        if f == "H" {
+            self.FLAG &= 0b1101_1111;
+        }
+
+        if f == "C" {
+            self.FLAG &= 0b1110_1111;
+        }
+    }
+
 }

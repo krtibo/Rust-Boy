@@ -191,4 +191,41 @@ impl CPU {
         }
     }
 
+    pub fn get_flag(&self, f : &str) -> u8 {
+
+        if f == "Z" {
+            if self.FLAG & 0b1000_0000 == 0 {
+                return 0
+            } else {
+                return 1
+            }
+        } 
+
+        if f == "N" {
+            if self.FLAG & 0b0100_0000 == 0 {
+                return 0
+            } else {
+                return 1
+            }
+        } 
+
+        if f == "H" {
+            if self.FLAG & 0b0010_0000 == 0 {
+                return 0
+            } else {
+                return 1
+            }
+        }  
+
+        if f == "C" {
+            if self.FLAG & 0b0001_0000 == 0 {
+                return 0
+            } else {
+                return 1
+            }
+        }
+
+        0
+    }
+
 }

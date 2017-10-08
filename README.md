@@ -10,7 +10,7 @@ In the initial commit, I already made the project structure (which may be change
 
 ## Current TODOs
 
-- [ ] **Check _every_ flag set / unset**
+- [x] ~~Check _every_ flag set / unset~~
 - [ ] Test the already written instructions.
 - [ ] Code cleaning.
 - [x] ~~Initial commit.~~

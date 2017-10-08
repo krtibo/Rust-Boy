@@ -210,6 +210,9 @@ impl Opcode {
         self.opc[0x8e] = Opcode::adc_an_8e;
         self.opc[0xce] = Opcode::adc_an_ce;
 
+        self.opc[0xcd] = Opcode::call_nn_cd;
+        self.opc[0x20] = Opcode::jr_cc_n_20;
+
 
     }
 
@@ -239,8 +242,10 @@ impl Opcode {
 
     fn default(&mut self, cpu : &mut CPU) -> u8 {
         //println!("DEFAULT");
-        self.last_instruction = "NOP or Default";
-        self.operand_mode = 0;
+        self.rhs = cpu.RAM[(cpu.PC - 1) as usize] as u16;
+        self.lhs = 0;
+        self.last_instruction = "NOP or Default ---";
+        self.operand_mode = 1;
         1
     }
 
@@ -3035,9 +3040,44 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
     }
 
 
+    fn call_nn_cd(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        let pc_h : u8 = (cpu.PC >> 8) as u8;
+        let pc_l : u8 = (cpu.PC & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = Opcode::byte_cat(h,l);
+        
+        self.rhs = Opcode::byte_cat(h,l);
+        self.last_instruction = "CALL,";
+        self.operand_mode = 1;
+        12
+    }
 
 
+    fn jr_cc_n_20(&mut self, cpu : &mut CPU) -> u8 {
+        let n : i8 = self.fetch(cpu) as i8;
 
+        if cpu.get_flag("Z") == 0 && n <= 0 {
+            cpu.PC = cpu.PC - (-n) as u16;
+            self.rhs = (-n) as u16;
+            self.last_instruction = "JR, -";
+        }
+
+        if cpu.get_flag("Z") == 0 && n > 0 {
+            cpu.PC = cpu.PC + (n as u16);
+            self.rhs = n as u16;
+            self.last_instruction = "JR,";
+        }
+
+        
+        self.operand_mode = 1;
+        8
+    }
 
 
 

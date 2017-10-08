@@ -26,6 +26,30 @@ fn main() {
         println!("NO HALF CARRY");
     }
 
+
+    -- 8-BIG HALB BORROW DETECTING EXAMPLE --
+
+    self.reg.flag(H, (a & 0x0F) < (b & 0x0F) + c);
+
+    let a : u8 = 0b00111100;
+    let b : u8 = 0b00010000;
+
+    if (a & 0x0F) < (b & 0x0F) {
+        println!("HALF BORROW DUDE");
+    } 
+
+    SBC EXAMPLE
+
+    if (cpu.FLAG & 0b0001_0000) >> 4 == 1 {     // C FLAG ?= 1
+        if (a & 0x0F) < (b & 0x0F) + 1 {
+            println!("HALF BORROW DUDE");
+        } 
+    }
+
+
+
+
+
     
     -- 16-BIT HALF CARRY DETECTING EXAMPLE --
 

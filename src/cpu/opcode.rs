@@ -140,6 +140,15 @@ impl Opcode {
         self.opc[0x1b] = Opcode::dec_nn_1b;
         self.opc[0x2b] = Opcode::dec_nn_2b;
         self.opc[0x3b] = Opcode::dec_nn_3b;
+
+        self.opc[0x04] = Opcode::inc_b_04;
+        self.opc[0x0c] = Opcode::inc_c_0c;
+        self.opc[0x14] = Opcode::inc_d_14;
+        self.opc[0x1c] = Opcode::inc_e_1c;
+        self.opc[0x24] = Opcode::inc_h_24;
+        self.opc[0x2c] = Opcode::inc_l_2c;
+        self.opc[0x34] = Opcode::inc_hl_34;
+        self.opc[0x3c] = Opcode::inc_a_3c;
         // and 
         self.opc[0xa7] = Opcode::and_n_a7;
         self.opc[0xa0] = Opcode::and_n_a0;
@@ -180,6 +189,10 @@ impl Opcode {
         self.opc[0x85] = Opcode::add_an_85;
         self.opc[0x86] = Opcode::add_an_86;
         self.opc[0xc6] = Opcode::add_an_c6;
+        self.opc[0x09] = Opcode::add_hl_n_09;
+        self.opc[0x19] = Opcode::add_hl_n_19;
+        self.opc[0x29] = Opcode::add_hl_n_29;
+        self.opc[0x39] = Opcode::add_hl_n_39;
         // adc
         self.opc[0x8f] = Opcode::adc_an_8f;
         self.opc[0x88] = Opcode::adc_an_88;
@@ -220,7 +233,7 @@ impl Opcode {
 
     fn default(&mut self, cpu : &mut CPU) -> u8 {
         //println!("DEFAULT");
-        self.last_instruction = "Default";
+        self.last_instruction = "NOP or Default";
         self.operand_mode = 0;
         1
     }
@@ -1231,6 +1244,168 @@ impl Opcode {
         self.last_instruction = "POP HL";
         self.operand_mode = 0;
         12
+    }
+
+
+    fn inc_b_04(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.B + 1 == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (((cpu.B & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.B += 1;
+
+        self.last_instruction = "INC B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn inc_c_0c(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.C + 1 == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (((cpu.C & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.C += 1;
+
+        self.last_instruction = "INC C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn inc_d_14(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.D + 1 == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (((cpu.D & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.D += 1;
+
+        self.last_instruction = "INC D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn inc_e_1c(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.E + 1 == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (((cpu.E & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.E += 1;
+
+        self.last_instruction = "INC E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn inc_h_24(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.H + 1 == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (((cpu.H & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.H += 1;
+
+        self.last_instruction = "INC H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn inc_l_2c(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.L + 1 == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (((cpu.L & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.L += 1;
+
+        self.last_instruction = "INC L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn inc_hl_34(&mut self, cpu : &mut CPU) -> u8 {
+
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+
+        if hl + 1 == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (((hl & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] += 1;
+
+        self.last_instruction = "INC (HL)";
+        self.operand_mode = 0;
+        12
+    }
+
+
+    fn inc_a_3c(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.A + 1 == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (((cpu.A & 0xf) + (1 & 0xf)) & 0x10) == 0x10 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.A += 1;
+
+        self.last_instruction = "INC A";
+        self.operand_mode = 0;
+        4
     }
 
 
@@ -2273,6 +2448,110 @@ impl Opcode {
         self.rhs = b;
         self.last_instruction = "ADC A,";
         self.operand_mode = 1;
+        8
+    }
+
+
+    fn add_hl_n_09(&mut self, cpu : &mut CPU) -> u8 {
+        let mut a : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        let b : u16 = Opcode::byte_cat(cpu.B, cpu.C);
+
+        if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (a + b) as u32 > 65535 {
+            cpu.FLAG |= 0b0001_0000;
+            a = 65535;
+        } else {
+            a += b;
+        }
+
+        cpu.H = (a >> 8) as u8;
+        cpu.L = (a & 0x00FF) as u8;
+
+        self.last_instruction = "ADD HL,BC";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn add_hl_n_19(&mut self, cpu : &mut CPU) -> u8 {
+        let mut a : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        let b : u16 = Opcode::byte_cat(cpu.D, cpu.E);
+
+        if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (a + b) as u32 > 65535 {
+            cpu.FLAG |= 0b0001_0000;
+            a = 65535;
+        } else {
+            a += b;
+        }
+
+        cpu.H = (a >> 8) as u8;
+        cpu.L = (a & 0x00FF) as u8;
+
+        self.last_instruction = "ADD HL,DE";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn add_hl_n_29(&mut self, cpu : &mut CPU) -> u8 {
+        let mut a : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        let b : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+
+        if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (a + b) as u32 > 65535 {
+            cpu.FLAG |= 0b0001_0000;
+            a = 65535;
+        } else {
+            a += b;
+        }
+
+        cpu.H = (a >> 8) as u8;
+        cpu.L = (a & 0x00FF) as u8;
+
+        self.last_instruction = "ADD HL,HL";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn add_hl_n_39(&mut self, cpu : &mut CPU) -> u8 {
+        let mut a : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        let b : u16 = cpu.SP;
+
+        if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.FLAG &= 0b1011_1111;    // reset N flag
+
+        if (a + b) as u32 > 65535 {
+            cpu.FLAG |= 0b0001_0000;
+            a = 65535;
+        } else {
+            a += b;
+        }
+
+        cpu.H = (a >> 8) as u8;
+        cpu.L = (a & 0x00FF) as u8;
+
+        self.last_instruction = "ADD HL,SP";
+        self.operand_mode = 0;
         8
     }
 

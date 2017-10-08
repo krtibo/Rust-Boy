@@ -26,7 +26,7 @@ pub struct CPU {
     pub FLAG : u8, // ZNHC0000
     // C (carry), H (half carry), N (substract), Z (zero)
     
-    pub RAM : [u8; 8192],
+    pub RAM : [u8; 65535],
     pub STACK : LinkedList<u8>,
 }
 
@@ -44,7 +44,7 @@ impl CPU {
             SP : 0xFFFE,
             PC : 0,
             FLAG : 0,
-            RAM : [0; 8192],
+            RAM : [0; 65535],
             STACK : LinkedList::new(),
         }
     }
@@ -59,7 +59,7 @@ impl CPU {
         opcode.init();
 
 
-        while cycle < CYCLES && self.PC < 8192 {
+        while cycle < CYCLES && self.PC < 65535 {
             // fetch and decode opcode
             //opcode.fetch(self);
             cycle += opcode.execute(self) as u32;
@@ -138,6 +138,8 @@ impl CPU {
            format!("0b{:b}", self.FLAG),
            format!("{}", self.STACK.len()),
            ];
+
+           println!("{}",format!("{} 0x{:X} 0x{:X}", last_instruction, lhs, rhs));
 
            if operand_mode == 0 {
                (last_instruction, actual_reg)

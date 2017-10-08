@@ -127,7 +127,7 @@ impl Opcode {
         self.opc[0xe5] = Opcode::push_nn_e5;
         // pop
         // TODO check these as well
-        self.opc[0xf1] = Opcode::pop_nn_f1;
+        self.opc[0xf1] = Opcode::pop_nn_f1;     // FLAG?
         self.opc[0xc1] = Opcode::pop_nn_c1;
         self.opc[0xd1] = Opcode::pop_nn_d1;
         self.opc[0xe1] = Opcode::pop_nn_e1;
@@ -136,20 +136,28 @@ impl Opcode {
         self.opc[0x13] = Opcode::inc_nn_13;
         self.opc[0x23] = Opcode::inc_nn_23;
         self.opc[0x33] = Opcode::inc_nn_33;
+        self.opc[0x04] = Opcode::inc_b_04;     // FLAG?
+        self.opc[0x0c] = Opcode::inc_c_0c;     // FLAG?
+        self.opc[0x14] = Opcode::inc_d_14;     // FLAG?
+        self.opc[0x1c] = Opcode::inc_e_1c;     // FLAG?
+        self.opc[0x24] = Opcode::inc_h_24;     // FLAG?
+        self.opc[0x2c] = Opcode::inc_l_2c;     // FLAG?
+        self.opc[0x34] = Opcode::inc_hl_34;     // FLAG?
+        self.opc[0x3c] = Opcode::inc_a_3c;     // FLAG?
         self.opc[0x0b] = Opcode::dec_nn_0b;
         self.opc[0x1b] = Opcode::dec_nn_1b;
         self.opc[0x2b] = Opcode::dec_nn_2b;
         self.opc[0x3b] = Opcode::dec_nn_3b;
+        self.opc[0x05] = Opcode::dec_b_05;     // FLAG?
+        self.opc[0x0d] = Opcode::dec_c_0d;     // FLAG?
+        self.opc[0x15] = Opcode::dec_d_15;     // FLAG?
+        self.opc[0x1d] = Opcode::dec_e_1d;     // FLAG?
+        self.opc[0x25] = Opcode::dec_h_25;     // FLAG?
+        self.opc[0x2d] = Opcode::dec_l_2d;     // FLAG?
+        self.opc[0x35] = Opcode::dec_hl_35;     // FLAG?
+        self.opc[0x3d] = Opcode::dec_a_3d;     // FLAG?
 
-        self.opc[0x04] = Opcode::inc_b_04;
-        self.opc[0x0c] = Opcode::inc_c_0c;
-        self.opc[0x14] = Opcode::inc_d_14;
-        self.opc[0x1c] = Opcode::inc_e_1c;
-        self.opc[0x24] = Opcode::inc_h_24;
-        self.opc[0x2c] = Opcode::inc_l_2c;
-        self.opc[0x34] = Opcode::inc_hl_34;
-        self.opc[0x3c] = Opcode::inc_a_3c;
-        // and 
+        // and      // FLAG?
         self.opc[0xa7] = Opcode::and_n_a7;
         self.opc[0xa0] = Opcode::and_n_a0;
         self.opc[0xa1] = Opcode::and_n_a1;
@@ -159,7 +167,7 @@ impl Opcode {
         self.opc[0xa5] = Opcode::and_n_a5;
         self.opc[0xa6] = Opcode::and_n_a6;
         self.opc[0xe6] = Opcode::and_n_e6;
-        // or
+        // or     // FLAG?
         self.opc[0xb7] = Opcode::or_n_b7;
         self.opc[0xb0] = Opcode::or_n_b0;
         self.opc[0xb1] = Opcode::or_n_b1;
@@ -169,7 +177,7 @@ impl Opcode {
         self.opc[0xb5] = Opcode::or_n_b5;
         self.opc[0xb6] = Opcode::or_n_b6;
         self.opc[0xf6] = Opcode::or_n_f6;
-        // xor
+        // xor     // FLAG?
         self.opc[0xaf] = Opcode::xor_n_af;
         self.opc[0xa8] = Opcode::xor_n_a8;
         self.opc[0xa9] = Opcode::xor_n_a9;
@@ -179,7 +187,7 @@ impl Opcode {
         self.opc[0xad] = Opcode::xor_n_ad;
         self.opc[0xae] = Opcode::xor_n_ae;
         self.opc[0xee] = Opcode::xor_n_ee;
-        // add
+        // add     // FLAG?
         self.opc[0x87] = Opcode::add_an_87;
         self.opc[0x80] = Opcode::add_an_80;
         self.opc[0x81] = Opcode::add_an_81;
@@ -193,7 +201,7 @@ impl Opcode {
         self.opc[0x19] = Opcode::add_hl_n_19;
         self.opc[0x29] = Opcode::add_hl_n_29;
         self.opc[0x39] = Opcode::add_hl_n_39;
-        // adc
+        // adc     // FLAG?
         self.opc[0x8f] = Opcode::adc_an_8f;
         self.opc[0x88] = Opcode::adc_an_88;
         self.opc[0x89] = Opcode::adc_an_89;
@@ -1499,6 +1507,168 @@ impl Opcode {
     }
 
 
+    fn dec_b_05(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.B - 1  == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG |= 0b0100_0000;    // set N flag
+
+        if (cpu.B & 0x0F) < (1 & 0x0F) {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.B -= 1;
+
+        self.last_instruction = "DEC B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn dec_c_0d(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.C - 1  == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG |= 0b0100_0000;    // set N flag
+
+        if (cpu.C & 0x0F) < (1 & 0x0F) {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.C -= 1;
+
+        self.last_instruction = "DEC C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn dec_d_15(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.D - 1  == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG |= 0b0100_0000;    // set N flag
+
+        if (cpu.D & 0x0F) < (1 & 0x0F) {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.D -= 1;
+
+        self.last_instruction = "DEC D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn dec_e_1d(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.E - 1  == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG |= 0b0100_0000;    // set N flag
+
+        if (cpu.E & 0x0F) < (1 & 0x0F) {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.E -= 1;
+
+        self.last_instruction = "DEC E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn dec_h_25(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.H - 1  == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG |= 0b0100_0000;    // set N flag
+
+        if (cpu.H & 0x0F) < (1 & 0x0F) {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.H -= 1;
+
+        self.last_instruction = "DEC H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn dec_l_2d(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.L - 1  == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG |= 0b0100_0000;    // set N flag
+
+        if (cpu.L & 0x0F) < (1 & 0x0F) {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.L -= 1;
+
+        self.last_instruction = "DEC L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn dec_hl_35(&mut self, cpu : &mut CPU) -> u8 {
+
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+
+        if hl - 1  == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG |= 0b0100_0000;    // set N flag
+
+        if (hl & 0x0F) < (1 & 0x0F) {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] -= 1;
+
+        self.last_instruction = "DEC (HL)";
+        self.operand_mode = 0;
+        12
+    }
+
+
+    fn dec_a_3d(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.A - 1  == 0 {
+            cpu.FLAG |= 0b1000_0000;    // set Z flag
+        }
+
+        cpu.FLAG |= 0b0100_0000;    // set N flag
+
+        if (cpu.A & 0x0F) < (1 & 0x0F) {
+            cpu.FLAG |= 0b0010_0000;    // set H flag
+        }
+
+        cpu.A -= 1;
+
+        self.last_instruction = "DEC A";
+        self.operand_mode = 0;
+        4
+    }
+
+
     fn and_n_a7(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.A;
         
@@ -2554,5 +2724,17 @@ impl Opcode {
         self.operand_mode = 0;
         8
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

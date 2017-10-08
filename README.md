@@ -10,11 +10,12 @@ In the initial commit, I already made the project structure (which may be change
 
 ## Current TODOs
 
+- [ ] **Check _every_ flag set / unset**
+- [ ] Test the already written instructions.
+- [ ] Code cleaning.
 - [x] ~~Initial commit.~~
 - [x] ~~Combine the emulator with the debugger/tester I wrote for debugging the instructions.~~
   - [x] Collecting data from the CPU side.
   - [x] Recieve and store data on the debugger/tester side.
   - [x] Testing.
   - [x] Keypress-to-stop-CPU mechanism so I can check out the listed instructions.
-- [ ] Test the already written instructions.
-- [ ] Code cleaning.

@@ -134,6 +134,8 @@ pub struct Colors {
     pub green : u32,
     pub teal : u32,
     pub yellow : u32,
+    pub white : u32,
+    pub black : u32, 
 
 }
 
@@ -147,6 +149,8 @@ impl Colors {
             orange : 0xFF_FF_CB_99,
             green : 0xFF_C6_FF_CD,
             yellow : 0xFF_FF_FF_9D,
+            white : 0xFF_40_20_20,
+            black : 0x00_00_00_00,
         }
     }
 }
@@ -185,6 +189,7 @@ pub struct Debugger {
     pub instructions : LinkedList<String>,
     pub register_states : LinkedList<Vec<String>>,
     pub print_color : u32,
+    pub textbg_color : u32,
     pub colors : Colors,
     pub active_state : u8,
     pub window : Window,
@@ -199,9 +204,10 @@ impl Debugger {
             instructions : LinkedList::new(),
             register_states : LinkedList::new(),
             print_color : 0xFF_FF_FF_FF,
+            textbg_color : 0x00_00_00_00,
             colors : Colors::new(),
             active_state : 0,
-            window : Window::new("TEST",
+            window : Window::new("RUST BOY - DISASSEMBLER",
                          256,
                          360,
                          WindowOptions {
@@ -271,10 +277,12 @@ impl Debugger {
 
             if index == self.active_state as usize {
                 self.print_color = self.colors.red;
+                self.textbg_color = self.colors.white;
             }
 
             self.render_text(x, y + index as u32 *7, &i);
             self.print_color = 0xFF_FF_FF_FF;
+            self.textbg_color = self.colors.black;
             index += 1;
             //self.print_color = rand::thread_rng().gen::<u32>();
         }
@@ -463,7 +471,7 @@ impl Debugger {
                 if bit == 0 && x < 256 {
                     self.vram[((self.char_to_y(i)+y as u32) * 256 + self.char_to_x(i)
                     + x as u32) as usize]
-                    = 0x00_00_00_00;
+                    = self.textbg_color;
                 }
 
             }

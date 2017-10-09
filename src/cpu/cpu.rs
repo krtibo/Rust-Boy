@@ -73,10 +73,10 @@ impl CPU {
             debugger.update_window(&debug_data);
             thread::sleep(time::Duration::from_millis(100));
 
-            if debugger.window.is_key_pressed(Key::P, KeyRepeat::No) {
+            if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                 loop {
                     debugger.update_window(&debug_data);
-                    if debugger.window.is_key_pressed(Key::P, KeyRepeat::No) {
+                    if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                         break;
                     }
                 }

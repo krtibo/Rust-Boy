@@ -213,6 +213,17 @@ impl Opcode {
         self.opc[0xcd] = Opcode::call_nn_cd;
         self.opc[0x20] = Opcode::jr_cc_n_20;
 
+        self.opc[0x28] = Opcode::jr_cc_n_28;
+        self.opc[0x30] = Opcode::jr_cc_n_30;
+        self.opc[0x38] = Opcode::jr_cc_n_38;
+        self.opc[0x18] = Opcode::jr_n_18;
+        self.opc[0xe9] = Opcode::jp_hl_e9;
+        self.opc[0xc2] = Opcode::jp_cc_nn_c2;
+        self.opc[0xca] = Opcode::jp_cc_nn_ca;
+        self.opc[0xd2] = Opcode::jp_cc_nn_d2;
+        self.opc[0xda] = Opcode::jp_cc_nn_da;
+        self.opc[0xc3] = Opcode::jp_nn_c3;
+
 
     }
 
@@ -1242,12 +1253,12 @@ impl Opcode {
 
     fn inc_b_04(&mut self, cpu : &mut CPU) -> u8 {
 
-        if cpu.B + 1 == 0 { 
-            cpu.set_flag("Z"); 
-        } else { 
-            cpu.reset_flag("Z"); 
+        if cpu.B + 1 == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
         }
- 
+
 
         cpu.reset_flag("N");    // reset N flag
 
@@ -1721,7 +1732,7 @@ impl Opcode {
 
     fn and_n_a7(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.A;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1742,7 +1753,7 @@ impl Opcode {
 
     fn and_n_a0(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.B;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1763,7 +1774,7 @@ impl Opcode {
 
     fn and_n_a1(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.C;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1784,7 +1795,7 @@ impl Opcode {
 
     fn and_n_a2(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.D;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1805,7 +1816,7 @@ impl Opcode {
 
     fn and_n_a3(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.E;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1826,7 +1837,7 @@ impl Opcode {
 
     fn and_n_a4(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.H;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1847,7 +1858,7 @@ impl Opcode {
 
     fn and_n_a5(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.L;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1868,7 +1879,7 @@ impl Opcode {
 
     fn and_n_a6(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A & cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1890,7 +1901,7 @@ impl Opcode {
     fn and_n_e6(&mut self, cpu : &mut CPU) -> u8 {
         let data : u8 = self.fetch(cpu);
         cpu.A = cpu.A & data;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1912,7 +1923,7 @@ impl Opcode {
 
     fn or_n_b7(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A | cpu.A;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1933,7 +1944,7 @@ impl Opcode {
 
     fn or_n_b0(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A | cpu.B;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1954,7 +1965,7 @@ impl Opcode {
 
     fn or_n_b1(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A | cpu.C;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1975,7 +1986,7 @@ impl Opcode {
 
     fn or_n_b2(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A | cpu.D;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -1996,7 +2007,7 @@ impl Opcode {
 
     fn or_n_b3(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A | cpu.E;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2017,7 +2028,7 @@ impl Opcode {
 
     fn or_n_b4(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A | cpu.H;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2038,7 +2049,7 @@ impl Opcode {
 
     fn or_n_b5(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A | cpu.L;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2059,7 +2070,7 @@ impl Opcode {
 
     fn or_n_b6(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A | cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2081,7 +2092,7 @@ impl Opcode {
     fn or_n_f6(&mut self, cpu : &mut CPU) -> u8 {
         let data : u8 = self.fetch(cpu);
         cpu.A = cpu.A | data;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2103,7 +2114,7 @@ impl Opcode {
 
     fn xor_n_af(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A ^ cpu.A;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2124,7 +2135,7 @@ impl Opcode {
 
     fn xor_n_a8(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A ^ cpu.B;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2145,7 +2156,7 @@ impl Opcode {
 
     fn xor_n_a9(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A ^ cpu.C;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2166,7 +2177,7 @@ impl Opcode {
 
     fn xor_n_aa(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A ^ cpu.D;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2187,7 +2198,7 @@ impl Opcode {
 
     fn xor_n_ab(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A ^ cpu.E;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2208,7 +2219,7 @@ impl Opcode {
 
     fn xor_n_ac(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A ^ cpu.H;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2229,7 +2240,7 @@ impl Opcode {
 
     fn xor_n_ad(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A ^ cpu.L;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2250,7 +2261,7 @@ impl Opcode {
 
     fn xor_n_ae(&mut self, cpu : &mut CPU) -> u8 {
         cpu.A = cpu.A ^ cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -2272,7 +2283,7 @@ impl Opcode {
     fn xor_n_ee(&mut self, cpu : &mut CPU) -> u8 {
         let data : u8 = self.fetch(cpu);
         cpu.A = cpu.A ^ data;
-        
+
         if cpu.A == 0 {
             cpu.set_flag("Z");
             cpu.reset_flag("N");
@@ -3051,7 +3062,7 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
         cpu.STACK.push_front(pc_l);
 
         cpu.PC = Opcode::byte_cat(h,l);
-        
+
         self.rhs = Opcode::byte_cat(h,l);
         self.last_instruction = "CALL,";
         self.operand_mode = 1;
@@ -3065,19 +3076,165 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
         if cpu.get_flag("Z") == 0 && n <= 0 {
             cpu.PC = cpu.PC - (-n) as u16;
             self.rhs = (-n) as u16;
-            self.last_instruction = "JR, -";
+            self.last_instruction = "JR NZ, -";
         }
 
         if cpu.get_flag("Z") == 0 && n > 0 {
             cpu.PC = cpu.PC + (n as u16);
             self.rhs = n as u16;
-            self.last_instruction = "JR,";
+            self.last_instruction = "JR NZ,";
         }
 
-        
         self.operand_mode = 1;
         8
     }
+
+
+    fn jr_cc_n_28(&mut self, cpu : &mut CPU) -> u8 {
+        let n : i8 = self.fetch(cpu) as i8;
+
+        if cpu.get_flag("Z") == 1 && n <= 0 {
+            cpu.PC = cpu.PC - (-n) as u16;
+            self.rhs = (-n) as u16;
+            self.last_instruction = "JR Z, -";
+        }
+
+        if cpu.get_flag("Z") == 1 && n > 0 {
+            cpu.PC = cpu.PC + (n as u16);
+            self.rhs = n as u16;
+            self.last_instruction = "JR Z,";
+        }
+
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn jr_cc_n_30(&mut self, cpu : &mut CPU) -> u8 {
+        let n : i8 = self.fetch(cpu) as i8;
+
+        if cpu.get_flag("C") == 0 && n <= 0 {
+            cpu.PC = cpu.PC - (-n) as u16;
+            self.rhs = (-n) as u16;
+            self.last_instruction = "JR NC, -";
+        }
+
+        if cpu.get_flag("C") == 0 && n > 0 {
+            cpu.PC = cpu.PC + (n as u16);
+            self.rhs = n as u16;
+            self.last_instruction = "JR NC,";
+        }
+
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn jr_cc_n_38(&mut self, cpu : &mut CPU) -> u8 {
+        let n : i8 = self.fetch(cpu) as i8;
+
+        if cpu.get_flag("C") == 1 && n <= 0 {
+            cpu.PC = cpu.PC - (-n) as u16;
+            self.rhs = (-n) as u16;
+            self.last_instruction = "JR C, -";
+        }
+
+        if cpu.get_flag("C") == 1 && n > 0 {
+            cpu.PC = cpu.PC + (n as u16);
+            self.rhs = n as u16;
+            self.last_instruction = "JR C,";
+        }
+
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn jr_n_18(&mut self, cpu : &mut CPU) -> u8 {
+        let n : i8 = self.fetch(cpu) as i8;
+
+        if n <= 0 {
+            cpu.PC = cpu.PC - (-n) as u16;
+            self.rhs = (-n) as u16;
+            self.last_instruction = "JR, -";
+        }
+
+        if n > 0 {
+            cpu.PC = cpu.PC + (n as u16);
+            self.rhs = n as u16;
+            self.last_instruction = "JR,";
+        }
+
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn jp_hl_e9(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.PC = Opcode::byte_cat(cpu.H, cpu.L);
+        4
+    }
+
+
+    fn jp_cc_nn_c2(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        if cpu.get_flag("Z") == 0 {
+            cpu.PC = Opcode::byte_cat(h, l);
+        }
+
+        12
+    }
+
+
+    fn jp_cc_nn_ca(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        if cpu.get_flag("Z") == 1 {
+            cpu.PC = Opcode::byte_cat(h, l);
+        }
+
+        12
+    }
+
+
+    fn jp_cc_nn_d2(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        if cpu.get_flag("C") == 0 {
+            cpu.PC = Opcode::byte_cat(h, l);
+        }
+
+        12
+    }
+
+
+    fn jp_cc_nn_da(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        if cpu.get_flag("C") == 1 {
+            cpu.PC = Opcode::byte_cat(h, l);
+        }
+
+        12
+    }
+
+
+    fn jp_nn_c3(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        cpu.PC = Opcode::byte_cat(h, l);
+
+        12
+    }
+
+
+
 
 
 

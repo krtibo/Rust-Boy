@@ -212,9 +212,7 @@ impl Opcode {
         self.opc[0x8e] = Opcode::adc_an_8e;
         self.opc[0xce] = Opcode::adc_an_ce;
 
-        self.opc[0xcd] = Opcode::call_nn_cd;
         self.opc[0x20] = Opcode::jr_cc_n_20;
-
         self.opc[0x28] = Opcode::jr_cc_n_28;
         self.opc[0x30] = Opcode::jr_cc_n_30;
         self.opc[0x38] = Opcode::jr_cc_n_38;
@@ -225,6 +223,28 @@ impl Opcode {
         self.opc[0xd2] = Opcode::jp_cc_nn_d2;
         self.opc[0xda] = Opcode::jp_cc_nn_da;
         self.opc[0xc3] = Opcode::jp_nn_c3;
+
+        self.opc[0xcd] = Opcode::call_nn_cd;
+        self.opc[0xc4] = Opcode::call_cc_nn_c4;
+        self.opc[0xcc] = Opcode::call_cc_nn_cc;
+        self.opc[0xd4] = Opcode::call_cc_nn_d4;
+        self.opc[0xdc] = Opcode::call_cc_nn_dc;
+
+        self.opc[0xc7] = Opcode::rst_c7;
+        self.opc[0xcf] = Opcode::rst_cf;
+        self.opc[0xd7] = Opcode::rst_d7;
+        self.opc[0xdf] = Opcode::rst_df;
+        self.opc[0xe7] = Opcode::rst_e7;
+        self.opc[0xef] = Opcode::rst_ef;
+        self.opc[0xf7] = Opcode::rst_f7;
+        self.opc[0xff] = Opcode::rst_ff;
+
+        self.opc[0xc9] = Opcode::ret_c9;
+        self.opc[0xd9] = Opcode::reti_d9;
+        self.opc[0xc0] = Opcode::ret_cc_c0;
+        self.opc[0xc8] = Opcode::ret_cc_c8;
+        self.opc[0xd0] = Opcode::ret_cc_d0;
+        self.opc[0xd8] = Opcode::ret_cc_d8;
 
 
     }
@@ -3058,8 +3078,8 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
         let l : u8 = self.fetch(cpu);
         let h : u8 = self.fetch(cpu);
 
-        let pc_h : u8 = (cpu.PC >> 8) as u8;
-        let pc_l : u8 = (cpu.PC & 0x00FF) as u8;
+        let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
 
         cpu.STACK.push_front(pc_h);
         cpu.STACK.push_front(pc_l);
@@ -3235,6 +3255,308 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
 
         12
     }
+
+
+    fn call_cc_nn_c4(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        if cpu.get_flag("Z") == 0 {
+
+            let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
+            let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+
+            cpu.STACK.push_front(pc_h);
+            cpu.STACK.push_front(pc_l);
+            cpu.PC = Opcode::byte_cat(h,l);
+        }
+
+        self.rhs = Opcode::byte_cat(h,l);
+        self.last_instruction = "CALL NZ,";
+        self.operand_mode = 1;
+
+        12
+    }
+
+
+    fn call_cc_nn_cc(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        if cpu.get_flag("Z") == 1 {
+
+            let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
+            let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+
+            cpu.STACK.push_front(pc_h);
+            cpu.STACK.push_front(pc_l);
+            cpu.PC = Opcode::byte_cat(h,l);
+        }
+
+        self.rhs = Opcode::byte_cat(h,l);
+        self.last_instruction = "CALL Z,";
+        self.operand_mode = 1;
+
+        12
+    }
+
+
+    fn call_cc_nn_d4(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        if cpu.get_flag("C") == 0 {
+
+            let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
+            let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+
+            cpu.STACK.push_front(pc_h);
+            cpu.STACK.push_front(pc_l);
+            cpu.PC = Opcode::byte_cat(h,l);
+        }
+
+        self.rhs = Opcode::byte_cat(h,l);
+        self.last_instruction = "CALL NC,";
+        self.operand_mode = 1;
+
+        12
+    }
+
+
+    fn call_cc_nn_dc(&mut self, cpu : &mut CPU) -> u8 {
+        let l : u8 = self.fetch(cpu);
+        let h : u8 = self.fetch(cpu);
+
+        if cpu.get_flag("C") == 1 {
+
+            let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
+            let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+
+            cpu.STACK.push_front(pc_h);
+            cpu.STACK.push_front(pc_l);
+            cpu.PC = Opcode::byte_cat(h,l);
+        }
+
+        self.rhs = Opcode::byte_cat(h,l);
+        self.last_instruction = "CALL C,";
+        self.operand_mode = 1;
+
+        12
+    }
+
+
+    fn rst_c7(&mut self, cpu : &mut CPU) -> u8 {
+
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x0000;
+
+        self.last_instruction = "RST 00H";
+        self.operand_mode = 0;
+        32
+    }
+
+
+    fn rst_cf(&mut self, cpu : &mut CPU) -> u8 {
+
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x0008;
+
+        self.last_instruction = "RST 08H";
+        self.operand_mode = 0;
+        32
+    }
+
+
+    fn rst_d7(&mut self, cpu : &mut CPU) -> u8 {
+
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x0010;
+
+        self.last_instruction = "RST 10H";
+        self.operand_mode = 0;
+        32
+    }
+
+
+    fn rst_df(&mut self, cpu : &mut CPU) -> u8 {
+
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x0018;
+
+        self.last_instruction = "RST 18H";
+        self.operand_mode = 0;
+        32
+    }
+
+
+    fn rst_e7(&mut self, cpu : &mut CPU) -> u8 {
+
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x0020;
+
+        self.last_instruction = "RST 20H";
+        self.operand_mode = 0;
+        32
+    }
+
+
+    fn rst_ef(&mut self, cpu : &mut CPU) -> u8 {
+
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x0028;
+
+
+        self.last_instruction = "RST 28H";
+        self.operand_mode = 0;
+        32
+    }
+
+
+    fn rst_f7(&mut self, cpu : &mut CPU) -> u8 {
+
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x0030;
+
+        self.last_instruction = "RST 30H";
+        self.operand_mode = 0;
+        32
+    }
+
+
+    fn rst_ff(&mut self, cpu : &mut CPU) -> u8 {
+
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x0038;
+
+        self.last_instruction = "RST 38H";
+        self.operand_mode = 0;
+        32
+    }
+
+
+    fn ret_c9(&mut self, cpu : &mut CPU) -> u8 {
+
+        let l : u8 = cpu.STACK.pop_front().unwrap();
+        let h : u8 = cpu.STACK.pop_front().unwrap();
+        cpu.PC = Opcode::byte_cat(h, l);
+
+        self.last_instruction = "RET";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn reti_d9(&mut self, cpu : &mut CPU) -> u8 {
+
+        let l : u8 = cpu.STACK.pop_front().unwrap();
+        let h : u8 = cpu.STACK.pop_front().unwrap();
+        cpu.PC = Opcode::byte_cat(h, l);
+
+        cpu.RAM[0xFFFF as usize] = 0b00011111; // enable interrupts
+
+        self.last_instruction = "RETI";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ret_cc_c0(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.get_flag("Z") == 0 {
+            let l : u8 = cpu.STACK.pop_front().unwrap();
+            let h : u8 = cpu.STACK.pop_front().unwrap();
+            cpu.PC = Opcode::byte_cat(h, l);
+        }
+
+        self.last_instruction = "RET NZ";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ret_cc_c8(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.get_flag("Z") == 1 {
+            let l : u8 = cpu.STACK.pop_front().unwrap();
+            let h : u8 = cpu.STACK.pop_front().unwrap();
+            cpu.PC = Opcode::byte_cat(h, l);
+        }
+
+        self.last_instruction = "RET Z";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ret_cc_d0(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.get_flag("C") == 0 {
+            let l : u8 = cpu.STACK.pop_front().unwrap();
+            let h : u8 = cpu.STACK.pop_front().unwrap();
+            cpu.PC = Opcode::byte_cat(h, l);
+        }
+
+        self.last_instruction = "RET NC";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn ret_cc_d8(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.get_flag("C") == 1 {
+            let l : u8 = cpu.STACK.pop_front().unwrap();
+            let h : u8 = cpu.STACK.pop_front().unwrap();
+            cpu.PC = Opcode::byte_cat(h, l);
+        }
+
+        self.last_instruction = "RET C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+
 
 
 

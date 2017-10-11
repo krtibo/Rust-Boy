@@ -232,9 +232,24 @@ impl Debugger {
             }
         });
 
+        
+
         self.render_multiline_text(5,5,&dd.instructions);
         self.render_registers(&dd.register_states);
+        self.render_line();
         self.window.update_with_buffer(&self.vram).unwrap();
+    }
+
+    pub fn render_line(&mut self) {
+        for i in 5..355 {
+            self.vram[i * 256 + 164] = self.colors.white;
+        }
+
+        // 172, 108
+
+        for i in 170..251 {
+            self.vram[108 * 256 + i] = self.colors.white;
+        }
     }
 
     pub fn render_multiline_text(&mut self, x : u32, y : u32, v : &LinkedList<String>) {
@@ -280,7 +295,14 @@ impl Debugger {
                 self.textbg_color = self.colors.white;
             }
 
-            self.render_text(x, y + index as u32 *7, &i);
+            // render the given text - if its longer than 38 chars, 
+            // throw the remaining chars
+            if &i.len() > &37 {
+                self.render_text(x, y + index as u32 *7, &i[..37].to_string());
+            } else {
+                self.render_text(x, y + index as u32 *7, &i);
+            }
+            
             self.print_color = 0xFF_FF_FF_FF;
             self.textbg_color = self.colors.black;
             index += 1;
@@ -291,7 +313,7 @@ impl Debugger {
 
     pub fn render_text(&mut self, x : u32, y : u32, text : &String) {
 
-        let caps_abc : [u16;31] = [
+        let caps_abc : [u16;32] = [
             0b1011011111010100,     // A
             0b0111010111010110,     // B -
             0b1100010010011100,     // C
@@ -323,6 +345,7 @@ impl Debugger {
             0b0010100000000000,     // ,
             0b1000100100101000,     // (
             0b0010100100100010,     // )
+            0b0000100000100000,     // :
         ];
 
         let abc : [u16; 26] = [
@@ -405,6 +428,7 @@ impl Debugger {
                 ',' => self.render_char(x + i as u32 *4 , y, caps_abc[28]),
                 '(' => self.render_char(x + i as u32 *4 , y, caps_abc[29]),
                 ')' => self.render_char(x + i as u32 *4 , y, caps_abc[30]),
+                ':' => self.render_char(x + i as u32 *4 , y, caps_abc[31]),
                 'a' => self.render_char(x + i as u32 *4 , y, abc[0]),
                 'b' => self.render_char(x + i as u32 *4 , y, abc[1]),
                 'c' => self.render_char(x + i as u32 *4 , y, abc[2]),
@@ -445,8 +469,9 @@ impl Debugger {
             }
         }
 
-        if text.len() < 29 {
-            for i in 0..(29-text.len()) {
+        // fill in the remaining space with... space
+        if text.len() < 38 {
+            for i in 0..(38-text.len()) {
                 self.render_char(x + i as u32 *4 + text.len() as u32 * 4 , y, caps_abc[27]);
             }
         }
@@ -493,43 +518,43 @@ impl Debugger {
         for r in registers {
 
             if index == self.active_state {
-                self.render_text(128, 2, &String::from("A"));
-                self.render_text(140, 2, &r[0]);
+                self.render_text(172, 5, &String::from("A"));
+                self.render_text(184, 5, &r[0]);
 
-                self.render_text(194, 2, &String::from("B"));
-                self.render_text(206, 2, &r[1]);
+                self.render_text(224, 5, &String::from("B"));
+                self.render_text(236, 5, &r[1]);
 
-                self.render_text(128, 22, &String::from("C"));
-                self.render_text(140, 22, &r[2]);
+                self.render_text(172, 25, &String::from("C"));
+                self.render_text(184, 25, &r[2]);
 
-                self.render_text(194, 22, &String::from("D"));
-                self.render_text(206, 22, &r[3]);
+                self.render_text(224, 25, &String::from("D"));
+                self.render_text(236, 25, &r[3]);
 
-                self.render_text(128, 42, &String::from("E"));
-                self.render_text(140, 42, &r[4]);
+                self.render_text(172, 44, &String::from("E"));
+                self.render_text(184, 45, &r[4]);
 
-                self.render_text(194, 42, &String::from("F"));
-                self.render_text(206, 42, &r[5]);
+                self.render_text(224, 45, &String::from("F"));
+                self.render_text(236, 45, &r[5]);
 
-                self.render_text(128, 62, &String::from("H"));
-                self.render_text(140, 62, &r[6]);
+                self.render_text(172, 65, &String::from("H"));
+                self.render_text(184, 65, &r[6]);
 
-                self.render_text(194, 62, &String::from("L"));
-                self.render_text(206, 62, &r[7]);
+                self.render_text(224, 65, &String::from("L"));
+                self.render_text(236, 65, &r[7]);
 
-                self.render_text(128, 82, &String::from("SP"));
-                self.render_text(140, 82, &r[8]);
+                self.render_text(172, 85, &String::from("SP"));
+                self.render_text(184, 85, &r[8]);
 
-                self.render_text(194, 82, &String::from("PC"));
-                self.render_text(206, 82, &r[9]);
+                self.render_text(224, 85, &String::from("PC"));
+                self.render_text(236, 85, &r[9]);
 
-                self.render_text(128, 102, &String::from("-------------------------------"));
+                //self.render_text(172, 105, &String::from("-------------------------------"));
 
-                self.render_text(128, 122, &String::from("FLAG"));
-                self.render_text(194, 122, &r[10]);
+                self.render_text(172, 125, &String::from("FLAG"));
+                self.render_text(224, 125, &r[10]);
 
-                self.render_text(128, 142, &String::from("STACK SIZE"));
-                self.render_text(194, 142, &r[11]);
+                self.render_text(172, 145, &String::from("STACK SIZE"));
+                self.render_text(224, 145, &r[11]);
             }
             index += 1;
         }

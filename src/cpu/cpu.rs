@@ -65,6 +65,7 @@ impl CPU {
             cycle += opcode.execute(self) as u32;
 
             let data = self.assemble_debug_data(opcode.last_instruction.to_string(),
+                                                opcode.last_opcode,
                                                 opcode.lhs,
                                                 opcode.rhs,
                                                 opcode.operand_mode);
@@ -122,32 +123,37 @@ impl CPU {
     }
 
 
-    pub fn assemble_debug_data(&self, last_instruction : String, lhs : u16, rhs : u16, operand_mode : u8) -> (String, Vec<String>) {
+    pub fn assemble_debug_data(&mut self, 
+        last_instruction : String, 
+        last_opcode : u8,
+        lhs : u16, 
+        rhs : u16, 
+        operand_mode : u8) -> (String, Vec<String>) {
 
            let actual_reg : Vec<String> = vec![
-           format!("0x{:X}", self.A),
-           format!("0x{:X}", self.B),
-           format!("0x{:X}", self.C),
-           format!("0x{:X}", self.D),
-           format!("0x{:X}", self.E),
-           format!("0x{:X}", self.F),
-           format!("0x{:X}", self.H),
-           format!("0x{:X}", self.L),
-           format!("0x{:X}", self.SP),
-           format!("0x{:X}", self.PC),
-           format!("0b{:b}", self.FLAG),
+           format!("0x{:02X}", self.A),
+           format!("0x{:02X}", self.B),
+           format!("0x{:02X}", self.C),
+           format!("0x{:02X}", self.D),
+           format!("0x{:02X}", self.E),
+           format!("0x{:02X}", self.F),
+           format!("0x{:02X}", self.H),
+           format!("0x{:02X}", self.L),
+           format!("0x{:02X}", self.SP),
+           format!("0x{:02X}", self.PC),
+           format!("0b{:04b}", self.FLAG >> 4),
            format!("{}", self.STACK.len()),
            ];
 
            println!("{}",format!("{} 0x{:X} 0x{:X}", last_instruction, lhs, rhs));
 
            if operand_mode == 0 {
-               (last_instruction, actual_reg)
+               (format!("0x{:02X} : {}", last_opcode, last_instruction), actual_reg)
            } else
            if operand_mode == 1 {
-               (format!("{} 0x{:X}", last_instruction, rhs), actual_reg)
+               (format!("0x{:02X} : {} 0x{:X}", last_opcode, last_instruction, rhs), actual_reg)
            } else {
-               (format!("{} 0x{:X} 0x{:X}", last_instruction, lhs, rhs), actual_reg)
+               (format!("0x{:02X} : {} 0x{:X} 0x{:X}", last_opcode, last_instruction, lhs, rhs), actual_reg)
            }
     }
 

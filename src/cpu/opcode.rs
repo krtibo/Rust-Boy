@@ -10,6 +10,7 @@ pub struct Opcode {
     pub opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
     pub cb_opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
     pub last_instruction :  &'static str,
+    pub last_opcode : u8,
 }
 
 impl Opcode {
@@ -21,6 +22,7 @@ impl Opcode {
             opc : [Opcode::default; 256],
             cb_opc : [Opcode::default; 256],
             last_instruction : "",
+            last_opcode : 0,
         }
     }
 
@@ -238,7 +240,8 @@ impl Opcode {
 
 
     pub fn execute(&mut self, cpu : &mut CPU) -> u8 {
-        self.opc[self.fetch(cpu) as usize](self, cpu)
+        self.last_opcode = self.fetch(cpu);
+        self.opc[self.last_opcode as usize](self, cpu)
     }
 
     fn byte_cat(h : u8, l : u8) -> u16 {

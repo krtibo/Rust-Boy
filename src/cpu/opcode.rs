@@ -11,6 +11,10 @@ pub struct Opcode {
     pub cb_opc : [fn(&mut Opcode, &mut CPU) -> u8; 256],
     pub last_instruction :  &'static str,
     pub last_opcode : u8,
+    pub disable_int : bool,
+    pub enable_int : bool,
+    pub count_disable_int : u8,
+    pub count_enable_int : u8,
 }
 
 impl Opcode {
@@ -23,12 +27,17 @@ impl Opcode {
             cb_opc : [Opcode::default; 256],
             last_instruction : "",
             last_opcode : 0,
+            disable_int : false,
+            enable_int : false,
+            count_disable_int : 0,
+            count_enable_int : 0,
         }
     }
 
 
     pub fn init(&mut self) {
         //self.opc[0x00] = Opcode::nop_00;
+        self.opc[0xcb] = Opcode::prefix_cb;
         // LD nnn
         self.opc[0x06] = Opcode::ld_nnn_06;
         self.opc[0x0e] = Opcode::ld_nnn_0e;
@@ -246,6 +255,11 @@ impl Opcode {
         self.opc[0xd0] = Opcode::ret_cc_d0;
         self.opc[0xd8] = Opcode::ret_cc_d8;
 
+        self.opc[0x3f] = Opcode::ccf_3f;
+        self.opc[0x37] = Opcode::scf_37;
+        self.opc[0xf3] = Opcode::di_f3;
+        self.opc[0xfb] = Opcode::ei_fb;
+
 
     }
 
@@ -260,6 +274,34 @@ impl Opcode {
 
 
     pub fn execute(&mut self, cpu : &mut CPU) -> u8 {
+
+        self.lhs = 0x0000;
+        self.rhs = 0x0000;
+
+        // EI, DI instruction delay handler
+
+        if self.disable_int && self.count_disable_int < 2 {
+            self.count_disable_int += 1;
+        }
+
+        if self.disable_int && self.count_disable_int == 2 {
+            self.disable_int = false;
+            self.count_disable_int = 0;
+            cpu.RAM[0xFFFF as usize] = 0b00011111; // enable interrupts
+        }
+
+        if self.enable_int && self.count_enable_int < 2 {
+            self.count_enable_int += 1;
+        }
+
+        if self.enable_int && self.count_enable_int == 2 {
+            self.enable_int = false;
+            self.count_enable_int = 0;
+            cpu.RAM[0xFFFF as usize] = 0b00000000; // disable interrupts
+        }
+
+        // fetcher
+
         self.last_opcode = self.fetch(cpu);
         self.opc[self.last_opcode as usize](self, cpu)
     }
@@ -275,15 +317,22 @@ impl Opcode {
 
 
     fn default(&mut self, cpu : &mut CPU) -> u8 {
-        //println!("DEFAULT");
-        self.rhs = cpu.RAM[(cpu.PC - 1) as usize] as u16;
-        self.lhs = 0;
-        self.last_instruction = "NOP or Default ---";
-        self.operand_mode = 1;
+        self.last_instruction = "NOP or Default";
+        self.operand_mode = 0;
         1
     }
 
     fn nop_00(&mut self, cpu : &mut CPU) -> u8 {
+        4
+    }
+
+    fn prefix_cb(&mut self, cpu : &mut CPU) -> u8 {
+        
+        let cb_opcode : u8 = self.fetch(cpu);
+        self.cb_opc[cb_opcode as usize](self, cpu);
+        self.rhs = cb_opcode as u16;
+        self.last_instruction = "CB";
+        self.operand_mode = 1;
         4
     }
 
@@ -3100,15 +3149,19 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.PC = cpu.PC - (-n) as u16;
             self.rhs = (-n) as u16;
             self.last_instruction = "JR NZ, -";
-        }
+            self.operand_mode = 1;
+        } else 
 
         if cpu.get_flag("Z") == 0 && n > 0 {
             cpu.PC = cpu.PC + (n as u16);
             self.rhs = n as u16;
             self.last_instruction = "JR NZ,";
+            self.operand_mode = 1;
+        } else {
+            self.last_instruction = "JR NZ";
+            self.operand_mode = 0;
         }
 
-        self.operand_mode = 1;
         8
     }
 
@@ -3120,15 +3173,19 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.PC = cpu.PC - (-n) as u16;
             self.rhs = (-n) as u16;
             self.last_instruction = "JR Z, -";
-        }
+            self.operand_mode = 1;
+        } else 
 
         if cpu.get_flag("Z") == 1 && n > 0 {
             cpu.PC = cpu.PC + (n as u16);
             self.rhs = n as u16;
             self.last_instruction = "JR Z,";
+            self.operand_mode = 1;
+        } else {
+            self.last_instruction = "JR Z";
+            self.operand_mode = 0;
         }
 
-        self.operand_mode = 1;
         8
     }
 
@@ -3139,16 +3196,20 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
         if cpu.get_flag("C") == 0 && n <= 0 {
             cpu.PC = cpu.PC - (-n) as u16;
             self.rhs = (-n) as u16;
-            self.last_instruction = "JR NC, -";
-        }
+            self.last_instruction = "JR CZ, -";
+            self.operand_mode = 1;
+        } else 
 
         if cpu.get_flag("C") == 0 && n > 0 {
             cpu.PC = cpu.PC + (n as u16);
             self.rhs = n as u16;
-            self.last_instruction = "JR NC,";
+            self.last_instruction = "JR CZ,";
+            self.operand_mode = 1;
+        } else {
+            self.last_instruction = "JR CZ";
+            self.operand_mode = 0;
         }
 
-        self.operand_mode = 1;
         8
     }
 
@@ -3160,15 +3221,19 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.PC = cpu.PC - (-n) as u16;
             self.rhs = (-n) as u16;
             self.last_instruction = "JR C, -";
-        }
+            self.operand_mode = 1;
+        } else 
 
         if cpu.get_flag("C") == 1 && n > 0 {
             cpu.PC = cpu.PC + (n as u16);
             self.rhs = n as u16;
             self.last_instruction = "JR C,";
+            self.operand_mode = 1;
+        } else {
+            self.last_instruction = "JR C";
+            self.operand_mode = 0;
         }
 
-        self.operand_mode = 1;
         8
     }
 
@@ -3195,6 +3260,9 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
 
     fn jp_hl_e9(&mut self, cpu : &mut CPU) -> u8 {
         cpu.PC = Opcode::byte_cat(cpu.H, cpu.L);
+
+        self.last_instruction = "JP (HL)";
+        self.operand_mode = 0;
         4
     }
 
@@ -3207,6 +3275,9 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.PC = Opcode::byte_cat(h, l);
         }
 
+        self.rhs = Opcode::byte_cat(h, l);
+        self.last_instruction = "JP NZ,";
+        self.operand_mode = 1;
         12
     }
 
@@ -3219,6 +3290,9 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.PC = Opcode::byte_cat(h, l);
         }
 
+        self.rhs = Opcode::byte_cat(h, l);
+        self.last_instruction = "JP Z,";
+        self.operand_mode = 1;
         12
     }
 
@@ -3231,6 +3305,9 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.PC = Opcode::byte_cat(h, l);
         }
 
+        self.rhs = Opcode::byte_cat(h, l);
+        self.last_instruction = "JP NC,";
+        self.operand_mode = 1;
         12
     }
 
@@ -3243,6 +3320,9 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.PC = Opcode::byte_cat(h, l);
         }
 
+        self.rhs = Opcode::byte_cat(h, l);
+        self.last_instruction = "JP C,";
+        self.operand_mode = 1;
         12
     }
 
@@ -3252,7 +3332,9 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
         let h : u8 = self.fetch(cpu);
 
         cpu.PC = Opcode::byte_cat(h, l);
-
+        self.rhs = Opcode::byte_cat(h, l);
+        self.last_instruction = "JP ,";
+        self.operand_mode = 1;
         12
     }
 
@@ -3554,6 +3636,58 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
         self.operand_mode = 0;
         8
     }
+
+
+    fn ccf_3f(&mut self, cpu : &mut CPU) -> u8 {
+
+        if cpu.get_flag("C") == 1 {
+            cpu.reset_flag("C");
+        } else {
+            cpu.set_flag("C");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CCF";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn scf_37(&mut self, cpu : &mut CPU) -> u8 {
+
+        cpu.set_flag("C");
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "SCF";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn di_f3(&mut self, cpu : &mut CPU) -> u8 {
+
+        self.disable_int = true;
+
+        self.last_instruction = "DI";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn ei_fb(&mut self, cpu : &mut CPU) -> u8 {
+
+        self.enable_int = true;
+        
+        self.last_instruction = "EI";
+        self.operand_mode = 0;
+        4
+    }
+
+
+
 
 
 

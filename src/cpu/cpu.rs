@@ -59,7 +59,7 @@ impl CPU {
         opcode.init();
 
 
-        while cycle < CYCLES && self.PC < 65536 {
+        while cycle < CYCLES && self.PC <= 65535 {
             // fetch and decode opcode
             //opcode.fetch(self);
             cycle += opcode.execute(self) as u32;

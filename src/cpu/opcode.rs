@@ -15,6 +15,7 @@ pub struct Opcode {
     pub enable_int : bool,
     pub count_disable_int : u8,
     pub count_enable_int : u8,
+    pub last_opcode_cb : bool,
 }
 
 impl Opcode {
@@ -31,12 +32,13 @@ impl Opcode {
             enable_int : false,
             count_disable_int : 0,
             count_enable_int : 0,
+            last_opcode_cb : false,
         }
     }
 
 
     pub fn init(&mut self) {
-        //self.opc[0x00] = Opcode::nop_00;
+        self.opc[0x00] = Opcode::nop_00;
         self.opc[0xcb] = Opcode::prefix_cb;
         // LD nnn
         self.opc[0x06] = Opcode::ld_nnn_06;
@@ -299,6 +301,18 @@ impl Opcode {
 
 
 
+
+
+
+
+
+
+
+
+        self.cb_opc[0x11] = Opcode::cb_rl_11;
+
+
+
     }
 
 
@@ -339,7 +353,7 @@ impl Opcode {
         }
 
         // fetcher
-
+        self.last_opcode_cb = false;
         self.last_opcode = self.fetch(cpu);
         self.opc[self.last_opcode as usize](self, cpu)
     }
@@ -355,22 +369,35 @@ impl Opcode {
 
 
     fn default(&mut self, cpu : &mut CPU) -> u8 {
-        self.last_instruction = "NOP or Default";
+        if self.last_opcode_cb {
+            self.last_instruction = "CB - UNKNOWN OPCODE";
+        } else {
+            self.last_instruction = "UNKNOWN OPCODE";
+        }
+
         self.operand_mode = 0;
-        1
+        0
     }
 
     fn nop_00(&mut self, cpu : &mut CPU) -> u8 {
+        self.last_instruction = "NOP";
+        self.operand_mode = 0;
         4
     }
 
     fn prefix_cb(&mut self, cpu : &mut CPU) -> u8 {
         
+
         let cb_opcode : u8 = self.fetch(cpu);
+        self.last_opcode = cb_opcode;
+        self.last_opcode_cb = true;
+        //self.rhs = cb_opcode as u16;
+        //self.last_instruction = "CB";
+        //self.operand_mode = 1;
+
         self.cb_opc[cb_opcode as usize](self, cpu);
-        self.rhs = cb_opcode as u16;
-        self.last_instruction = "CB";
-        self.operand_mode = 1;
+        //println!("CB OPC: {:x}", cb_opcode );
+
         4
     }
 
@@ -4778,6 +4805,32 @@ impl Opcode {
         self.last_instruction = "CPL";
         self.operand_mode = 0;
         4
+    }
+
+
+    fn cb_rl_11(&mut self, cpu : &mut CPU) -> u8 {
+        let bit_7 = cpu.C & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.C = cpu.C << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.C == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL C";
+        self.operand_mode = 0;
+        8
     }
 
 

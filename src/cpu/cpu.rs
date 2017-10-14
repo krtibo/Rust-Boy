@@ -6,7 +6,7 @@ use cpu::debugger::Debugger;
 use cpu::debugger::DebugData;
 use std::{thread, time};
 extern crate minifb;
-use self::minifb::{Key, KeyRepeat};
+use self::minifb::{Key, KeyRepeat, Window, WindowOptions, Scale};
 #[allow(dead_code)]
 
 const CYCLES : u32 = 69905; // 4194304 (clock cycle) / 60
@@ -56,6 +56,7 @@ impl CPU {
         let mut opcode : Opcode = Opcode::new();
         let mut debugger : Debugger = Debugger::new();
         let mut debug_data : DebugData = DebugData::new();
+        let mut vram : VRAM = VRAM::new();
         opcode.init();
 
 
@@ -63,6 +64,8 @@ impl CPU {
             // fetch and decode opcode
             //opcode.fetch(self);
             cycle += opcode.execute(self) as u32;
+            vram.print_vram(self);
+            //self.RAM[0xFF44] = 0x90; --> jump forward on boot rom
 
             let data = self.assemble_debug_data(opcode.last_instruction.to_string(),
                                                 opcode.last_opcode,
@@ -70,9 +73,10 @@ impl CPU {
                                                 opcode.rhs,
                                                 opcode.operand_mode);
 
+            
             debug_data.parse_data_from_cpu(data);
             debugger.update_window(&debug_data);
-            thread::sleep(time::Duration::from_millis(100));
+            //thread::sleep(time::Duration::from_millis(100));
 
             if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                 loop {
@@ -84,11 +88,12 @@ impl CPU {
             }
 
 
-        }
+        } 
 
         while debugger.window.is_open() && !debugger.window.is_key_down(Key::Escape){
             debugger.update_window(&debug_data);
         }
+        
         // render screen
     }
 
@@ -148,7 +153,7 @@ impl CPU {
            format!("{}", self.STACK.len()),
            ];
 
-           println!("{}",format!("{} 0x{:X} 0x{:X}", last_instruction, lhs, rhs));
+           // println!("{}",format!("{} 0x{:X} 0x{:X}", last_instruction, lhs, rhs));
 
            if operand_mode == 0 {
                (format!("0x{:02X} : {}", last_opcode, last_instruction), actual_reg)
@@ -237,4 +242,44 @@ impl CPU {
         0
     }
 
+}
+
+
+pub struct VRAM {
+    pub vram : [u32; 128*64],
+    pub window : Window,
+}
+
+impl VRAM {
+
+    pub fn new() -> VRAM {
+
+        VRAM {
+            vram : [0; 128*64],
+            window : Window::new("VRAM Map",
+                         128,
+                         64,
+                         WindowOptions {
+                             resize: false,
+                             scale: Scale::X4,
+                             ..WindowOptions::default()})
+                             .unwrap(),
+        }
+    }
+
+    pub fn print_vram(& mut self, cpu : &CPU) {
+        println!();
+        println!("-----------------");
+        println!();
+        for i in 0x8000..0xA000 {
+            
+            if cpu.RAM[i] > 0 {
+                println!("{:04X} : {:02X}", i, cpu.RAM[i]);
+                self.vram[i - 0x8000] = 0xFF_00_FF_00;
+            } else {
+                self.vram[i - 0x8000] = 0;
+            }
+        }
+        self.window.update_with_buffer(&self.vram).unwrap();
+    }
 }

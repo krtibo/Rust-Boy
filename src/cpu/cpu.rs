@@ -268,9 +268,7 @@ impl VRAM {
     }
 
     pub fn print_vram(& mut self, cpu : &CPU) {
-        println!();
-        println!("-----------------");
-        println!();
+
         for i in 0x8000..0xA000 {
             
             if cpu.RAM[i] > 0 {

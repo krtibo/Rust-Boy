@@ -308,7 +308,6 @@ impl Opcode {
 
 
 
-
         self.cb_opc[0x11] = Opcode::cb_rl_11;
         self.cb_opc[0x40] = Opcode::cb_bit_40;
         self.cb_opc[0x50] = Opcode::cb_bit_50;

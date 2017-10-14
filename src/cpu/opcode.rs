@@ -210,6 +210,7 @@ impl Opcode {
         self.opc[0x19] = Opcode::add_hl_n_19;
         self.opc[0x29] = Opcode::add_hl_n_29;
         self.opc[0x39] = Opcode::add_hl_n_39;
+        self.opc[0xe8] = Opcode::add_sp_n_e8;
         // adc
         self.opc[0x8f] = Opcode::adc_an_8f;
         self.opc[0x88] = Opcode::adc_an_88;
@@ -259,6 +260,43 @@ impl Opcode {
         self.opc[0x37] = Opcode::scf_37;
         self.opc[0xf3] = Opcode::di_f3;
         self.opc[0xfb] = Opcode::ei_fb;
+
+        self.opc[0x97] = Opcode::sub_a_97;
+        self.opc[0x90] = Opcode::sub_a_90;
+        self.opc[0x91] = Opcode::sub_a_91;
+        self.opc[0x92] = Opcode::sub_a_92;
+        self.opc[0x93] = Opcode::sub_a_93;
+        self.opc[0x94] = Opcode::sub_a_94;
+        self.opc[0x95] = Opcode::sub_a_95;
+        self.opc[0x96] = Opcode::sub_a_96;
+        self.opc[0xd6] = Opcode::sub_a_d6;
+
+        self.opc[0x9f] = Opcode::sbc_an_9f;
+        self.opc[0x98] = Opcode::sbc_an_98;
+        self.opc[0x99] = Opcode::sbc_an_99;
+        self.opc[0x9a] = Opcode::sbc_an_9a;
+        self.opc[0x9b] = Opcode::sbc_an_9b;
+        self.opc[0x9c] = Opcode::sbc_an_9c;
+        self.opc[0x9d] = Opcode::sbc_an_9d;
+        self.opc[0x9e] = Opcode::sbc_an_9e;
+        self.opc[0xde] = Opcode::sbc_an_de;
+
+        self.opc[0xbf] = Opcode::cp_n_bf;
+        self.opc[0xb8] = Opcode::cp_n_b8;
+        self.opc[0xb9] = Opcode::cp_n_b9;
+        self.opc[0xba] = Opcode::cp_n_ba;
+        self.opc[0xbb] = Opcode::cp_n_bb;
+        self.opc[0xbc] = Opcode::cp_n_bc;
+        self.opc[0xbd] = Opcode::cp_n_bd;
+        self.opc[0xbe] = Opcode::cp_n_be;
+        self.opc[0xfe] = Opcode::cp_n_fe;
+
+        self.opc[0x07] = Opcode::rlca_07;
+        self.opc[0x17] = Opcode::rla_17;
+        self.opc[0x0f] = Opcode::rrca_0f;
+        self.opc[0x1f] = Opcode::rra_1f;
+        self.opc[0x2f] = Opcode::cpl_2f;
+
 
 
     }
@@ -2603,7 +2641,7 @@ impl Opcode {
         let a : u16 = cpu.A as u16;
         let b : u16 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] as u16;
 
-if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
+        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
@@ -3120,6 +3158,57 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
         self.last_instruction = "ADD HL,SP";
         self.operand_mode = 0;
         8
+    }
+
+
+    fn add_sp_n_e8(&mut self, cpu : &mut CPU) -> u8 {
+        let mut n : i8 = self.fetch(cpu) as i8;
+        
+        cpu.reset_flag("Z");
+        cpu.reset_flag("N");
+
+        if n < 0 {
+
+            self.last_instruction = "ADD SP,-";
+
+            n = -n;
+
+            if (cpu.SP & 0x0FFF) < (n as u16 & 0x0FFF) {
+                cpu.set_flag("H");
+            } else {
+                cpu.reset_flag("H");
+            }
+
+            if cpu.SP < n as u16 {
+                cpu.set_flag("C");
+            } else {
+                cpu.reset_flag("C");
+            }
+
+            cpu.SP -= n as u16;
+
+        } else {
+
+            self.last_instruction = "ADD SP,";
+
+            if (((cpu.SP & 0x0fff) + (n as u16 & 0x0fff)) & 0x1000) == 0x1000 {
+                cpu.set_flag("H");
+            } else {
+                cpu.reset_flag("H");
+            }
+
+            if cpu.SP as u32 + n as u32 > 65535 {
+                cpu.set_flag("C");
+            } else {
+                cpu.reset_flag("C");
+            }
+
+            cpu.SP += n as u16;
+        }
+
+        self.rhs = n as u16;
+        self.operand_mode = 1;
+        16
     }
 
 
@@ -3687,6 +3776,1009 @@ if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
     }
 
 
+    fn sub_a_97(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.A;
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.last_instruction = "SUB A, A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sub_a_90(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.B;
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.last_instruction = "SUB A, B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sub_a_91(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.C;
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.last_instruction = "SUB A, C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sub_a_92(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.D;
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.last_instruction = "SUB A, D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sub_a_93(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.E;
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.last_instruction = "SUB A, E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sub_a_94(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.H;
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.last_instruction = "SUB A, H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sub_a_95(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.L;
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.last_instruction = "SUB A, L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sub_a_96(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.last_instruction = "SUB A, (HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn sub_a_d6(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = self.fetch(cpu);
+
+        if a - b == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - b;
+
+        self.rhs = b as u16;
+        self.last_instruction = "SUB A,";
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn sbc_an_9f(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.A;
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.last_instruction = "SBC A, A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sbc_an_98(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.B;
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.last_instruction = "SBC A, B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sbc_an_99(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.C;
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.last_instruction = "SBC A, C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sbc_an_9a(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.D;
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.last_instruction = "SBC A, D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sbc_an_9b(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.E;
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.last_instruction = "SBC A, E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sbc_an_9c(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.H;
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.last_instruction = "SBC A, H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sbc_an_9d(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.L;
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.last_instruction = "SBC A, L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn sbc_an_9e(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.last_instruction = "SBC A, (HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn sbc_an_de(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = self.fetch(cpu);
+        let c : u8 = cpu.get_flag("C");
+
+        if a - (b + c) == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) + c {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < (b + c) {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = a - (b + c);
+
+        self.rhs = b as u16;
+        self.last_instruction = "SBC A,";
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn cp_n_bf(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.A;
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.last_instruction = "CP A, A";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn cp_n_b8(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.B;
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.last_instruction = "CP A, B";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn cp_n_b9(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.C;
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.last_instruction = "CP A, C";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn cp_n_ba(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.D;
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.last_instruction = "CP A, D";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn cp_n_bb(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.E;
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.last_instruction = "CP A, E";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn cp_n_bc(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.H;
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.last_instruction = "CP A, H";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn cp_n_bd(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.L;
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.last_instruction = "CP A, L";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn cp_n_be(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.last_instruction = "CP A, (HL)";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cp_n_fe(&mut self, cpu : &mut CPU) -> u8 {
+
+        let a : u8 = cpu.A;
+        let b : u8 = self.fetch(cpu);
+
+        if a == b {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.set_flag("N");
+
+        if (a & 0x0F) < (b & 0x0F) {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if a < b {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.rhs = b as u16;
+        self.last_instruction = "CP A,";
+        self.operand_mode = 1;
+        8
+    }
+
+
+    fn rlca_07(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.A & 0x80 == 0x80;
+
+        cpu.A = cpu.A << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "RLCA";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn rla_17(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.A & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.A = cpu.A << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "RLA";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn rrca_0f(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.A & 0x01 == 0x01;
+
+        cpu.A = cpu.A >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "RRCA";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn rra_1f(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.A & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.A = cpu.A >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "RRA";
+        self.operand_mode = 0;
+        4
+    }
+
+
+    fn cpl_2f(&mut self, cpu : &mut CPU) -> u8 {
+
+        cpu.set_flag("N");
+        cpu.set_flag("H");
+        cpu.A = !cpu.A;
+
+        self.last_instruction = "CPL";
+        self.operand_mode = 0;
+        4
+    }
 
 
 

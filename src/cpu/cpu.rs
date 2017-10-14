@@ -102,10 +102,13 @@ impl CPU {
         f.read_to_end(&mut rom_buffer)
         .expect("Error with file reading!");
 
+        let mut count = 0;
         for i in 0..rom_buffer.len() {
-            print!("{:x} ", &rom_buffer[i]);
-            if i % 16 == 0 && i > 0 {
+            count += 1;
+            print!("{:02X} ", &rom_buffer[i]);
+            if count == 16 {
                 println!();
+                count = 0;
             }
         }
         println!("\nROM length (in bytes): {}", rom_buffer.len());

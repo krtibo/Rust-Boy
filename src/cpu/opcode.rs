@@ -422,6 +422,88 @@ impl Opcode {
         self.cb_opc[0x9b] = Opcode::cb_res_9b;
         self.cb_opc[0xab] = Opcode::cb_res_ab;
         self.cb_opc[0xbb] = Opcode::cb_res_bb;
+        self.cb_opc[0x8c] = Opcode::cb_res_8c;
+        self.cb_opc[0x9c] = Opcode::cb_res_9c;
+        self.cb_opc[0xac] = Opcode::cb_res_ac;
+        self.cb_opc[0xbc] = Opcode::cb_res_bc;
+        self.cb_opc[0x8d] = Opcode::cb_res_8d;
+        self.cb_opc[0x9d] = Opcode::cb_res_9d;
+        self.cb_opc[0xad] = Opcode::cb_res_ad;
+        self.cb_opc[0xbd] = Opcode::cb_res_bd;
+        self.cb_opc[0x8e] = Opcode::cb_res_8e;
+        self.cb_opc[0x9e] = Opcode::cb_res_9e;
+        self.cb_opc[0xae] = Opcode::cb_res_ae;
+        self.cb_opc[0xbe] = Opcode::cb_res_be;
+        self.cb_opc[0x8f] = Opcode::cb_res_8f;
+        self.cb_opc[0x9f] = Opcode::cb_res_9f;
+        self.cb_opc[0xaf] = Opcode::cb_res_af;
+        self.cb_opc[0xbf] = Opcode::cb_res_bf;
+
+        self.cb_opc[0xc0] = Opcode::cb_set_c0;
+        self.cb_opc[0xd0] = Opcode::cb_set_d0;
+        self.cb_opc[0xe0] = Opcode::cb_set_e0;
+        self.cb_opc[0xf0] = Opcode::cb_set_f0;
+        self.cb_opc[0xc1] = Opcode::cb_set_c1;
+        self.cb_opc[0xd1] = Opcode::cb_set_d1;
+        self.cb_opc[0xe1] = Opcode::cb_set_e1;
+        self.cb_opc[0xf1] = Opcode::cb_set_f1;
+        self.cb_opc[0xc2] = Opcode::cb_set_c2;
+        self.cb_opc[0xd2] = Opcode::cb_set_d2;
+        self.cb_opc[0xe2] = Opcode::cb_set_e2;
+        self.cb_opc[0xf2] = Opcode::cb_set_f2;
+        self.cb_opc[0xc3] = Opcode::cb_set_c3;
+        self.cb_opc[0xd3] = Opcode::cb_set_d3;
+        self.cb_opc[0xe3] = Opcode::cb_set_e3;
+        self.cb_opc[0xf3] = Opcode::cb_set_f3;
+        self.cb_opc[0xc4] = Opcode::cb_set_c4;
+        self.cb_opc[0xd4] = Opcode::cb_set_d4;
+        self.cb_opc[0xe4] = Opcode::cb_set_e4;
+        self.cb_opc[0xf4] = Opcode::cb_set_f4;
+        self.cb_opc[0xc5] = Opcode::cb_set_c5;
+        self.cb_opc[0xd5] = Opcode::cb_set_d5;
+        self.cb_opc[0xe5] = Opcode::cb_set_e5;
+        self.cb_opc[0xf5] = Opcode::cb_set_f5;
+        self.cb_opc[0xc6] = Opcode::cb_set_c6;
+        self.cb_opc[0xd6] = Opcode::cb_set_d6;
+        self.cb_opc[0xe6] = Opcode::cb_set_e6;
+        self.cb_opc[0xf6] = Opcode::cb_set_f6;
+        self.cb_opc[0xc7] = Opcode::cb_set_c7;
+        self.cb_opc[0xd7] = Opcode::cb_set_d7;
+        self.cb_opc[0xe7] = Opcode::cb_set_e7;
+        self.cb_opc[0xf7] = Opcode::cb_set_f7;
+        self.cb_opc[0xc8] = Opcode::cb_set_c8;
+        self.cb_opc[0xd8] = Opcode::cb_set_d8;
+        self.cb_opc[0xe8] = Opcode::cb_set_e8;
+        self.cb_opc[0xf8] = Opcode::cb_set_f8;
+        self.cb_opc[0xc9] = Opcode::cb_set_c9;
+        self.cb_opc[0xd9] = Opcode::cb_set_d9;
+        self.cb_opc[0xe9] = Opcode::cb_set_e9;
+        self.cb_opc[0xf9] = Opcode::cb_set_f9;
+        self.cb_opc[0xca] = Opcode::cb_set_ca;
+        self.cb_opc[0xda] = Opcode::cb_set_da;
+        self.cb_opc[0xea] = Opcode::cb_set_ea;
+        self.cb_opc[0xfa] = Opcode::cb_set_fa;
+        self.cb_opc[0xcb] = Opcode::cb_set_cb;
+        self.cb_opc[0xdb] = Opcode::cb_set_db;
+        self.cb_opc[0xeb] = Opcode::cb_set_eb;
+        self.cb_opc[0xfb] = Opcode::cb_set_fb;
+        self.cb_opc[0xcc] = Opcode::cb_set_cc;
+        self.cb_opc[0xdc] = Opcode::cb_set_dc;
+        self.cb_opc[0xec] = Opcode::cb_set_ec;
+        self.cb_opc[0xfc] = Opcode::cb_set_fc;
+        self.cb_opc[0xcd] = Opcode::cb_set_cd;
+        self.cb_opc[0xdd] = Opcode::cb_set_dd;
+        self.cb_opc[0xed] = Opcode::cb_set_ed;
+        self.cb_opc[0xfd] = Opcode::cb_set_fd;
+        self.cb_opc[0xce] = Opcode::cb_set_ce;
+        self.cb_opc[0xde] = Opcode::cb_set_de;
+        self.cb_opc[0xee] = Opcode::cb_set_ee;
+        self.cb_opc[0xfe] = Opcode::cb_set_fe;
+        self.cb_opc[0xcf] = Opcode::cb_set_cf;
+        self.cb_opc[0xdf] = Opcode::cb_set_df;
+        self.cb_opc[0xef] = Opcode::cb_set_ef;
+        self.cb_opc[0xff] = Opcode::cb_set_ff;
+
 
 
     }
@@ -6692,6 +6774,601 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
         self.operand_mode = 0;
         8
     }
+
+
+    fn cb_set_c0(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::set_bit(0, cpu.B);
+
+        self.last_instruction = "CB - SET 0, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d0(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::set_bit(2, cpu.B);
+        
+        self.last_instruction = "CB - SET 2, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e0(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::set_bit(4, cpu.B);
+        
+        self.last_instruction = "CB - SET 4, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f0(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::set_bit(6, cpu.B);
+        
+        self.last_instruction = "CB - SET 6, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_c1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::set_bit(0, cpu.C);
+
+        self.last_instruction = "CB - SET 0, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::set_bit(2, cpu.C);
+        
+        self.last_instruction = "CB - SET 2, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::set_bit(4, cpu.C);
+        
+        self.last_instruction = "CB - SET 4, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::set_bit(6, cpu.C);
+        
+        self.last_instruction = "CB - SET 6, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_c2(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::set_bit(0, cpu.D);
+
+        self.last_instruction = "CB - SET 0, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d2(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::set_bit(2, cpu.D);
+        
+        self.last_instruction = "CB - SET 2, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e2(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::set_bit(4, cpu.D);
+        
+        self.last_instruction = "CB - SET 4, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f2(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::set_bit(6, cpu.D);
+        
+        self.last_instruction = "CB - SET 6, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_c3(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::set_bit(0, cpu.E);
+
+        self.last_instruction = "CB - SET 0, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d3(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::set_bit(2, cpu.E);
+        
+        self.last_instruction = "CB - SET 2, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e3(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::set_bit(4, cpu.E);
+        
+        self.last_instruction = "CB - SET 4, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f3(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::set_bit(6, cpu.E);
+        
+        self.last_instruction = "CB - SET 6, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_c4(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::set_bit(0, cpu.H);
+
+        self.last_instruction = "CB - SET 0, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d4(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::set_bit(2, cpu.H);
+        
+        self.last_instruction = "CB - SET 2, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e4(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::set_bit(4, cpu.H);
+        
+        self.last_instruction = "CB - SET 4, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f4(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::set_bit(6, cpu.H);
+        
+        self.last_instruction = "CB - SET 6, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_c5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::set_bit(0, cpu.L);
+
+        self.last_instruction = "CB - SET 0, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::set_bit(2, cpu.L);
+        
+        self.last_instruction = "CB - SET 2, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::set_bit(4, cpu.L);
+        
+        self.last_instruction = "CB - SET 4, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::set_bit(6, cpu.L);
+        
+        self.last_instruction = "CB - SET 6, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_c6(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::set_bit(0, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - SET 0, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_set_d6(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::set_bit(2, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - SET 2, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_set_e6(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::set_bit(4, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - SET 4, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_set_f6(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::set_bit(6, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - SET 6, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_set_c7(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::set_bit(0, cpu.A);
+
+        self.last_instruction = "CB - SET 0, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d7(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::set_bit(2, cpu.A);
+        
+        self.last_instruction = "CB - SET 2, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e7(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::set_bit(4, cpu.A);
+        
+        self.last_instruction = "CB - SET 4, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f7(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::set_bit(6, cpu.A);
+        
+        self.last_instruction = "CB - SET 6, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_c8(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::set_bit(1, cpu.B);
+
+        self.last_instruction = "CB - SET 1, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d8(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::set_bit(3, cpu.B);
+        
+        self.last_instruction = "CB - SET 3, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e8(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::set_bit(5, cpu.B);
+        
+        self.last_instruction = "CB - SET 5, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f8(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::set_bit(7, cpu.B);
+        
+        self.last_instruction = "CB - SET 7, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_c9(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::set_bit(1, cpu.C);
+
+        self.last_instruction = "CB - SET 1, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_d9(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::set_bit(3, cpu.C);
+        
+        self.last_instruction = "CB - SET 3, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_e9(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::set_bit(5, cpu.C);
+        
+        self.last_instruction = "CB - SET 5, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_f9(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::set_bit(7, cpu.C);
+        
+        self.last_instruction = "CB - SET 7, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_ca(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::set_bit(1, cpu.D);
+
+        self.last_instruction = "CB - SET 1, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_da(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::set_bit(3, cpu.D);
+        
+        self.last_instruction = "CB - SET 3, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_ea(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::set_bit(5, cpu.D);
+        
+        self.last_instruction = "CB - SET 5, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_fa(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::set_bit(7, cpu.D);
+        
+        self.last_instruction = "CB - SET 7, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_cb(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::set_bit(1, cpu.E);
+
+        self.last_instruction = "CB - SET 1, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_db(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::set_bit(3, cpu.E);
+        
+        self.last_instruction = "CB - SET 3, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_eb(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::set_bit(5, cpu.E);
+        
+        self.last_instruction = "CB - SET 5, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_fb(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::set_bit(7, cpu.E);
+        
+        self.last_instruction = "CB - SET 7, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_cc(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::set_bit(1, cpu.H);
+
+        self.last_instruction = "CB - SET 1, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_dc(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::set_bit(3, cpu.H);
+        
+        self.last_instruction = "CB - SET 3, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_ec(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::set_bit(5, cpu.H);
+        
+        self.last_instruction = "CB - SET 5, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_fc(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::set_bit(7, cpu.H);
+        
+        self.last_instruction = "CB - SET 7, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_cd(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::set_bit(1, cpu.L);
+
+        self.last_instruction = "CB - SET 1, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_dd(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::set_bit(3, cpu.L);
+        
+        self.last_instruction = "CB - SET 3, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_ed(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::set_bit(5, cpu.L);
+        
+        self.last_instruction = "CB - SET 5, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_fd(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::set_bit(7, cpu.L);
+        
+        self.last_instruction = "CB - SET 7, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_ce(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::set_bit(1, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - SET 1, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_set_de(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::set_bit(3, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - SET 3, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_set_ee(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::set_bit(5, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - SET 5, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_set_fe(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::set_bit(7, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - SET 7, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_set_cf(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::set_bit(1, cpu.A);
+
+        self.last_instruction = "CB - SET 1, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_df(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::set_bit(3, cpu.A);
+        
+        self.last_instruction = "CB - SET 3, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_ef(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::set_bit(5, cpu.A);
+        
+        self.last_instruction = "CB - SET 5, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_set_ff(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::set_bit(7, cpu.A);
+        
+        self.last_instruction = "CB - SET 7, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+
 
 
 

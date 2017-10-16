@@ -59,41 +59,40 @@ impl CPU {
         let mut vram : VRAM = VRAM::new();
         opcode.init();
 
+            while cycle < CYCLES && self.PC <= 65535 {
+                // fetch and decode opcode
+                //opcode.fetch(self);
+                cycle += opcode.execute(self) as u32;
+                vram.print_vram(self);
+                //self.RAM[0xFF44] = 0x90; --> jump forward on boot rom
 
-        while cycle < CYCLES && self.PC <= 65535 {
-            // fetch and decode opcode
-            //opcode.fetch(self);
-            cycle += opcode.execute(self) as u32;
-            vram.print_vram(self);
-            //self.RAM[0xFF44] = 0x90; --> jump forward on boot rom
+                let data = self.assemble_debug_data(opcode.last_instruction.to_string(),
+                                                    opcode.last_opcode,
+                                                    opcode.lhs,
+                                                    opcode.rhs,
+                                                    opcode.operand_mode);
 
-            let data = self.assemble_debug_data(opcode.last_instruction.to_string(),
-                                                opcode.last_opcode,
-                                                opcode.lhs,
-                                                opcode.rhs,
-                                                opcode.operand_mode);
 
-            
-            debug_data.parse_data_from_cpu(data);
-            debugger.update_window(&debug_data);
-            //thread::sleep(time::Duration::from_millis(100));
+                debug_data.parse_data_from_cpu(data);
+                debugger.update_window(&debug_data);
+                //thread::sleep(time::Duration::from_millis(1));
 
-            if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
-                loop {
-                    debugger.update_window(&debug_data);
-                    if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
-                        break;
+                if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
+                    loop {
+                        debugger.update_window(&debug_data);
+                        if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
+                            break;
+                        }
                     }
-                }
-            }
+                }  
 
-
-        } 
-
+            } 
+        
+/*
         while debugger.window.is_open() && !debugger.window.is_key_down(Key::Escape){
             debugger.update_window(&debug_data);
         }
-        
+        */
         // render screen
     }
 
@@ -153,7 +152,7 @@ impl CPU {
            format!("{}", self.STACK.len()),
            ];
 
-           // println!("{}",format!("{} 0x{:X} 0x{:X}", last_instruction, lhs, rhs));
+           //println!("{}",format!("{} 0x{:X} 0x{:X}", last_instruction, lhs, rhs));
 
            if operand_mode == 0 {
                (format!("0x{:02X} : {}", last_opcode, last_instruction), actual_reg)

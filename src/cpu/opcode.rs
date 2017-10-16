@@ -374,6 +374,55 @@ impl Opcode {
         self.cb_opc[0x6f] = Opcode::cb_bit_6f;
         self.cb_opc[0x7f] = Opcode::cb_bit_7f;
 
+        self.cb_opc[0x80] = Opcode::cb_res_80;
+        self.cb_opc[0x90] = Opcode::cb_res_90;
+        self.cb_opc[0xa0] = Opcode::cb_res_a0;
+        self.cb_opc[0xb0] = Opcode::cb_res_b0;
+        self.cb_opc[0x81] = Opcode::cb_res_81;
+        self.cb_opc[0x91] = Opcode::cb_res_91;
+        self.cb_opc[0xa1] = Opcode::cb_res_a1;
+        self.cb_opc[0xb1] = Opcode::cb_res_b1;
+        self.cb_opc[0x82] = Opcode::cb_res_82;
+        self.cb_opc[0x92] = Opcode::cb_res_92;
+        self.cb_opc[0xa2] = Opcode::cb_res_a2;
+        self.cb_opc[0xb2] = Opcode::cb_res_b2;
+        self.cb_opc[0x83] = Opcode::cb_res_83;
+        self.cb_opc[0x93] = Opcode::cb_res_93;
+        self.cb_opc[0xa3] = Opcode::cb_res_a3;
+        self.cb_opc[0xb3] = Opcode::cb_res_b3;
+        self.cb_opc[0x84] = Opcode::cb_res_84;
+        self.cb_opc[0x94] = Opcode::cb_res_94;
+        self.cb_opc[0xa4] = Opcode::cb_res_a4;
+        self.cb_opc[0xb4] = Opcode::cb_res_b4;
+        self.cb_opc[0x85] = Opcode::cb_res_85;
+        self.cb_opc[0x95] = Opcode::cb_res_95;
+        self.cb_opc[0xa5] = Opcode::cb_res_a5;
+        self.cb_opc[0xb5] = Opcode::cb_res_b5;
+        self.cb_opc[0x86] = Opcode::cb_res_86;
+        self.cb_opc[0x96] = Opcode::cb_res_96;
+        self.cb_opc[0xa6] = Opcode::cb_res_a6;
+        self.cb_opc[0xb6] = Opcode::cb_res_b6;
+        self.cb_opc[0x87] = Opcode::cb_res_87;
+        self.cb_opc[0x97] = Opcode::cb_res_97;
+        self.cb_opc[0xa7] = Opcode::cb_res_a7;
+        self.cb_opc[0xb7] = Opcode::cb_res_b7;
+        self.cb_opc[0x88] = Opcode::cb_res_88;
+        self.cb_opc[0x98] = Opcode::cb_res_98;
+        self.cb_opc[0xa8] = Opcode::cb_res_a8;
+        self.cb_opc[0xb8] = Opcode::cb_res_b8;
+        self.cb_opc[0x89] = Opcode::cb_res_89;
+        self.cb_opc[0x99] = Opcode::cb_res_99;
+        self.cb_opc[0xa9] = Opcode::cb_res_a9;
+        self.cb_opc[0xb9] = Opcode::cb_res_b9;
+        self.cb_opc[0x8a] = Opcode::cb_res_8a;
+        self.cb_opc[0x9a] = Opcode::cb_res_9a;
+        self.cb_opc[0xaa] = Opcode::cb_res_aa;
+        self.cb_opc[0xba] = Opcode::cb_res_ba;
+        self.cb_opc[0x8b] = Opcode::cb_res_8b;
+        self.cb_opc[0x9b] = Opcode::cb_res_9b;
+        self.cb_opc[0xab] = Opcode::cb_res_ab;
+        self.cb_opc[0xbb] = Opcode::cb_res_bb;
+
 
     }
 
@@ -6053,6 +6102,607 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
 
+    fn cb_res_80(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::reset_bit(0, cpu.B);
+
+        self.last_instruction = "CB - RES 0, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_90(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::reset_bit(2, cpu.B);
+        
+        self.last_instruction = "CB - RES 2, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a0(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::reset_bit(4, cpu.B);
+        
+        self.last_instruction = "CB - RES 4, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b0(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::reset_bit(6, cpu.B);
+        
+        self.last_instruction = "CB - RES 6, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_81(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::reset_bit(0, cpu.C);
+
+        self.last_instruction = "CB - RES 0, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_91(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::reset_bit(2, cpu.C);
+        
+        self.last_instruction = "CB - RES 2, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::reset_bit(4, cpu.C);
+        
+        self.last_instruction = "CB - RES 4, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b1(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::reset_bit(6, cpu.C);
+        
+        self.last_instruction = "CB - RES 6, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_82(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::reset_bit(0, cpu.D);
+
+        self.last_instruction = "CB - RES 0, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_92(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::reset_bit(2, cpu.D);
+        
+        self.last_instruction = "CB - RES 2, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a2(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::reset_bit(4, cpu.D);
+        
+        self.last_instruction = "CB - RES 4, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b2(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::reset_bit(6, cpu.D);
+        
+        self.last_instruction = "CB - RES 6, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_83(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::reset_bit(0, cpu.E);
+
+        self.last_instruction = "CB - RES 0, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_93(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::reset_bit(2, cpu.E);
+        
+        self.last_instruction = "CB - RES 2, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a3(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::reset_bit(4, cpu.E);
+        
+        self.last_instruction = "CB - RES 4, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b3(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::reset_bit(6, cpu.E);
+        
+        self.last_instruction = "CB - RES 6, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_84(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::reset_bit(0, cpu.H);
+
+        self.last_instruction = "CB - RES 0, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_94(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::reset_bit(2, cpu.H);
+        
+        self.last_instruction = "CB - RES 2, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a4(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::reset_bit(4, cpu.H);
+        
+        self.last_instruction = "CB - RES 4, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b4(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::reset_bit(6, cpu.H);
+        
+        self.last_instruction = "CB - RES 6, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_85(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::reset_bit(0, cpu.L);
+
+        self.last_instruction = "CB - RES 0, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_95(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::reset_bit(2, cpu.L);
+        
+        self.last_instruction = "CB - RES 2, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::reset_bit(4, cpu.L);
+        
+        self.last_instruction = "CB - RES 4, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b5(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::reset_bit(6, cpu.L);
+        
+        self.last_instruction = "CB - RES 6, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_86(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::reset_bit(0, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - RES 0, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_res_96(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::reset_bit(2, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - RES 2, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_res_a6(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::reset_bit(4, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - RES 4, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_res_b6(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::reset_bit(6, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - RES 6, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_res_87(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::reset_bit(0, cpu.A);
+
+        self.last_instruction = "CB - RES 0, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_97(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::reset_bit(2, cpu.A);
+        
+        self.last_instruction = "CB - RES 2, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a7(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::reset_bit(4, cpu.A);
+        
+        self.last_instruction = "CB - RES 4, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b7(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::reset_bit(6, cpu.A);
+        
+        self.last_instruction = "CB - RES 6, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_88(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::reset_bit(1, cpu.B);
+
+        self.last_instruction = "CB - RES 1, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_98(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::reset_bit(3, cpu.B);
+        
+        self.last_instruction = "CB - RES 3, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a8(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::reset_bit(5, cpu.B);
+        
+        self.last_instruction = "CB - RES 5, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b8(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.B = Opcode::reset_bit(7, cpu.B);
+        
+        self.last_instruction = "CB - RES 7, B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_89(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::reset_bit(1, cpu.C);
+
+        self.last_instruction = "CB - RES 1, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_99(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::reset_bit(3, cpu.C);
+        
+        self.last_instruction = "CB - RES 3, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_a9(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::reset_bit(5, cpu.C);
+        
+        self.last_instruction = "CB - RES 5, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_b9(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.C = Opcode::reset_bit(7, cpu.C);
+        
+        self.last_instruction = "CB - RES 7, C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_8a(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::reset_bit(1, cpu.D);
+
+        self.last_instruction = "CB - RES 1, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_9a(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::reset_bit(3, cpu.D);
+        
+        self.last_instruction = "CB - RES 3, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_aa(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::reset_bit(5, cpu.D);
+        
+        self.last_instruction = "CB - RES 5, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_ba(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.D = Opcode::reset_bit(7, cpu.D);
+        
+        self.last_instruction = "CB - RES 7, D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_8b(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::reset_bit(1, cpu.E);
+
+        self.last_instruction = "CB - RES 1, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_9b(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::reset_bit(3, cpu.E);
+        
+        self.last_instruction = "CB - RES 3, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_ab(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::reset_bit(5, cpu.E);
+        
+        self.last_instruction = "CB - RES 5, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_bb(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.E = Opcode::reset_bit(7, cpu.E);
+        
+        self.last_instruction = "CB - RES 7, E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_8c(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::reset_bit(1, cpu.H);
+
+        self.last_instruction = "CB - RES 1, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_9c(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::reset_bit(3, cpu.H);
+        
+        self.last_instruction = "CB - RES 3, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_ac(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::reset_bit(5, cpu.H);
+        
+        self.last_instruction = "CB - RES 5, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_bc(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.H = Opcode::reset_bit(7, cpu.H);
+        
+        self.last_instruction = "CB - RES 7, H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_8d(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::reset_bit(1, cpu.L);
+
+        self.last_instruction = "CB - RES 1, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_9d(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::reset_bit(3, cpu.L);
+        
+        self.last_instruction = "CB - RES 3, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_ad(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::reset_bit(5, cpu.L);
+        
+        self.last_instruction = "CB - RES 5, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_bd(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.L = Opcode::reset_bit(7, cpu.L);
+        
+        self.last_instruction = "CB - RES 7, L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_8e(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::reset_bit(1, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - RES 1, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_res_9e(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::reset_bit(3, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - RES 3, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_res_ae(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::reset_bit(5, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - RES 5, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_res_be(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.RAM[hl as usize] = Opcode::reset_bit(7, 
+                               cpu.RAM[hl as usize]);
+
+        self.last_instruction = "CB - RES 7, (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_res_8f(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::reset_bit(1, cpu.A);
+
+        self.last_instruction = "CB - RES 1, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_9f(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::reset_bit(3, cpu.A);
+        
+        self.last_instruction = "CB - RES 3, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_af(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::reset_bit(5, cpu.A);
+        
+        self.last_instruction = "CB - RES 5, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_res_bf(&mut self, cpu : &mut CPU) -> u8 {
+        cpu.A = Opcode::reset_bit(7, cpu.A);
+        
+        self.last_instruction = "CB - RES 7, A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6081,7 +6731,6 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn get_bit(n : u8, reg : u8) -> u8 {
-        let mut value : u8 = 0;
         let mask : u8 = 1 << n;
         
         if reg & mask == 0 {

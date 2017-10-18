@@ -513,6 +513,66 @@ impl Opcode {
         self.cb_opc[0x36] = Opcode::cb_swap_36;
         self.cb_opc[0x37] = Opcode::cb_swap_37;
 
+        self.cb_opc[0x20] = Opcode::cb_sla_20;
+        self.cb_opc[0x21] = Opcode::cb_sla_21;
+        self.cb_opc[0x22] = Opcode::cb_sla_22;
+        self.cb_opc[0x23] = Opcode::cb_sla_23;
+        self.cb_opc[0x24] = Opcode::cb_sla_24;
+        self.cb_opc[0x25] = Opcode::cb_sla_25;
+        self.cb_opc[0x26] = Opcode::cb_sla_26;
+        self.cb_opc[0x27] = Opcode::cb_sla_27;
+
+        self.cb_opc[0x38] = Opcode::cb_srl_38;
+        self.cb_opc[0x39] = Opcode::cb_srl_39;
+        self.cb_opc[0x3a] = Opcode::cb_srl_3a;
+        self.cb_opc[0x3b] = Opcode::cb_srl_3b;
+        self.cb_opc[0x3c] = Opcode::cb_srl_3c;
+        self.cb_opc[0x3d] = Opcode::cb_srl_3d;
+        self.cb_opc[0x3e] = Opcode::cb_srl_3e;
+        self.cb_opc[0x3f] = Opcode::cb_srl_3f;
+        self.cb_opc[0x28] = Opcode::cb_sra_28;
+        self.cb_opc[0x29] = Opcode::cb_sra_29;
+        self.cb_opc[0x2a] = Opcode::cb_sra_2a;
+        self.cb_opc[0x2b] = Opcode::cb_sra_2b;
+        self.cb_opc[0x2c] = Opcode::cb_sra_2c;
+        self.cb_opc[0x2d] = Opcode::cb_sra_2d;
+        self.cb_opc[0x2e] = Opcode::cb_sra_2e;
+        self.cb_opc[0x2f] = Opcode::cb_sra_2f;
+
+        self.cb_opc[0x00] = Opcode::cb_rlc_00;
+        self.cb_opc[0x01] = Opcode::cb_rlc_01;
+        self.cb_opc[0x02] = Opcode::cb_rlc_02;
+        self.cb_opc[0x03] = Opcode::cb_rlc_03;
+        self.cb_opc[0x04] = Opcode::cb_rlc_04;
+        self.cb_opc[0x05] = Opcode::cb_rlc_05;
+        self.cb_opc[0x06] = Opcode::cb_rlc_06;
+        self.cb_opc[0x07] = Opcode::cb_rlc_07;
+        self.cb_opc[0x08] = Opcode::cb_rrc_08;
+        self.cb_opc[0x09] = Opcode::cb_rrc_09;
+        self.cb_opc[0x0a] = Opcode::cb_rrc_0a;
+        self.cb_opc[0x0b] = Opcode::cb_rrc_0b;
+        self.cb_opc[0x0c] = Opcode::cb_rrc_0c;
+        self.cb_opc[0x0d] = Opcode::cb_rrc_0d;
+        self.cb_opc[0x0e] = Opcode::cb_rrc_0e;
+        self.cb_opc[0x0f] = Opcode::cb_rrc_0f;
+
+        self.cb_opc[0x10] = Opcode::cb_rl_10;
+        self.cb_opc[0x11] = Opcode::cb_rl_11;
+        self.cb_opc[0x12] = Opcode::cb_rl_12;
+        self.cb_opc[0x13] = Opcode::cb_rl_13;
+        self.cb_opc[0x14] = Opcode::cb_rl_14;
+        self.cb_opc[0x15] = Opcode::cb_rl_15;
+        self.cb_opc[0x16] = Opcode::cb_rl_16;
+        self.cb_opc[0x17] = Opcode::cb_rl_17;
+        self.cb_opc[0x18] = Opcode::cb_rr_18;
+        self.cb_opc[0x19] = Opcode::cb_rr_19;
+        self.cb_opc[0x1a] = Opcode::cb_rr_1a;
+        self.cb_opc[0x1b] = Opcode::cb_rr_1b;
+        self.cb_opc[0x1c] = Opcode::cb_rr_1c;
+        self.cb_opc[0x1d] = Opcode::cb_rr_1d;
+        self.cb_opc[0x1e] = Opcode::cb_rr_1e;
+        self.cb_opc[0x1f] = Opcode::cb_rr_1f;
+
 
 
     }
@@ -5068,31 +5128,6 @@ impl Opcode {
 
     // CB OPCODES
 
-    fn cb_rl_11(&mut self, cpu : &mut CPU) -> u8 {
-        let bit_7 = cpu.C & 0x80 == 0x80;
-
-        cpu.reset_flag("N");
-        cpu.reset_flag("H");
-
-        cpu.C = cpu.C << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
-
-        if bit_7 {
-            cpu.set_flag("C");
-        } else {
-            cpu.reset_flag("C");
-        }
-
-        if cpu.C == 0 {
-            cpu.set_flag("Z");
-        } else {
-            cpu.reset_flag("Z");
-        }
-
-        self.last_instruction = "CB - RL C";
-        self.operand_mode = 0;
-        8
-    }
-
 
     fn cb_bit_40(&mut self, cpu : &mut CPU) -> u8 {
 
@@ -7729,6 +7764,1279 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
         self.operand_mode = 0;
         16
     }
+
+
+    fn cb_srl_38(&mut self, cpu : &mut CPU) -> u8 {
+        if Opcode::get_bit(0, cpu.B) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.B = cpu.B >> 1;
+
+        if cpu.B == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_srl_39(&mut self, cpu : &mut CPU) -> u8 {
+        if Opcode::get_bit(0, cpu.C) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.C = cpu.C >> 1;
+
+        if cpu.C == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_srl_3a(&mut self, cpu : &mut CPU) -> u8 {
+        if Opcode::get_bit(0, cpu.D) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.D = cpu.D >> 1;
+
+        if cpu.D == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_srl_3b(&mut self, cpu : &mut CPU) -> u8 {
+        if Opcode::get_bit(0, cpu.E) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.E = cpu.E >> 1;
+
+        if cpu.E == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_srl_3c(&mut self, cpu : &mut CPU) -> u8 {
+        if Opcode::get_bit(0, cpu.H) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.H = cpu.H >> 1;
+
+        if cpu.H == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_srl_3d(&mut self, cpu : &mut CPU) -> u8 {
+        if Opcode::get_bit(0, cpu.L) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.L = cpu.L >> 1;
+
+        if cpu.L == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_srl_3e(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+
+        if Opcode::get_bit(0, hl) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = hl >> 1;
+
+        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_srl_3f(&mut self, cpu : &mut CPU) -> u8 {
+        if Opcode::get_bit(0, cpu.A) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = cpu.A >> 1;
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_sra_28(&mut self, cpu : &mut CPU) -> u8 {
+        let msb : u8 = Opcode::get_bit(7, cpu.B);
+        if Opcode::get_bit(0, cpu.B) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.B = cpu.B >> 1;
+        cpu.B |= msb << 7;
+
+        if cpu.B == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRA B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_sra_29(&mut self, cpu : &mut CPU) -> u8 {
+        let msb : u8 = Opcode::get_bit(7, cpu.C);
+        if Opcode::get_bit(0, cpu.C) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.C = cpu.C >> 1;
+        cpu.C |= msb << 7;
+
+        if cpu.C == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRA C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_sra_2a(&mut self, cpu : &mut CPU) -> u8 {
+        let msb : u8 = Opcode::get_bit(7, cpu.D);
+        if Opcode::get_bit(0, cpu.D) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.D = cpu.D >> 1;
+        cpu.D |= msb << 7;
+
+        if cpu.D == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRA D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_sra_2b(&mut self, cpu : &mut CPU) -> u8 {
+        let msb : u8 = Opcode::get_bit(7, cpu.E);
+        if Opcode::get_bit(0, cpu.E) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.E = cpu.E >> 1;
+        cpu.E |= msb << 7;
+
+        if cpu.E == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRA E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_sra_2c(&mut self, cpu : &mut CPU) -> u8 {
+        let msb : u8 = Opcode::get_bit(7, cpu.H);
+        if Opcode::get_bit(0, cpu.H) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.H = cpu.H >> 1;
+        cpu.H |= msb << 7;
+
+        if cpu.H == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRA H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_sra_2d(&mut self, cpu : &mut CPU) -> u8 {
+        let msb : u8 = Opcode::get_bit(7, cpu.L);
+        if Opcode::get_bit(0, cpu.L) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.L = cpu.L >> 1;
+        cpu.L |= msb << 7;
+
+        if cpu.L == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRA L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_sra_2e(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let msb : u8 = Opcode::get_bit(7, hl);
+
+        if Opcode::get_bit(0, hl) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = hl >> 1;
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] |= msb << 7;
+
+        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRL (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_sra_2f(&mut self, cpu : &mut CPU) -> u8 {
+        let msb : u8 = Opcode::get_bit(7, cpu.A);
+        if Opcode::get_bit(0, cpu.A) == 1 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.A = cpu.A >> 1;
+        cpu.A |= msb << 7;
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        self.last_instruction = "CB - SRA A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rlc_00(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.B & 0x80 == 0x80;
+
+        cpu.B = cpu.B << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.B == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RLC B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rlc_01(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.C & 0x80 == 0x80;
+
+        cpu.C = cpu.C << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.C == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RLC C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rlc_02(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.D & 0x80 == 0x80;
+
+        cpu.D = cpu.D << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.D == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RLC D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rlc_03(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.E & 0x80 == 0x80;
+
+        cpu.E = cpu.E << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.E == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RLC E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rlc_04(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.H & 0x80 == 0x80;
+
+        cpu.H = cpu.H << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.H == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RLC H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rlc_05(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.L & 0x80 == 0x80;
+
+        cpu.L = cpu.L << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.L == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RLC L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rlc_06(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+
+        let bit_7 = hl & 0x80 == 0x80;
+
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
+        hl << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RLC (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_rlc_07(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.A & 0x80 == 0x80;
+
+        cpu.A = cpu.A << 1 | ( if bit_7 { 1 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RLC A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rrc_08(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.B & 0x01 == 0x01;
+
+        cpu.B = cpu.B >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.B == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RRC B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rrc_09(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.C & 0x01 == 0x01;
+
+        cpu.C = cpu.C >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.C == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RRC C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rrc_0a(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.D & 0x01 == 0x01;
+
+        cpu.D = cpu.D >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.D == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RRC D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rrc_0b(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.E & 0x01 == 0x01;
+
+        cpu.E = cpu.E >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.E == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RRC E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rrc_0c(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.H & 0x01 == 0x01;
+
+        cpu.H = cpu.H >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.H == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RRC H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rrc_0d(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.L & 0x01 == 0x01;
+
+        cpu.L = cpu.L >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.L == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RRC L";
+        self.operand_mode = 0;
+        8
+    }
+
+    
+    fn cb_rrc_0e(&mut self, cpu : &mut CPU) -> u8 {
+
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let bit_0 = hl & 0x01 == 0x01;
+
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
+        hl >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RRC (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_rrc_0f(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.A & 0x01 == 0x01;
+
+        cpu.A = cpu.A >> 1 | ( if bit_0 { 0x80 } else { 0 });
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RRC A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rl_10(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_7 = cpu.B & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.B = cpu.B << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.B == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rl_11(&mut self, cpu : &mut CPU) -> u8 {
+        let bit_7 = cpu.C & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.C = cpu.C << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.C == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rl_12(&mut self, cpu : &mut CPU) -> u8 {
+        let bit_7 = cpu.D & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.D = cpu.D << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.D == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rl_13(&mut self, cpu : &mut CPU) -> u8 {
+        let bit_7 = cpu.E & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.E = cpu.E << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.E == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rl_14(&mut self, cpu : &mut CPU) -> u8 {
+        let bit_7 = cpu.H & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.H = cpu.H << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.H == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rl_15(&mut self, cpu : &mut CPU) -> u8 {
+        let bit_7 = cpu.L & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.L = cpu.L << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.L == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rl_16(&mut self, cpu : &mut CPU) -> u8 {
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let bit_7 = hl & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
+        hl << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+    fn cb_rl_17(&mut self, cpu : &mut CPU) -> u8 {
+        let bit_7 = cpu.A & 0x80 == 0x80;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.A = cpu.A << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+
+        if bit_7 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RL A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rr_1f(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.A & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.A = cpu.A >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.A == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RR A";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rr_18(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.B & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.B = cpu.B >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.B == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RR B";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rr_19(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.C & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.C = cpu.C >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.C == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RR C";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rr_1a(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.D & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.D = cpu.D >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.D == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RR D";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rr_1b(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.E & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.E = cpu.E >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.E == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RR E";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rr_1c(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.H & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.H = cpu.H >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.H == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RR H";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rr_1d(&mut self, cpu : &mut CPU) -> u8 {
+
+        let bit_0 = cpu.L & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.L = cpu.L >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.L == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RR L";
+        self.operand_mode = 0;
+        8
+    }
+
+
+    fn cb_rr_1e(&mut self, cpu : &mut CPU) -> u8 {
+
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let bit_0 = hl & 0x01 == 0x01;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("H");
+
+        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
+        hl >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+
+        if bit_0 {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+            cpu.set_flag("Z");
+        } else {
+            cpu.reset_flag("Z");
+        }
+
+        self.last_instruction = "CB - RR (HL)";
+        self.operand_mode = 0;
+        16
+    }
+
+
+
+
 
 
 

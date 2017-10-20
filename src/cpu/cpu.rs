@@ -241,7 +241,52 @@ impl CPU {
         0
     }
 
+
+    pub fn test_bytes(&mut self, bytes : &[u8]) -> (String, Vec<String>) {
+        self.PC = 0;
+        let mut index = 0;
+        for i in bytes {
+            self.RAM[index] = *i;
+            index += 1;
+        }
+
+        let mut opcode : Opcode = Opcode::new();
+        opcode.init();
+        opcode.execute(self) as u32;
+        let data = self.assemble_debug_data(opcode.last_instruction.to_string(),
+                                    opcode.last_opcode,
+                                    opcode.lhs,
+                                    opcode.rhs,
+                                    opcode.operand_mode);
+        println!("{}", data.0);
+    
+        data
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 pub struct VRAM {

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+        <html >
+        <head>
+        <meta charset="UTF-8">
+        <title>Rust Boy Test Report</title>
+        
+            <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
+            <link rel="stylesheet" href="css/style.css">
+
+        
+        </head>
+
+        <body>
+        <h1>Rust Boy <span class="yellow">Test Report</pan></h1>
+        <h2>Created with Rust Boy Emulator by <a>Tibor Krizsak</a></h2>
+
+        <br></br>
+
+        <h2><a>LD</a> instruction tests</h2>
+
+        <table class="container">
+            <thead>
+                <tr>
+                    <th><h1>Result</h1></th>
+                    <th><h1>Instruction</h1></th>
+                    <th><h1>Flags</h1></th>
+                    <th><h1>A</h1></th>
+                    <th><h1>B</h1></th>
+                    <th><h1>C</h1></th>
+                    <th><h1>D</h1></th>
+                    <th><h1>E</h1></th>
+                    <th><h1>F</h1></th>
+                    <th><h1>H</h1></th>
+                    <th><h1>L</h1></th>
+                    <th><h1>SP</h1></th>
+                    <th><h1>PC</h1></th>
+                    <th><h1>SP size</h1></th>
+                </tr>
+            </thead>
+	<tbody><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x3E : LD A, 0x12 </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0xFFFE </td><td> 0x02 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x67 : LD H,A </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x00 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x2E : LD L, 0x33 </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x02 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x3E : LD A, 0x12 </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x02 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x67 : LD H,A </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x00 : NOP </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x67 : LD H,A </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x00 : NOP </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x67 : LD H,A </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x00 : NOP </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x67 : LD H,A </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x00 : NOP </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x67 : LD H,A </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x00 : NOP </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x67 : LD H,A </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x01 </td><td> 0 </td></tr><tr><td> <i class="em em-white_check_mark"></i> </td><td> 0x2E : LD L, 0x33 </td><td> 0b0000 </td><td> 0x12 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x00 </td><td> 0x12 </td><td> 0x33 </td><td> 0xFFFE </td><td> 0x02 </td><td> 0 </td></tr></tbody></table></body></html>

@@ -37,6 +37,7 @@ h2 a {
 
 .blue { color: #185875; }
 .yellow { color: #FFF842; }
+.ldblue { color : #CBC8FD; }
 
 .container th h1 {
 	  font-weight: bold;
@@ -90,7 +91,7 @@ h2 a {
 }
 
 .container td:nth-child(2) { 
-  color: #FB667A; 
+  color: #CBC8FD; 
   padding-left:2%;
   text-align:left;
 }

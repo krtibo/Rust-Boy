@@ -1,3 +1,32 @@
+/*
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the test report generator and test mini framework for the 
+    Rust Boy Emulator.
+
+    It takes the test cases from a txt file, processes them, and checks 
+    the given result.
+
+    INPUT : ../../tests/tests.txt file
+    OUTPUT : Generated index.html file which takes use of the css 
+             stylesheet.
+
+    REQUIRED TEST FILE FORMAT :
+        * instruction bytecode with the operand bytes (1 or 2 bytes),
+          e.g. 3E 12  --> this means LD A, 12
+        * result check part
+            - to check a register, type in its name and its hoped result
+              e.g. 3E 12 A 12  --> this does the instruction and checks 
+              if A is whether 0x12 or not
+            - to check the flag, type in FLAG and its value in binary
+              e.g. 2E 33 FLAG 10000000 
+            - to check a byte in RAM, type in RAM, its location in RAM
+              and its value
+              e.g. 3E 12 RAM 12 32
+
+*/
+
 use cpu::CPU;
 use std::fs::File;
 use std::io::prelude::*;
@@ -102,7 +131,7 @@ pub fn test_parser(& mut self){
 
         <br></br>
 
-        <h2><a>LD</a> instruction tests</h2>
+        <h2><a><span class=\"ldblue\">LD</pan></a> instruction tests</h2>
 
         <table class=\"container\">
             <thead>
@@ -140,26 +169,57 @@ pub fn test_parser(& mut self){
         //println!("{:?}", vec_str);
 
         if line_string.contains("RAM"){
-            println!("found a ram!");
-            continue;
-        }
 
-        if vec_str.len() == 3 {
-            bytes = [u8::from_str_radix(vec_str[0], 16).unwrap(), 0, 0];
-        }
+            if vec_str.len() == 4 {
+                bytes = [u8::from_str_radix(vec_str[0], 16).unwrap(), 0, 0];
+            }
 
-        if vec_str.len() == 4 {
-            bytes = [
-            u8::from_str_radix(vec_str[0], 16).unwrap(),
-            u8::from_str_radix(vec_str[1], 16).unwrap(), 0];
-        }
-
-        if vec_str.len() == 5 {
-            bytes = [
+            if vec_str.len() == 5 {
+                bytes = [
                 u8::from_str_radix(vec_str[0], 16).unwrap(),
-                u8::from_str_radix(vec_str[1], 16).unwrap(),
-                u8::from_str_radix(vec_str[2], 16).unwrap()];
+                u8::from_str_radix(vec_str[1], 16).unwrap(), 0];
+            }
+
+            if vec_str.len() == 6 {
+                bytes = [
+                    u8::from_str_radix(vec_str[0], 16).unwrap(),
+                    u8::from_str_radix(vec_str[1], 16).unwrap(),
+                    u8::from_str_radix(vec_str[2], 16).unwrap()];
+            }
+
+            let data = self.rb.test_bytes(&bytes);
+
+            let b1 : u8 = vec_str[vec_str.len()-2].parse().unwrap();
+            let b2 : u8 = vec_str[vec_str.len()-1].parse().unwrap();
+            self.test_writer(
+                    if self.rb.RAM[b1 as usize] == b2
+                    {true} else {false}, 
+                    &mut out, 
+                    data);
+
+            continue;
+
+        } else {
+
+            if vec_str.len() == 3 {
+                bytes = [u8::from_str_radix(vec_str[0], 16).unwrap(), 0, 0];
+            }
+
+            if vec_str.len() == 4 {
+                bytes = [
+                u8::from_str_radix(vec_str[0], 16).unwrap(),
+                u8::from_str_radix(vec_str[1], 16).unwrap(), 0];
+            }
+
+            if vec_str.len() == 5 {
+                bytes = [
+                    u8::from_str_radix(vec_str[0], 16).unwrap(),
+                    u8::from_str_radix(vec_str[1], 16).unwrap(),
+                    u8::from_str_radix(vec_str[2], 16).unwrap()];
+            }
         }
+
+
 
         let data = self.rb.test_bytes(&bytes);
 
@@ -201,6 +261,11 @@ pub fn test_parser(& mut self){
                     data),
             "L" => self.test_writer(
                     if self.rb.L == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
+                    {true} else {false}, 
+                    &mut out, 
+                    data),
+            "FLAG" => self.test_writer(
+                    if self.rb.FLAG == u8::from_str_radix(vec_str[vec_str.len()-1], 2).unwrap()
                     {true} else {false}, 
                     &mut out, 
                     data),

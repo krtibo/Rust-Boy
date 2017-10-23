@@ -73,45 +73,6 @@ fn test_writer(&self, result : bool, f : &mut File, data : (String, Vec<String>)
 
 pub fn test_parser(& mut self){
     let mut out = File::create("./tests/index.html").expect("Can't create file!");
-    /*
-    out.write_all(b"<h1> Rust Boy test document </h1>").unwrap();
-    out.write_all(
-          b"
-            <head>
-            <link href=\"https://afeld.github.io/emoji-css/emoji.css\" rel=\"stylesheet\">
-            <meta charset='utf-8'>
-                <style>
-                    table, th, td {
-                    border: 1px solid black;
-                    border-collapse: collapse;
-                    }
-                    th, td {
-                    padding: 15px;
-                    }
-                    th {
-                        text-align: left;
-                    }
-                </style>
-             </head>
-          
-            <table style=\"width:100%\">
-                <tr>
-                    <th>Result</th>
-                    <th>Instruction</th>
-                    <th>Flags</th> 
-                    <th>A</th>
-                    <th>B</th>
-                    <th>C</th>
-                    <th>D</th>
-                    <th>E</th>
-                    <th>F</th>
-                    <th>H</th>
-                    <th>L</th>
-                    <th>SP</th>
-                    <th>PC</th>
-                    <th>SP size</th>
-                </tr>").unwrap();
-                */
 
     out.write_all(b"<!DOCTYPE html>
         <html >

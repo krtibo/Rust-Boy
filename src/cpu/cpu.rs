@@ -5,6 +5,7 @@ use opcode::Opcode;
 use cpu::debugger::Debugger;
 use cpu::debugger::DebugData;
 use std::{thread, time};
+use ppu::PPU;
 extern crate minifb;
 use self::minifb::{Key, KeyRepeat, Window, WindowOptions, Scale};
 #[allow(dead_code)]
@@ -54,17 +55,20 @@ impl CPU {
     pub fn cycle(&mut self) {
         let mut cycle : u32 = 0;
         let mut opcode : Opcode = Opcode::new();
-        let mut debugger : Debugger = Debugger::new();
+        //let mut debugger : Debugger = Debugger::new();
         let mut debug_data : DebugData = DebugData::new();
         let mut vram : VRAM = VRAM::new();
+        let mut ppu : PPU = PPU::new();
+
         opcode.init();
 
+        loop {
             while cycle < CYCLES && self.PC <= 65535 {
                 // fetch and decode opcode
-                //opcode.fetch(self);
-                cycle += opcode.execute(self) as u32;
+                let instr_time : u8 = opcode.execute(self);
+                cycle += instr_time as u32;
+                ppu.update_n_sync(self, instr_time);
                 vram.print_vram(self);
-                //self.RAM[0xFF44] = 0x90; --> jump forward on boot rom
 
                 let data = self.assemble_debug_data(opcode.last_instruction.to_string(),
                                                     opcode.last_opcode,
@@ -74,19 +78,23 @@ impl CPU {
 
 
                 debug_data.parse_data_from_cpu(data);
-                debugger.update_window(&debug_data);
-                //thread::sleep(time::Duration::from_millis(1));
+/*                 debugger.update_window(&debug_data); 
+                //thread::sleep(time::Duration::from_millis(100));
 
-                if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
+                 if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                     loop {
                         debugger.update_window(&debug_data);
                         if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                             break;
                         }
                     }
-                }  
+                } */
 
-            } 
+            }
+
+            println!("END OF THE CYCLE ------------------------");
+            cycle = 0;
+        } 
         
 /*
         while debugger.window.is_open() && !debugger.window.is_key_down(Key::Escape){
@@ -152,14 +160,24 @@ impl CPU {
            format!("{}", self.STACK.len()),
            ];
 
-           //println!("{}",format!("{} 0x{:X} 0x{:X}", last_instruction, lhs, rhs));
+           
 
            if operand_mode == 0 {
+               println!("{}",format!("0x{:02X} : {}", last_opcode, last_instruction));
                (format!("0x{:02X} : {}", last_opcode, last_instruction), actual_reg)
            } else
            if operand_mode == 1 {
+               println!("{}",format!("0x{:02X} : {} 0x{:X}", 
+                                    last_opcode, 
+                                    last_instruction, 
+                                    rhs));
                (format!("0x{:02X} : {} 0x{:X}", last_opcode, last_instruction, rhs), actual_reg)
            } else {
+               println!("{}",format!("0x{:02X} : {} 0x{:X} 0x{:X}", 
+               last_opcode, 
+               last_instruction, 
+               lhs, 
+               rhs));
                (format!("0x{:02X} : {} 0x{:X} 0x{:X}", last_opcode, last_instruction, lhs, rhs), actual_reg)
            }
     }
@@ -316,7 +334,7 @@ impl VRAM {
         for i in 0x8000..0xA000 {
             
             if cpu.RAM[i] > 0 {
-                println!("{:04X} : {:02X}", i, cpu.RAM[i]);
+                //println!("{:04X} : {:02X}", i, cpu.RAM[i]);
                 self.vram[i - 0x8000] = 0xFF_00_FF_00;
             } else {
                 self.vram[i - 0x8000] = 0;

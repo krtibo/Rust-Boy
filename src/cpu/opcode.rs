@@ -1937,7 +1937,7 @@ impl Opcode {
 
     fn dec_b_05(&mut self, cpu : &mut CPU) -> u8 {
 
-        if cpu.B - 1  == 0 {
+        if cpu.B == 1 {
             cpu.set_flag("Z");    // set Z flag
         } else {
             cpu.reset_flag("Z");
@@ -1951,7 +1951,12 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.B -= 1;
+        if cpu.B == 0 {
+            cpu.B = 0xFF;
+        } else {
+            cpu.B -= 1;
+        }
+
 
         self.last_instruction = "DEC B";
         self.operand_mode = 0;

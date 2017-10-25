@@ -55,7 +55,7 @@ impl CPU {
     pub fn cycle(&mut self) {
         let mut cycle : u32 = 0;
         let mut opcode : Opcode = Opcode::new();
-        //let mut debugger : Debugger = Debugger::new();
+        /* let mut debugger : Debugger = Debugger::new(); */
         let mut debug_data : DebugData = DebugData::new();
         let mut vram : VRAM = VRAM::new();
         let mut ppu : PPU = PPU::new();
@@ -68,7 +68,7 @@ impl CPU {
                 let instr_time : u8 = opcode.execute(self);
                 cycle += instr_time as u32;
                 ppu.update_n_sync(self, instr_time);
-                vram.print_vram(self);
+                
 
                 let data = self.assemble_debug_data(opcode.last_instruction.to_string(),
                                                     opcode.last_opcode,
@@ -78,10 +78,10 @@ impl CPU {
 
 
                 debug_data.parse_data_from_cpu(data);
-/*                 debugger.update_window(&debug_data); 
+/*                 debugger.update_window(&debug_data);  */
                 //thread::sleep(time::Duration::from_millis(100));
 
-                 if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
+/*                  if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                     loop {
                         debugger.update_window(&debug_data);
                         if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
@@ -91,7 +91,8 @@ impl CPU {
                 } */
 
             }
-
+            ppu.render();
+            vram.print_vram(self);
             println!("END OF THE CYCLE ------------------------");
             cycle = 0;
         } 
@@ -106,7 +107,7 @@ impl CPU {
 
 
 
-    pub fn load_rom(&mut self, path : String) {
+    pub fn load_bootrom(&mut self, path : String) {
         let mut rom_buffer : Vec<u8> = Vec::new();
         let mut f = File::open(path)
         .expect("Error with file loading!");
@@ -123,9 +124,34 @@ impl CPU {
                 count = 0;
             }
         }
-        println!("\nROM length (in bytes): {}", rom_buffer.len());
+        println!("\nBOOT ROM length (in bytes): {}", rom_buffer.len());
 
         for i in 0..rom_buffer.len() {
+            self.RAM[i] = rom_buffer[i];
+        }
+        println!("BOOT ROM copying done!");
+    }
+
+    pub fn load_rom(&mut self, path : String) {
+        let mut rom_buffer : Vec<u8> = Vec::new();
+        let mut f = File::open(path)
+        .expect("Error with file loading!");
+
+        f.read_to_end(&mut rom_buffer)
+        .expect("Error with file reading!");
+
+        let mut count = 0;
+        for i in 0x100..rom_buffer.len() {
+            count += 1;
+            print!("{:02X} ", &rom_buffer[i]);
+            if count == 16 {
+                println!();
+                count = 0;
+            }
+        }
+        println!("\nROM length (in bytes): {}", rom_buffer.len());
+
+        for i in 0x0100..rom_buffer.len() {
             self.RAM[i] = rom_buffer[i];
         }
         println!("ROM copying done!");
@@ -163,21 +189,21 @@ impl CPU {
            
 
            if operand_mode == 0 {
-               println!("{}",format!("0x{:02X} : {}", last_opcode, last_instruction));
+               /* println!("{}",format!("0x{:02X} : {}", last_opcode, last_instruction)); */
                (format!("0x{:02X} : {}", last_opcode, last_instruction), actual_reg)
            } else
            if operand_mode == 1 {
-               println!("{}",format!("0x{:02X} : {} 0x{:X}", 
+               /* println!("{}",format!("0x{:02X} : {} 0x{:X}", 
                                     last_opcode, 
                                     last_instruction, 
-                                    rhs));
+                                    rhs)); */
                (format!("0x{:02X} : {} 0x{:X}", last_opcode, last_instruction, rhs), actual_reg)
            } else {
-               println!("{}",format!("0x{:02X} : {} 0x{:X} 0x{:X}", 
+               /* println!("{}",format!("0x{:02X} : {} 0x{:X} 0x{:X}", 
                last_opcode, 
                last_instruction, 
                lhs, 
-               rhs));
+               rhs)); */
                (format!("0x{:02X} : {} 0x{:X} 0x{:X}", last_opcode, last_instruction, lhs, rhs), actual_reg)
            }
     }
@@ -337,9 +363,20 @@ impl VRAM {
                 //println!("{:04X} : {:02X}", i, cpu.RAM[i]);
                 self.vram[i - 0x8000] = 0xFF_00_FF_00;
             } else {
-                self.vram[i - 0x8000] = 0;
+
+                if i >= 0x9800 && i <= 0x9BFF {
+                    self.vram[i - 0x8000] = 0xFF_FF_00_00;
+                } 
+
+                if i >= 0x8000 && i <= 0x8FFF {
+                    self.vram[i - 0x8000] = 0xFF_00_00_FF;
+                } 
             }
+
+
         }
+        self.vram[0x9800-0x8000] = 0xFF_FF_00_00;
         self.window.update_with_buffer(&self.vram).unwrap();
     }
+
 }

@@ -14,7 +14,8 @@ fn main() {
     //rust_boy.load_rom(String::from("./rom/test.gb"));
 
     
-    rust_boy.load_rom(String::from("./rom/boot_rom.gb"));
+    rust_boy.load_bootrom(String::from("./rom/boot_rom.gb"));
+    rust_boy.load_rom(String::from("./rom/Tetris.gb"));
     rust_boy.cycle();
     
 

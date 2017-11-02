@@ -61,7 +61,7 @@ impl PPU {
             }
 
             if cpu.RAM[0xFF44] == 144 {
-                // VBlank interrupt
+                //self.vblank(cpu);
             }
 
             if cpu.RAM[0xFF44] > 153 {
@@ -70,19 +70,36 @@ impl PPU {
         }
     }
 
+    fn vblank(&mut self, cpu : &mut CPU) {
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
+
+        cpu.STACK.push_front(pc_h);
+        cpu.STACK.push_front(pc_l);
+
+        cpu.PC = 0x40;
+    }
+
     fn draw_line(&mut self, cpu : &mut CPU) {
         let tile_data : u16 = 0x8000;
         let bg_mem : u16 = 0x9800;
         let mut y_pos : u8 = 0;
 
         y_pos = self.scroll_y + cpu.RAM[0xFF44];
-        let tile_row : u16 = (y_pos as u16 / 8)  * 32;
+        let tile_row : u16 = (y_pos as u16 / 8) * 32;
 
         for i in 0..160 {
             let x_pos : u8 = i + self.scroll_x;
             let tile_col : u16 = x_pos as u16 / 8;
-            let tile_addr : u16 = bg_mem + tile_row + tile_col;
+            let tile_addr : u16 = bg_mem + tile_row + tile_col; 
             let tile_num : u8 = cpu.RAM[tile_addr as usize];
+
+
+/*             if tile_num == 0x19 {
+                panic!("HIT R LOGO");
+            } */
+
+
             let mut tile_location : u16 = tile_data;
             tile_location += tile_num as u16 * 16;
             let mut line : u8 = y_pos % 8;
@@ -90,26 +107,30 @@ impl PPU {
 
             let d1 : u8 = cpu.RAM[(tile_location + line as u16) as usize];
             let d2 : u8 = cpu.RAM[(tile_location + line as u16 + 1) as usize];
-            //println!("{:02X} {:02X}", d1, d2);
+            //println!("{:02X} {:02X}", tile_location + line as u16, tile_location + line as u16 + 1);
 
             let mut colourbit : i16 = x_pos as i16 % 8;
-            colourbit -= 7 ;
-            colourbit *= -1 ;
+            colourbit -= 7;
+            colourbit *= -1;
 
             let mut colour_num : u8 = PPU::get_bit(colourbit as u8, d2);
             colour_num = colour_num << 1;
             colour_num |= PPU::get_bit(colourbit as u8, d1);
 
-            let check : u8 = cpu.RAM[0xFF44];
+            //let check : u8 = cpu.RAM[0xFF44];
 
-            if colour_num == 1 {
-                self.framebuffer[PPU::coords((i,check)) as usize] = 0xFF_00_FF_00;
+            if colour_num > 0 {
+                self.framebuffer[PPU::coords((i,cpu.RAM[0xFF44])) as usize] = 0xFF_00_FF_00;
             }  else {
-                self.framebuffer[PPU::coords((i,check)) as usize] = 0;
+                self.framebuffer[PPU::coords((i,cpu.RAM[0xFF44])) as usize] = 0;
             }
                 
         }
         
+    }
+
+    fn draw_tileset(&mut self, cpu : &mut CPU) {
+
     }
 
 

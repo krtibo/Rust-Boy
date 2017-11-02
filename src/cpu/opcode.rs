@@ -601,7 +601,8 @@ impl Opcode {
         if self.disable_int && self.count_disable_int == 2 {
             self.disable_int = false;
             self.count_disable_int = 0;
-            cpu.RAM[0xFFFF as usize] = 0b00011111; // enable interrupts
+            //cpu.RAM[0xFFFF as usize] = 0b00011111; // enable interrupts
+            cpu.IR = true;
         }
 
         if self.enable_int && self.count_enable_int < 2 {
@@ -611,7 +612,8 @@ impl Opcode {
         if self.enable_int && self.count_enable_int == 2 {
             self.enable_int = false;
             self.count_enable_int = 0;
-            cpu.RAM[0xFFFF as usize] = 0b00000000; // disable interrupts
+            //cpu.RAM[0xFFFF as usize] = 0b00000000; // disable interrupts
+            cpu.IR = false;
         }
 
         // fetcher
@@ -3510,8 +3512,8 @@ impl Opcode {
         let l : u8 = self.fetch(cpu);
         let h : u8 = self.fetch(cpu);
 
-        let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
-        let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
         cpu.STACK.push_front(pc_h);
         cpu.STACK.push_front(pc_l);
@@ -3728,8 +3730,8 @@ impl Opcode {
 
         if cpu.get_flag("Z") == 0 {
 
-            let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
-            let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+            let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+            let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
             cpu.STACK.push_front(pc_h);
             cpu.STACK.push_front(pc_l);
@@ -3750,8 +3752,8 @@ impl Opcode {
 
         if cpu.get_flag("Z") == 1 {
 
-            let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
-            let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+            let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+            let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
             cpu.STACK.push_front(pc_h);
             cpu.STACK.push_front(pc_l);
@@ -3772,8 +3774,8 @@ impl Opcode {
 
         if cpu.get_flag("C") == 0 {
 
-            let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
-            let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+            let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+            let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
             cpu.STACK.push_front(pc_h);
             cpu.STACK.push_front(pc_l);
@@ -3794,8 +3796,8 @@ impl Opcode {
 
         if cpu.get_flag("C") == 1 {
 
-            let pc_h : u8 = ((cpu.PC + 1) >> 8) as u8;
-            let pc_l : u8 = ((cpu.PC + 1) & 0x00FF) as u8;
+            let pc_h : u8 = ((cpu.PC) >> 8) as u8;
+            let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
             cpu.STACK.push_front(pc_h);
             cpu.STACK.push_front(pc_l);

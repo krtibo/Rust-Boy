@@ -26,7 +26,7 @@ pub struct CPU {
     pub PC : u16,
     pub FLAG : u8, // ZNHC0000
     // C (carry), H (half carry), N (substract), Z (zero)
-    
+    pub IR : bool,
     pub RAM : [u8; 65536],
     pub STACK : LinkedList<u8>,
 }
@@ -45,6 +45,7 @@ impl CPU {
             SP : 0xFFFE,
             PC : 0,
             FLAG : 0,
+            IR : false,
             RAM : [0; 65536],
             STACK : LinkedList::new(),
         }
@@ -57,7 +58,7 @@ impl CPU {
         let mut opcode : Opcode = Opcode::new();
         /* let mut debugger : Debugger = Debugger::new(); */
         let mut debug_data : DebugData = DebugData::new();
-        let mut vram : VRAM = VRAM::new();
+        /* let mut vram : VRAM = VRAM::new(); */
         let mut ppu : PPU = PPU::new();
 
         opcode.init();
@@ -78,7 +79,7 @@ impl CPU {
 
 
                 debug_data.parse_data_from_cpu(data);
-/*                 debugger.update_window(&debug_data);  */
+                 
                 //thread::sleep(time::Duration::from_millis(100));
 
 /*                  if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
@@ -91,9 +92,10 @@ impl CPU {
                 } */
 
             }
+            //debugger.update_window(&debug_data);
             ppu.render();
-            vram.print_vram(self);
-            println!("END OF THE CYCLE ------------------------");
+            /* vram.print_vram(self); */
+            //println!("END OF THE CYCLE ------------------------");
             cycle = 0;
         } 
         
@@ -118,9 +120,9 @@ impl CPU {
         let mut count = 0;
         for i in 0..rom_buffer.len() {
             count += 1;
-            print!("{:02X} ", &rom_buffer[i]);
+            //print!("{:02X} ", &rom_buffer[i]);
             if count == 16 {
-                println!();
+                //println!();
                 count = 0;
             }
         }
@@ -143,9 +145,9 @@ impl CPU {
         let mut count = 0;
         for i in 0x100..rom_buffer.len() {
             count += 1;
-            print!("{:02X} ", &rom_buffer[i]);
+            //print!("{:02X} ", &rom_buffer[i]);
             if count == 16 {
-                println!();
+                //println!();
                 count = 0;
             }
         }
@@ -193,13 +195,13 @@ impl CPU {
                (format!("0x{:02X} : {}", last_opcode, last_instruction), actual_reg)
            } else
            if operand_mode == 1 {
-               /* println!("{}",format!("0x{:02X} : {} 0x{:X}", 
+/*                println!("{}",format!("0x{:02X} : {} 0x{:X}", 
                                     last_opcode, 
                                     last_instruction, 
                                     rhs)); */
                (format!("0x{:02X} : {} 0x{:X}", last_opcode, last_instruction, rhs), actual_reg)
            } else {
-               /* println!("{}",format!("0x{:02X} : {} 0x{:X} 0x{:X}", 
+/*                println!("{}",format!("0x{:02X} : {} 0x{:X} 0x{:X}", 
                last_opcode, 
                last_instruction, 
                lhs, 
@@ -362,10 +364,12 @@ impl VRAM {
             if cpu.RAM[i] > 0 {
                 //println!("{:04X} : {:02X}", i, cpu.RAM[i]);
                 self.vram[i - 0x8000] = 0xFF_00_FF_00;
+                //print!("{:X} ", cpu.RAM[i]);
             } else {
 
                 if i >= 0x9800 && i <= 0x9BFF {
                     self.vram[i - 0x8000] = 0xFF_FF_00_00;
+                    
                 } 
 
                 if i >= 0x8000 && i <= 0x8FFF {

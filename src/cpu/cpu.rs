@@ -161,8 +161,8 @@ impl CPU {
 
 
 #[allow(dead_code)]
-    pub fn read_ram(&self, address : u16) -> u8 {
-        self.RAM[address as usize]
+    pub fn write_ram(&mut self, address : u16, value : u8) {
+        self.RAM[address as usize] = value;
     }
 
 

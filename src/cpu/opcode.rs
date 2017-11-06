@@ -1185,7 +1185,9 @@ impl Opcode {
 
 
     fn ld_r1r2_70(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.B;
+        let hl = Opcode::byte_cat(cpu.H, cpu.L);
+        let b = cpu.B;
+        cpu.write_ram(hl, b);
 
         self.last_instruction = "LD (HL), B";
         self.operand_mode = 0;
@@ -1194,7 +1196,9 @@ impl Opcode {
 
 
     fn ld_r1r2_71(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.C;
+        let hl = Opcode::byte_cat(cpu.H, cpu.L);
+        let c = cpu.C;
+        cpu.write_ram(hl, c);
 
         self.last_instruction = "LD (HL), C";
         self.operand_mode = 0;
@@ -1203,7 +1207,9 @@ impl Opcode {
 
 
     fn ld_r1r2_72(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.D;
+        let hl = Opcode::byte_cat(cpu.H, cpu.L);
+        let d = cpu.D;
+        cpu.write_ram(hl, d);
 
         self.last_instruction = "LD (HL), D";
         self.operand_mode = 0;
@@ -1212,7 +1218,9 @@ impl Opcode {
 
 
     fn ld_r1r2_73(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.E;
+        let hl = Opcode::byte_cat(cpu.H, cpu.L);
+        let e = cpu.E;
+        cpu.write_ram(hl, e);
 
         self.last_instruction = "LD (HL), E";
         self.operand_mode = 0;
@@ -1221,7 +1229,9 @@ impl Opcode {
 
 
     fn ld_r1r2_74(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.H;
+        let hl = Opcode::byte_cat(cpu.H, cpu.L);
+        let h = cpu.H;
+        cpu.write_ram(hl, h);
 
         self.last_instruction = "LD (HL), H";
         self.operand_mode = 0;
@@ -1230,7 +1240,9 @@ impl Opcode {
 
 
     fn ld_r1r2_75(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.L;
+        let hl = Opcode::byte_cat(cpu.H, cpu.L);
+        let l = cpu.L;
+        cpu.write_ram(hl, l);
 
         self.last_instruction = "LD (HL), L";
         self.operand_mode = 0;
@@ -1240,7 +1252,8 @@ impl Opcode {
 
     fn ld_r1r2_36(&mut self, cpu : &mut CPU) -> u8 {
         let data : u8 = self.fetch(cpu);
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = data;
+        let hl = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.write_ram(hl, data);
 
         self.rhs = data as u16;
         self.last_instruction = "LD (HL),";
@@ -1347,7 +1360,9 @@ impl Opcode {
 
 
     fn ld_na_02(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.B, cpu.C) as usize] = cpu.A;
+        let bc = Opcode::byte_cat(cpu.B, cpu.C);
+        let a = cpu.A;
+        cpu.write_ram(bc, a);
 
         self.last_instruction = "LD (BC),A";
         self.operand_mode = 0;
@@ -1356,7 +1371,9 @@ impl Opcode {
 
 
     fn ld_na_12(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.D, cpu.E) as usize] = cpu.A;
+        let de = Opcode::byte_cat(cpu.D, cpu.E);
+        let a = cpu.A;
+        cpu.write_ram(de, a);
 
         self.last_instruction = "LD (DE),A";
         self.operand_mode = 0;
@@ -1365,7 +1382,9 @@ impl Opcode {
 
 
     fn ld_na_77(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = cpu.A;
+        let hl = Opcode::byte_cat(cpu.H, cpu.L);
+        let a = cpu.A;
+        cpu.write_ram(hl, a);
 
         self.last_instruction = "LD (HL),A";
         self.operand_mode = 0;
@@ -1377,7 +1396,9 @@ impl Opcode {
         let data_l : u8 = self.fetch(cpu);
         let data_h : u8 = self.fetch(cpu);
 
-        cpu.RAM[Opcode::byte_cat(data_h, data_l) as usize] = cpu.A;
+        let hl = Opcode::byte_cat(data_h, data_l);
+        let a = cpu.A;
+        cpu.write_ram(hl, a);
 
         self.lhs = data_h as u16;
         self.rhs = data_l as u16;
@@ -1397,7 +1418,9 @@ impl Opcode {
 
 
     fn ld_ca_e2(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[0xFF00 + cpu.C as usize] = cpu.A;
+        let addr = 0xFF00 + cpu.C as u16;
+        let a = cpu.A;
+        cpu.write_ram(addr, a);
 
         self.last_instruction = "LD (C),A";
         self.operand_mode = 0;
@@ -1420,7 +1443,9 @@ impl Opcode {
 
     fn ldd_hla_32(&mut self, cpu : &mut CPU) -> u8 {
         let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = cpu.A;
+        let a = cpu.A;
+        cpu.write_ram(hl, a);
+
         hl -= 1;
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
@@ -1446,7 +1471,9 @@ impl Opcode {
 
     fn ldi_hla_22(&mut self, cpu : &mut CPU) -> u8 {
         let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = cpu.A;
+        let a = cpu.A;
+        cpu.write_ram(hl, a);
+
         hl += 1;
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
@@ -1459,7 +1486,9 @@ impl Opcode {
 
     fn ldh_na_e0(&mut self, cpu : &mut CPU) -> u8 {
         let n : u8 = self.fetch(cpu);
-        cpu.RAM[0xFF00 + n as usize] = cpu.A;
+        let addr = 0xFF00 + n as u16;
+        let a = cpu.A;
+        cpu.write_ram(addr, a);
 
         self.rhs = n as u16;
         self.last_instruction = "LDH (n),A";
@@ -1550,11 +1579,10 @@ impl Opcode {
     fn ld_nnsp_08(&mut self, cpu : &mut CPU) -> u8 {
         let data_l : u8 = self.fetch(cpu);
         let data_h : u8 = self.fetch(cpu);
-        cpu.RAM[Opcode::byte_cat(data_h, data_l) as usize] =
-        (cpu.SP >> 8) as u8;
-
-        cpu.RAM[(Opcode::byte_cat(data_h, data_l) + (1 as u16)) as usize] =
-        (cpu.SP & 0x00FF) as u8;
+        let sp = cpu.SP;
+        let addr = Opcode::byte_cat(data_h, data_l);
+        cpu.write_ram(addr, (sp >> 8) as u8);
+        cpu.write_ram(addr + 1, (sp & 0x00FF) as u8);
 
         self.lhs = data_h as u16;
         self.rhs = data_l as u16;
@@ -1815,7 +1843,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] += 1;
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.write_ram(addr, hl + 1);
+        
 
         self.last_instruction = "INC (HL)";
         self.operand_mode = 0;
@@ -2104,7 +2134,8 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] -= 1;
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
+        cpu.write_ram(addr, hl - 1);
 
         self.last_instruction = "DEC (HL)";
         self.operand_mode = 0;
@@ -6453,8 +6484,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_res_86(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::reset_bit(0, 
+        let reset = Opcode::reset_bit(0, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, reset);
 
         self.last_instruction = "CB - RES 0, (HL)";
         self.operand_mode = 0;
@@ -6464,8 +6496,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_res_96(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::reset_bit(2, 
+        let reset = Opcode::reset_bit(2, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, reset);
 
         self.last_instruction = "CB - RES 2, (HL)";
         self.operand_mode = 0;
@@ -6475,8 +6508,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_res_a6(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::reset_bit(4, 
+        let reset = Opcode::reset_bit(4, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, reset);
 
         self.last_instruction = "CB - RES 4, (HL)";
         self.operand_mode = 0;
@@ -6486,8 +6520,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_res_b6(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::reset_bit(6, 
+        let reset = Opcode::reset_bit(6, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, reset);
 
         self.last_instruction = "CB - RES 6, (HL)";
         self.operand_mode = 0;
@@ -6749,8 +6784,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_res_8e(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::reset_bit(1, 
+        let reset = Opcode::reset_bit(1, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, reset);
 
         self.last_instruction = "CB - RES 1, (HL)";
         self.operand_mode = 0;
@@ -6760,8 +6796,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_res_9e(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::reset_bit(3, 
+        let reset = Opcode::reset_bit(3, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, reset);
 
         self.last_instruction = "CB - RES 3, (HL)";
         self.operand_mode = 0;
@@ -6771,8 +6808,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_res_ae(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::reset_bit(5, 
+        let reset = Opcode::reset_bit(5, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, reset);
 
         self.last_instruction = "CB - RES 5, (HL)";
         self.operand_mode = 0;
@@ -6782,8 +6820,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_res_be(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::reset_bit(7, 
+        let reset = Opcode::reset_bit(7, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, reset);
 
         self.last_instruction = "CB - RES 7, (HL)";
         self.operand_mode = 0;
@@ -7045,8 +7084,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_set_c6(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::set_bit(0, 
+        let set = Opcode::set_bit(0, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, set);
 
         self.last_instruction = "CB - SET 0, (HL)";
         self.operand_mode = 0;
@@ -7056,8 +7096,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_set_d6(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::set_bit(2, 
+        let set = Opcode::set_bit(2, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, set);
 
         self.last_instruction = "CB - SET 2, (HL)";
         self.operand_mode = 0;
@@ -7067,8 +7108,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_set_e6(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::set_bit(4, 
+        let set = Opcode::set_bit(4, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, set);
 
         self.last_instruction = "CB - SET 4, (HL)";
         self.operand_mode = 0;
@@ -7078,8 +7120,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_set_f6(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::set_bit(6, 
+        let set = Opcode::set_bit(6, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, set);
 
         self.last_instruction = "CB - SET 6, (HL)";
         self.operand_mode = 0;
@@ -7341,8 +7384,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_set_ce(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::set_bit(1, 
+        let set = Opcode::set_bit(1, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, set);
 
         self.last_instruction = "CB - SET 1, (HL)";
         self.operand_mode = 0;
@@ -7352,8 +7396,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_set_de(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::set_bit(3, 
+        let set = Opcode::set_bit(3, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, set);
 
         self.last_instruction = "CB - SET 3, (HL)";
         self.operand_mode = 0;
@@ -7363,8 +7408,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_set_ee(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::set_bit(5, 
+        let set = Opcode::set_bit(5, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, set);
 
         self.last_instruction = "CB - SET 5, (HL)";
         self.operand_mode = 0;
@@ -7374,8 +7420,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_set_fe(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        cpu.RAM[hl as usize] = Opcode::set_bit(7, 
+        let set = Opcode::set_bit(7, 
                                cpu.RAM[hl as usize]);
+        cpu.write_ram(hl, set);
 
         self.last_instruction = "CB - SET 7, (HL)";
         self.operand_mode = 0;
@@ -7534,10 +7581,11 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_swap_36(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
-        Opcode::swap(cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize]);
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
+        let hl = cpu.RAM[addr as usize];
+        cpu.write_ram(addr, Opcode::swap(hl));
 
-        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+        if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
@@ -7749,10 +7797,11 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_sla_26(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
         let bit_7 : u8 = (hl & 0b1000_0000) >> 7;
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = hl << 1;
+        cpu.write_ram(addr, hl << 1);
         
-        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+        if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
@@ -7918,7 +7967,8 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_srl_3e(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
+        let hl : u8 = cpu.RAM[addr as usize];
 
         if Opcode::get_bit(0, hl) == 1 {
             cpu.set_flag("C");
@@ -7926,9 +7976,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
             cpu.reset_flag("C");
         }
 
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = hl >> 1;
+        cpu.write_ram(addr, hl >> 1);
 
-        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+        if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
@@ -8124,8 +8174,9 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_2e(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let mut hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
         let msb : u8 = Opcode::get_bit(7, hl);
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
 
         if Opcode::get_bit(0, hl) == 1 {
             cpu.set_flag("C");
@@ -8133,10 +8184,11 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
             cpu.reset_flag("C");
         }
 
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = hl >> 1;
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] |= msb << 7;
+        cpu.write_ram(addr, hl >> 1);
+        hl = cpu.RAM[addr as usize] | (msb << 7);
+        cpu.write_ram(addr, hl);
 
-        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+        if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
@@ -8341,11 +8393,10 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     fn cb_rlc_06(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
 
         let bit_7 = hl & 0x80 == 0x80;
-
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
-        hl << 1 | ( if bit_7 { 1 } else { 0 });
+        cpu.write_ram(addr, hl << 1 | ( if bit_7 { 1 } else { 0 }));
 
         cpu.reset_flag("N");
         cpu.reset_flag("H");
@@ -8356,7 +8407,7 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
             cpu.reset_flag("C");
         }
 
-        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+        if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
@@ -8558,12 +8609,11 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
     
     fn cb_rrc_0e(&mut self, cpu : &mut CPU) -> u8 {
-
-        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
+        let hl : u8 = cpu.RAM[addr as usize];
         let bit_0 = hl & 0x01 == 0x01;
 
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
-        hl >> 1 | ( if bit_0 { 0x80 } else { 0 });
+        cpu.write_ram(addr, hl >> 1 | ( if bit_0 { 0x80 } else { 0 }));
 
         cpu.reset_flag("N");
         cpu.reset_flag("H");
@@ -8574,7 +8624,7 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
             cpu.reset_flag("C");
         }
 
-        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+        if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
@@ -8771,14 +8821,16 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_rl_16(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
+        let hl : u8 = cpu.RAM[addr as usize];
         let bit_7 = hl & 0x80 == 0x80;
 
         cpu.reset_flag("N");
         cpu.reset_flag("H");
+        let c = cpu.get_flag("C");
 
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
-        hl << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+        cpu.write_ram(addr, 
+        hl << 1 | ( if c == 1 { 1 } else { 0 }));
 
         if bit_7 {
             cpu.set_flag("C");
@@ -8786,7 +8838,7 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
             cpu.reset_flag("C");
         }
 
-        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+        if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
@@ -9014,15 +9066,16 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_rr_1e(&mut self, cpu : &mut CPU) -> u8 {
-
-        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let addr = Opcode::byte_cat(cpu.H, cpu.L);
+        let hl : u8 = cpu.RAM[addr as usize];
         let bit_0 = hl & 0x01 == 0x01;
 
         cpu.reset_flag("N");
         cpu.reset_flag("H");
+        let c = cpu.get_flag("C");
 
-        cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] = 
-        hl >> 1 | ( if cpu.get_flag("C") == 1 { 0x80 } else { 0 });
+        cpu.write_ram(addr, 
+        hl >> 1 | ( if c == 1 { 0x80 } else { 0 }));
 
         if bit_0 {
             cpu.set_flag("C");
@@ -9030,7 +9083,7 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
             cpu.reset_flag("C");
         }
 
-        if cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] == 0 {
+        if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");

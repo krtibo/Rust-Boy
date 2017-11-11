@@ -14,7 +14,7 @@ impl Interrupt {
         cpu.RAM[0xFF0F] = IR_flag;
     }
 
-    pub fn interrupt_checker(&self, cpu : &mut CPU) {
+    pub fn interrupt_checker(&mut self, cpu : &mut CPU) {
 
         // check if the interrupts are enabled
         // and if there is any request or not

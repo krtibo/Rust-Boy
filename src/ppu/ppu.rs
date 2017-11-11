@@ -61,7 +61,7 @@ impl PPU {
             }
 
             if cpu.RAM[0xFF44] == 144 {
-                //self.vblank(cpu);
+                cpu.IRQ(0);
             }
 
             if cpu.RAM[0xFF44] > 153 {
@@ -70,15 +70,6 @@ impl PPU {
         }
     }
 
-    fn vblank(&mut self, cpu : &mut CPU) {
-        let pc_h : u8 = ((cpu.PC) >> 8) as u8;
-        let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
-
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
-
-        cpu.PC = 0x40;
-    }
 
     fn draw_line(&mut self, cpu : &mut CPU) {
         let tile_data : u16 = 0x8000;
@@ -93,12 +84,6 @@ impl PPU {
             let tile_col : u16 = x_pos as u16 / 8;
             let tile_addr : u16 = bg_mem + tile_row + tile_col; 
             let tile_num : u8 = cpu.RAM[tile_addr as usize];
-
-
-/*             if tile_num == 0x19 {
-                panic!("HIT R LOGO");
-            } */
-
 
             let mut tile_location : u16 = tile_data;
             tile_location += tile_num as u16 * 16;

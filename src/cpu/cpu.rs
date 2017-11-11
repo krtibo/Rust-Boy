@@ -6,6 +6,7 @@ use cpu::debugger::Debugger;
 use cpu::debugger::DebugData;
 use std::{thread, time};
 use ppu::PPU;
+use timer::Timer;
 extern crate minifb;
 use self::minifb::{Key, KeyRepeat, Window, WindowOptions, Scale};
 #[allow(dead_code)]
@@ -29,6 +30,7 @@ pub struct CPU {
     pub IR : bool,
     pub RAM : [u8; 65536],
     pub STACK : LinkedList<u8>,
+    freq_change : bool,
 }
 
 impl CPU {
@@ -48,6 +50,7 @@ impl CPU {
             IR : false,
             RAM : [0; 65536],
             STACK : LinkedList::new(),
+            freq_change : false,
         }
     }
 
@@ -56,11 +59,11 @@ impl CPU {
     pub fn cycle(&mut self) {
         let mut cycle : u32 = 0;
         let mut opcode : Opcode = Opcode::new();
-        /* let mut debugger : Debugger = Debugger::new(); */
+        let mut debugger : Debugger = Debugger::new();
         let mut debug_data : DebugData = DebugData::new();
         /* let mut vram : VRAM = VRAM::new(); */
         let mut ppu : PPU = PPU::new();
-
+        let mut timer : Timer = Timer::new();
         opcode.init();
 
         loop {
@@ -81,18 +84,24 @@ impl CPU {
                 debug_data.parse_data_from_cpu(data);
                  
                 //thread::sleep(time::Duration::from_millis(100));
-
-/*                  if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
+                if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                     loop {
                         debugger.update_window(&debug_data);
-                        if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
-                            break;
-                        }
+                        if debugger.window.is_key_pressed(Key::LeftCtrl, KeyRepeat::No) {
+                            println!("Stopped!");
+                            break
+                        } 
                     }
-                } */
+                }
 
+                if self.freq_change {
+                    timer.update_freq(self);
+                    self.freq_change = false;
+                }
+
+                timer.update(self, instr_time);
             }
-            //debugger.update_window(&debug_data);
+            debugger.update_window(&debug_data);
             ppu.render();
             /* vram.print_vram(self); */
             //println!("END OF THE CYCLE ------------------------");
@@ -162,7 +171,22 @@ impl CPU {
 
 #[allow(dead_code)]
     pub fn write_ram(&mut self, address : u16, value : u8) {
-        self.RAM[address as usize] = value;
+        let TMC = 0xFF07; 
+
+        if address == TMC {
+            let old_freq = self.RAM[TMC as usize] & 0x3;
+            self.RAM[address as usize] = value;
+            let new_freq = self.RAM[TMC as usize] & 0x3;
+
+            if old_freq != new_freq {
+                self.freq_change = true;
+            }
+        } else if address == 0xFF04 {
+            self.RAM[address as usize] = 0;
+        } else {
+            self.RAM[address as usize] = value;
+        }
+
     }
 
 
@@ -309,7 +333,80 @@ impl CPU {
         data
     }
 
+
+    pub fn IRQ(&mut self, t : u8) {
+        let IR_flag : u8 = CPU::set_bit(t, self.RAM[0xFF0F]);
+        self.RAM[0xFF0F] = IR_flag;
+    }
+
+    pub fn interrupt_checker(&mut self) {
+
+        // check if the interrupts are enabled
+        // and if there is any request or not
+        if self.IR && self.RAM[0xFF0F] > 0 {
+            for i in 0..5 {
+
+                // if it has a request and its enabled
+                if CPU::get_bit(i, self.RAM[0xFF0F]) &&
+                CPU::get_bit(i, self.RAM[0xFFFF]) {
+
+                    self.handler(i);
+                }
+            }
+        }
+    }
+
+    pub fn handler(&mut self, t : u8) {
+
+        // reset interrupt flags
+        self.IR = false;
+        let IR_flag : u8 = CPU::reset_bit(t, self.RAM[0xFF0F]);
+        self.RAM[0xFF0F] = IR_flag;
+
+        // push address onto stack
+        let pc_h : u8 = ((self.PC) >> 8) as u8;
+        let pc_l : u8 = ((self.PC) & 0x00FF) as u8;
+        self.STACK.push_front(pc_h);
+        self.STACK.push_front(pc_l);
+
+        // jump to interrupt function on RAM
+        match t {
+            0 => self.PC = 0x40,
+            1 => self.PC = 0x48,
+            2 => self.PC = 0x50,
+            4 => self.PC = 0x60,
+            _ => return,
+        }
+    }
+
+    fn set_bit(n : u8, reg : u8) -> u8 {
+        let mut value : u8 = 0;
+        let mask : u8 = 1 << n;
+        value = reg | mask;
+        value
+    }
+
+    fn reset_bit(n : u8, reg : u8) -> u8 {
+        let mut value : u8 = 0;
+        let mask : u8 = 1 << n;
+        value = reg & (0xFF - mask);
+        value
+    }
+
+    fn get_bit(n : u8, reg : u8) -> bool {
+        let mask : u8 = 1 << n;
+        
+        if reg & mask == 0 {
+            false
+        } else {
+            true
+        }
+    }
+
 }
+
+
+    
 
 
 

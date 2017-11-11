@@ -19,6 +19,6 @@ fn main() {
     rust_boy.cycle();
     
 
-    //let mut t : Test = Test::new(rust_boy);
-    //t.test_parser();
+/*     let mut t : Test = Test::new(rust_boy);
+    t.test_parser(); */
 }

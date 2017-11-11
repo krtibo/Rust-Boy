@@ -1,5 +1,7 @@
 # Rust Boy
 
+![Current stage](/doc/boot.gif)
+
 This is project **Rust Boy**, which is my thesis for the master's degree.
 
 **Rust Boy** is a Nintendo Game Boy emulator, which will be cycle-accurate in theory. This repository will serve as a source backup and version contolling for the project, and when the time comes, the writing part of the essay will be uploaded here - as is progresses - too.
@@ -10,7 +12,6 @@ In the initial commit, I already made the project structure (which may be change
 
 ## Current TODOs
 
-- [x] ~~Check _every_ flag set / unset~~
 - [ ] Test the already written instructions.
 - [ ] Code cleaning.
 - [x] ~~Initial commit.~~
@@ -19,10 +20,13 @@ In the initial commit, I already made the project structure (which may be change
   - [x] Recieve and store data on the debugger/tester side.
   - [x] Testing.
   - [x] Keypress-to-stop-CPU mechanism so I can check out the listed instructions.
+- [x] ~~Check _every_ flag set / unset~~
 
 ## Roadmap
 
 - [ ] Implement and test the CPU instructions.
-- [ ] Research and implement the GPU timing.
-- [ ] Implement the sprite rendering.
-- [ ] Implement the CPU timing / interrupts.
+- [ ] Implement the rendering.
+  - [x] ~~Tile rendering.~~
+  - [ ] Sprite rendering.
+- [x] ~~Implement the CPU timing / interrupts.~~
+- [x] ~~Research and implement the GPU timing.~~

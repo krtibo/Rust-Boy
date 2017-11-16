@@ -43,12 +43,6 @@ impl PPU {
         self.window_x = cpu.RAM[0xFF4B];
         self.window_y = cpu.RAM[0xFF4A];
 
-/*         println!("{}", format!("LCD CONTROL BYTE: {:08b}", cpu.RAM[0xFF40]));
-        println!("{}", format!("ScrollY: {}", cpu.RAM[0xFF42]));
-        println!("{}", format!("ScrollX: {}", cpu.RAM[0xFF43]));
-        println!("{}", format!("WindowY: {}", cpu.RAM[0xFF4A]));
-        println!("{}", format!("WindowX: {}", cpu.RAM[0xFF4B]));  */
-
         self.scanline_count += cycle as u16;
         if self.scanline_count >= 456 {
             cpu.RAM[0xFF44] += 1;
@@ -114,8 +108,89 @@ impl PPU {
         
     }
 
-    fn draw_tileset(&mut self, cpu : &mut CPU) {
+    fn lcd_status(&self, cpu : &mut CPU) -> bool {
+    // get the state of the LCD control register
 
+        if PPU::get_bit(7, cpu.RAM[0xFF40]) == 1 {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn lcd_status_update(&mut self, cpu : &mut CPU) {
+
+        let mut lcd_status_reg : u8 = cpu.RAM[0xFF41];
+
+        if !self.lcd_status(cpu) {
+            self.scanline_count = 456;
+            cpu.RAM[0xFF44] = 0;
+            lcd_status_reg = lcd_status_reg & 0b1111_1100;
+            lcd_status_reg = PPU::set_bit(0, lcd_status_reg);
+            cpu.write_ram(0xFF41, lcd_status_reg);
+            return
+        }
+
+        let current_scanline : u8 = cpu.RAM[0xFF44];
+        let mut lcd_current_mode : u8 = lcd_status_reg & 0b0000_0011;
+        let mut lcd_mode : u8 = 0;
+        let mut IRQ : bool = false;
+
+        if current_scanline >= 144 {
+        // let us handle mode 1 interrupt
+
+            lcd_mode = 1;
+            lcd_status_reg = PPU::set_bit(0, lcd_status_reg);
+            lcd_status_reg = PPU::reset_bit(1, lcd_status_reg);
+            IRQ = if PPU::get_bit(4, lcd_status_reg) == 1 { true } else { false };
+
+        } else {
+
+            let mut lcd_mode_2_lim : u16 = 456 - 80;
+            let mut lcd_mode_3_lim : u16 = lcd_mode_2_lim - 172;
+            
+            if self.scanline_count >= lcd_mode_2_lim {
+            // its time for handling mode 2 interrupt
+
+                lcd_mode = 2;
+                lcd_status_reg = PPU::set_bit(1, lcd_status_reg);
+                lcd_status_reg = PPU::reset_bit(0, lcd_status_reg);
+                IRQ = if PPU::get_bit(5, lcd_status_reg) == 1 { true } else { false };
+            
+            } else if self.scanline_count >= lcd_mode_3_lim {
+            // and now the mode 3 interrupt
+
+                lcd_mode = 3;
+                lcd_status_reg = PPU::set_bit(1, lcd_status_reg);
+                lcd_status_reg = PPU::set_bit(0, lcd_status_reg);
+
+            } else {
+            // the last one is the mode 0 interrupt
+
+                lcd_mode = 0;
+                lcd_status_reg = PPU::reset_bit(1, lcd_status_reg);
+                lcd_status_reg = PPU::reset_bit(0, lcd_status_reg);
+                IRQ = if PPU::get_bit(3, lcd_status_reg) == 1 { true } else { false };
+            }
+        }
+
+        if IRQ == true && lcd_mode != lcd_current_mode {
+        // IRQ time!
+
+            cpu.IRQ(1);
+        }
+
+        if cpu.RAM[0xFF44] == cpu.RAM[0xFF45] {
+            lcd_status_reg = PPU::set_bit(2, lcd_status_reg);
+
+            if PPU::get_bit(6, lcd_status_reg) == 1 {
+                cpu.IRQ(1);
+            }
+        } else {
+            lcd_status_reg = PPU::reset_bit(2, lcd_status_reg);
+        }
+
+        cpu.write_ram(0xFF41, lcd_status_reg);
     }
 
 
@@ -128,6 +203,23 @@ impl PPU {
             1
         }
     }
+
+
+    fn set_bit(n : u8, reg : u8) -> u8 {
+        let mut value : u8 = 0;
+        let mask : u8 = 1 << n;
+        value = reg | mask;
+        value
+    }
+
+
+    fn reset_bit(n : u8, reg : u8) -> u8 {
+        let mut value : u8 = 0;
+        let mask : u8 = 1 << n;
+        value = reg & (0xFF - mask);
+        value
+    }
+
 
     pub fn render(&mut self) {
         self.window.update_with_buffer(&self.framebuffer).unwrap();

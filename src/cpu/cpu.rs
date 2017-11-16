@@ -173,7 +173,22 @@ impl CPU {
     pub fn write_ram(&mut self, address : u16, value : u8) {
         let TMC = 0xFF07; 
 
-        if address == TMC {
+        match address {
+            TMC => {
+                let old_freq = self.RAM[TMC as usize] & 0x3;
+                self.RAM[address as usize] = value;
+                let new_freq = self.RAM[TMC as usize] & 0x3;
+
+                if old_freq != new_freq {
+                    self.freq_change = true;
+                }
+            }
+            0xFF04 => { self.RAM[address as usize] = 0; }
+            0xFF44 => { self.RAM[address as usize] = 0; }
+            _ => { self.RAM[address as usize] = value; }
+        }
+
+/*         if address == TMC {
             let old_freq = self.RAM[TMC as usize] & 0x3;
             self.RAM[address as usize] = value;
             let new_freq = self.RAM[TMC as usize] & 0x3;
@@ -185,7 +200,7 @@ impl CPU {
             self.RAM[address as usize] = 0;
         } else {
             self.RAM[address as usize] = value;
-        }
+        } */
 
     }
 

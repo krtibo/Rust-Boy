@@ -48,7 +48,7 @@ impl CPU {
             H : 0,
             L : 0,
             SP : 0xFFFE,
-            PC : 0,
+            PC : 0x100,
             FLAG : 0,
             IR : false,
             RAM : [0; 65536],
@@ -64,7 +64,7 @@ impl CPU {
         let mut opcode : Opcode = Opcode::new();
         let mut debugger : Debugger = Debugger::new();
         let mut debug_data : DebugData = DebugData::new();
-        /* let mut vram : VRAM = VRAM::new(); */
+        //let mut vram : VRAM = VRAM::new();
         let mut ppu : PPU = PPU::new();
         let mut timer : Timer = Timer::new();
         opcode.init();
@@ -85,7 +85,6 @@ impl CPU {
 
 
                 debug_data.parse_data_from_cpu(data);
-                // debugger.update_window(&debug_data);
                 // thread::sleep(time::Duration::from_millis(100));
                 if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                     loop {
@@ -105,8 +104,9 @@ impl CPU {
                 timer.update(self, instr_time);
             }
             debugger.update_window(&debug_data);
+            //vram.print_vram(self);
             ppu.render();
-            /* vram.print_vram(self); */
+            
             //println!("END OF THE CYCLE ------------------------");
             cycle = 0;
         } 
@@ -169,7 +169,6 @@ impl CPU {
             self.RAM[i] = rom_buffer[i];
         }
         println!("ROM copying done!");
-        self.PC = 0x100;
     }
 
 

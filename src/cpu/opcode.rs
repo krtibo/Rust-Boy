@@ -1431,9 +1431,9 @@ impl Opcode {
 
 
     fn ldd_ahl_3a(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
         cpu.A = cpu.RAM[hl as usize];
-        hl.wrapping_sub(1);
+        hl = hl.wrapping_sub(1);
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
 
@@ -1444,11 +1444,11 @@ impl Opcode {
 
 
     fn ldd_hla_32(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
         let a = cpu.A;
         cpu.write_ram(hl, a);
 
-        hl.wrapping_sub(1);
+        hl = hl.wrapping_sub(1);
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
 
@@ -1459,9 +1459,9 @@ impl Opcode {
 
 
     fn ldi_ahl_2a(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
         cpu.A = cpu.RAM[hl as usize];
-        hl.wrapping_add(1);
+        hl = hl.wrapping_add(1);
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
 
@@ -1472,11 +1472,11 @@ impl Opcode {
 
 
     fn ldi_hla_22(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
         let a = cpu.A;
         cpu.write_ram(hl, a);
 
-        hl.wrapping_add(1);
+        hl = hl.wrapping_add(1);
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
 
@@ -1692,7 +1692,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.B.wrapping_add(1);
+        cpu.B = cpu.B.wrapping_add(1);
 
         if cpu.B == 0 {
             cpu.set_flag("Z");
@@ -1716,7 +1716,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.C.wrapping_add(1);
+        cpu.C = cpu.C.wrapping_add(1);
 
         if cpu.C == 0 {
             cpu.set_flag("Z");    // set Z flag
@@ -1740,7 +1740,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.D.wrapping_add(1);
+        cpu.D = cpu.D.wrapping_add(1);
 
         if cpu.D == 0 {
             cpu.set_flag("Z");    // set Z flag
@@ -1764,7 +1764,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.E.wrapping_add(1);
+        cpu.E = cpu.E.wrapping_add(1);
 
         if cpu.E == 0 {
             cpu.set_flag("Z");    // set Z flag
@@ -1788,7 +1788,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.H.wrapping_add(1);
+        cpu.H = cpu.H.wrapping_add(1);
 
         if cpu.H == 0 {
             cpu.set_flag("Z");    // set Z flag
@@ -1812,7 +1812,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.L.wrapping_add(1);
+        cpu.L = cpu.L.wrapping_add(1);
 
         if cpu.L == 0 {
             cpu.set_flag("Z");    // set Z flag
@@ -1828,7 +1828,7 @@ impl Opcode {
 
     fn inc_hl_34(&mut self, cpu : &mut CPU) -> u8 {
 
-        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let mut hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         cpu.reset_flag("N");    // reset N flag
 
@@ -1838,7 +1838,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        hl.wrapping_add(1);
+        hl = hl.wrapping_add(1);
 
         if hl == 0 {
             cpu.set_flag("Z");    // set Z flag
@@ -1866,7 +1866,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.A.wrapping_add(1);
+        cpu.A = cpu.A.wrapping_add(1);
 
         if cpu.A == 0 {
             cpu.set_flag("Z");    // set Z flag
@@ -1881,8 +1881,8 @@ impl Opcode {
 
 
     fn inc_nn_03(&mut self, cpu : &mut CPU) -> u8 {
-        let bc : u16 = Opcode::byte_cat(cpu.B, cpu.C);
-        bc.wrapping_add(1);
+        let mut bc : u16 = Opcode::byte_cat(cpu.B, cpu.C);
+        bc = bc.wrapping_add(1);
         cpu.B = (bc >> 8) as u8;
         cpu.C = (bc & 0x00FF) as u8;
 
@@ -1893,8 +1893,8 @@ impl Opcode {
 
 
     fn inc_nn_13(&mut self, cpu : &mut CPU) -> u8 {
-        let de : u16 = Opcode::byte_cat(cpu.D, cpu.E);
-        de.wrapping_add(1);
+        let mut de : u16 = Opcode::byte_cat(cpu.D, cpu.E);
+        de = de.wrapping_add(1);
         cpu.D = (de >> 8) as u8;
         cpu.E = (de & 0x00FF) as u8;
 
@@ -1905,8 +1905,8 @@ impl Opcode {
 
 
     fn inc_nn_23(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        hl.wrapping_add(1);
+        let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        hl = hl.wrapping_add(1);
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
 
@@ -1917,7 +1917,7 @@ impl Opcode {
 
 
     fn inc_nn_33(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.SP.wrapping_add(1);
+        cpu.SP = cpu.SP.wrapping_add(1);
 
         self.last_instruction = "INC SP";
         self.operand_mode = 0;
@@ -1926,8 +1926,8 @@ impl Opcode {
 
 
     fn dec_nn_0b(&mut self, cpu : &mut CPU) -> u8 {
-        let bc : u16 = Opcode::byte_cat(cpu.B, cpu.C);
-        bc.wrapping_sub(1);
+        let mut bc : u16 = Opcode::byte_cat(cpu.B, cpu.C);
+        bc = bc.wrapping_sub(1);
         cpu.B = (bc >> 8) as u8;
         cpu.C = (bc & 0x00FF) as u8;
 
@@ -1938,8 +1938,8 @@ impl Opcode {
 
 
     fn dec_nn_1b(&mut self, cpu : &mut CPU) -> u8 {
-        let de : u16 = Opcode::byte_cat(cpu.D, cpu.E);
-        de.wrapping_sub(1);
+        let mut de : u16 = Opcode::byte_cat(cpu.D, cpu.E);
+        de = de.wrapping_sub(1);
         cpu.D = (de >> 8) as u8;
         cpu.E = (de & 0x00FF) as u8;
 
@@ -1950,8 +1950,8 @@ impl Opcode {
 
 
     fn dec_nn_2b(&mut self, cpu : &mut CPU) -> u8 {
-        let hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
-        hl.wrapping_sub(1);
+        let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+        hl = hl.wrapping_sub(1);
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
 
@@ -1962,7 +1962,7 @@ impl Opcode {
 
 
     fn dec_nn_3b(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.SP.wrapping_sub(1);
+        cpu.SP = cpu.SP.wrapping_sub(1);
 
         self.last_instruction = "DEC SP";
         self.operand_mode = 0;
@@ -1986,7 +1986,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.B.wrapping_sub(1);
+        cpu.B = cpu.B.wrapping_sub(1);
 
         self.last_instruction = "DEC B";
         self.operand_mode = 0;
@@ -2010,7 +2010,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.C.wrapping_sub(1);
+        cpu.C = cpu.C.wrapping_sub(1);
 
         self.last_instruction = "DEC C";
         self.operand_mode = 0;
@@ -2034,7 +2034,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.D.wrapping_sub(1);
+        cpu.D = cpu.D.wrapping_sub(1);
 
         self.last_instruction = "DEC D";
         self.operand_mode = 0;
@@ -2058,7 +2058,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.E.wrapping_sub(1);
+        cpu.E = cpu.E.wrapping_sub(1);
 
         self.last_instruction = "DEC E";
         self.operand_mode = 0;
@@ -2082,7 +2082,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.H.wrapping_sub(1);
+        cpu.H = cpu.H.wrapping_sub(1);
 
         self.last_instruction = "DEC H";
         self.operand_mode = 0;
@@ -2106,7 +2106,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.L.wrapping_sub(1);
+        cpu.L = cpu.L.wrapping_sub(1);
 
         self.last_instruction = "DEC L";
         self.operand_mode = 0;
@@ -2116,7 +2116,7 @@ impl Opcode {
 
     fn dec_hl_35(&mut self, cpu : &mut CPU) -> u8 {
 
-        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let mut hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         if hl == 1 {
             cpu.set_flag("Z");    // set Z flag
@@ -2132,7 +2132,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        hl.wrapping_sub(1);
+        hl = hl.wrapping_sub(1);
 
         let addr = Opcode::byte_cat(cpu.H, cpu.L);
         cpu.write_ram(addr, hl);
@@ -2159,7 +2159,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        cpu.A.wrapping_sub(1);
+        cpu.A = cpu.A.wrapping_sub(1);
 
         self.last_instruction = "DEC A";
         self.operand_mode = 0;

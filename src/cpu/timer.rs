@@ -1,3 +1,8 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unused_assignments)]
+#![allow(non_snake_case)]
+
 use cpu::CPU;
 
 pub struct Timer {
@@ -29,7 +34,6 @@ impl Timer {
 
         if Timer::get_bit(2, cpu.RAM[self.TMC as usize]) {
             self.timer_counter -= cycle as u32;
-
             if self.timer_counter <= 0 {
                 self.update_freq(cpu);
 
@@ -39,6 +43,7 @@ impl Timer {
                     cpu.IRQ(2);
                 } else {
                     let TIMA = cpu.RAM[self.TIMA as usize];
+                    
                     cpu.write_ram(self.TIMA, TIMA + 1);
                 }
             }
@@ -62,7 +67,7 @@ impl Timer {
         if self.divider_register >= 255 && cpu.RAM[0xFF04] < 255 {
             self.divider_register = 0;
             cpu.RAM[0xFF04] += 1;
-            println!("{}", cpu.RAM[0xFF04]);
+            //println!("{}", cpu.RAM[0xFF04]);
         }
 
         if self.divider_register >= 255 && cpu.RAM[0xFF04] == 255 {

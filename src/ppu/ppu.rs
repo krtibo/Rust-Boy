@@ -1,3 +1,8 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unused_assignments)]
+#![allow(non_snake_case)]
+
 use cpu::CPU;
 extern crate minifb;
 
@@ -132,7 +137,7 @@ impl PPU {
         }
 
         let current_scanline : u8 = cpu.RAM[0xFF44];
-        let mut lcd_current_mode : u8 = lcd_status_reg & 0b0000_0011;
+        let lcd_current_mode : u8 = lcd_status_reg & 0b0000_0011;
         let mut lcd_mode : u8 = 0;
         let mut IRQ : bool = false;
 
@@ -146,8 +151,8 @@ impl PPU {
 
         } else {
 
-            let mut lcd_mode_2_lim : u16 = 456 - 80;
-            let mut lcd_mode_3_lim : u16 = lcd_mode_2_lim - 172;
+            let lcd_mode_2_lim : u16 = 456 - 80;
+            let lcd_mode_3_lim : u16 = lcd_mode_2_lim - 172;
             
             if self.scanline_count >= lcd_mode_2_lim {
             // its time for handling mode 2 interrupt

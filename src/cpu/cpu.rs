@@ -1,19 +1,22 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unused_assignments)]
+#![allow(non_snake_case)]
+
 use std::io::prelude::*;
 use std::fs::File;
 use std::collections::LinkedList;
 use opcode::Opcode;
 use cpu::debugger::Debugger;
 use cpu::debugger::DebugData;
-use std::{thread, time};
+// use std::{thread, time};
 use ppu::PPU;
 use timer::Timer;
 extern crate minifb;
 use self::minifb::{Key, KeyRepeat, Window, WindowOptions, Scale};
-#[allow(dead_code)]
 
 const CYCLES : u32 = 69905; // 4194304 (clock cycle) / 60
 
-#[allow(non_snake_case)]
 pub struct CPU {
     pub A : u8,
     pub B : u8,
@@ -67,7 +70,7 @@ impl CPU {
         opcode.init();
 
         loop {
-            while cycle < CYCLES && self.PC <= 65535 {
+            while cycle < CYCLES && self.PC <= 65534 {
                 // fetch and decode opcode
                 let instr_time : u8 = opcode.execute(self);
                 cycle += instr_time as u32;
@@ -82,8 +85,8 @@ impl CPU {
 
 
                 debug_data.parse_data_from_cpu(data);
-                 
-                //thread::sleep(time::Duration::from_millis(100));
+                // debugger.update_window(&debug_data);
+                // thread::sleep(time::Duration::from_millis(100));
                 if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                     loop {
                         debugger.update_window(&debug_data);
@@ -166,29 +169,14 @@ impl CPU {
             self.RAM[i] = rom_buffer[i];
         }
         println!("ROM copying done!");
+        self.PC = 0x100;
     }
 
 
-#[allow(dead_code)]
     pub fn write_ram(&mut self, address : u16, value : u8) {
         let TMC = 0xFF07; 
 
-        match address {
-            TMC => {
-                let old_freq = self.RAM[TMC as usize] & 0x3;
-                self.RAM[address as usize] = value;
-                let new_freq = self.RAM[TMC as usize] & 0x3;
-
-                if old_freq != new_freq {
-                    self.freq_change = true;
-                }
-            }
-            0xFF04 => { self.RAM[address as usize] = 0; }
-            0xFF44 => { self.RAM[address as usize] = 0; }
-            _ => { self.RAM[address as usize] = value; }
-        }
-
-/*         if address == TMC {
+        if address == TMC {
             let old_freq = self.RAM[TMC as usize] & 0x3;
             self.RAM[address as usize] = value;
             let new_freq = self.RAM[TMC as usize] & 0x3;
@@ -196,12 +184,15 @@ impl CPU {
             if old_freq != new_freq {
                 self.freq_change = true;
             }
-        } else if address == 0xFF04 {
-            self.RAM[address as usize] = 0;
-        } else {
-            self.RAM[address as usize] = value;
-        } */
+            return 
+        }
 
+        if address == 0xFF04 || address == 0xFF44 {
+            self.RAM[address as usize] = 0;
+            return 
+        }
+
+        self.RAM[address as usize] = value;
     }
 
 

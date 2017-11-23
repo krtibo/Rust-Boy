@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+
 pub mod cpu;
 pub mod test;
 pub mod ppu;
@@ -14,11 +16,11 @@ fn main() {
     //rust_boy.load_rom(String::from("./rom/test.gb"));
 
     
-    rust_boy.load_bootrom(String::from("./rom/boot_rom.gb"));
+    //rust_boy.load_bootrom(String::from("./rom/boot_rom.gb"));
     rust_boy.load_rom(String::from("./rom/tictac.gb"));
     rust_boy.cycle();
     
 
-/*     let mut t : Test = Test::new(rust_boy);
-    t.test_parser(); */
+    let t : Test = Test::new(rust_boy);
+    // t.test_parser();
 }

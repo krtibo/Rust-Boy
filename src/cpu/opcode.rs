@@ -1906,6 +1906,7 @@ impl Opcode {
 
     fn inc_nn_23(&mut self, cpu : &mut CPU) -> u8 {
         let mut hl : u16 = Opcode::byte_cat(cpu.H, cpu.L);
+
         hl = hl.wrapping_add(1);
         cpu.H = (hl >> 8) as u8;
         cpu.L = (hl & 0x00FF) as u8;
@@ -1987,6 +1988,7 @@ impl Opcode {
         }
 
         cpu.B = cpu.B.wrapping_sub(1);
+
 
         self.last_instruction = "DEC B";
         self.operand_mode = 0;
@@ -2965,8 +2967,8 @@ impl Opcode {
 
 
     fn add_an_86(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
             cpu.set_flag("H");
@@ -2974,7 +2976,7 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
@@ -2982,12 +2984,12 @@ impl Opcode {
 
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16 + b as u16) > 255 {
             cpu.set_flag("C");
-            cpu.A = 255;
+            cpu.A = a.wrapping_add(b);
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+            cpu.A = a.wrapping_add(b);
         }
 
         self.last_instruction = "ADD A,(HL)";
@@ -3562,14 +3564,14 @@ impl Opcode {
         let n : i8 = self.fetch(cpu) as i8;
 
         if cpu.get_flag("Z") == 0 && n <= 0 {
-            cpu.PC = cpu.PC - (-n) as u16;
+            cpu.PC = cpu.PC.wrapping_sub((-n as u16));
             self.rhs = (-n) as u16;
             self.last_instruction = "JR NZ, -";
             self.operand_mode = 1;
         } else 
 
         if cpu.get_flag("Z") == 0 && n > 0 {
-            cpu.PC = cpu.PC + (n as u16);
+            cpu.PC = cpu.PC.wrapping_add(n as u16);
             self.rhs = n as u16;
             self.last_instruction = "JR NZ,";
             self.operand_mode = 1;
@@ -3586,14 +3588,14 @@ impl Opcode {
         let n : i8 = self.fetch(cpu) as i8;
 
         if cpu.get_flag("Z") == 1 && n <= 0 {
-            cpu.PC = cpu.PC - (-n) as u16;
+            cpu.PC = cpu.PC.wrapping_sub((-n as u16));
             self.rhs = (-n) as u16;
             self.last_instruction = "JR Z, -";
             self.operand_mode = 1;
         } else 
 
         if cpu.get_flag("Z") == 1 && n > 0 {
-            cpu.PC = cpu.PC + (n as u16);
+            cpu.PC = cpu.PC.wrapping_add(n as u16);
             self.rhs = n as u16;
             self.last_instruction = "JR Z,";
             self.operand_mode = 1;
@@ -4931,7 +4933,7 @@ impl Opcode {
         let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
         if a == b {
-            cpu.set_flag("Z");
+            cpu.set_flag("Z");          
         } else {
             cpu.reset_flag("Z");
         }

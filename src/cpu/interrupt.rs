@@ -17,6 +17,7 @@ impl Interrupt {
     pub fn IRQ(&self, cpu : &mut CPU, t : u8) {
         let IR_flag : u8 = Interrupt::set_bit(t, cpu.RAM[0xFF0F]);
         cpu.RAM[0xFF0F] = IR_flag;
+        println!("IRQ number {}", t);
     }
 
     pub fn interrupt_checker(&mut self, cpu : &mut CPU) {

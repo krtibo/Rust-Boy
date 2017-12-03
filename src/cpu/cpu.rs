@@ -12,6 +12,7 @@ use cpu::debugger::DebugData;
 // use std::{thread, time};
 use ppu::PPU;
 use timer::Timer;
+use joypad::Joypad;
 extern crate minifb;
 use self::minifb::{Key, KeyRepeat, Window, WindowOptions, Scale};
 
@@ -48,7 +49,7 @@ impl CPU {
             H : 0,
             L : 0,
             SP : 0xFFFE,
-            PC : 0x100,
+            PC : 0,
             FLAG : 0,
             IR : false,
             RAM : [0; 65536],
@@ -67,15 +68,20 @@ impl CPU {
         //let mut vram : VRAM = VRAM::new();
         let mut ppu : PPU = PPU::new();
         let mut timer : Timer = Timer::new();
+        let mut joypad : Joypad = Joypad::new();
         opcode.init();
 
         loop {
             while cycle < CYCLES && self.PC <= 65534 {
                 // fetch and decode opcode
+                joypad.scan_window_button_pressed(&ppu.window, self);
+                self.RAM[0xFF00] = joypad.update_state(self);
+
                 let instr_time : u8 = opcode.execute(self);
                 cycle += instr_time as u32;
                 ppu.update_n_sync(self, instr_time);
-                
+
+
 
                 let data = self.assemble_debug_data(opcode.last_instruction.to_string(),
                                                     opcode.last_opcode,

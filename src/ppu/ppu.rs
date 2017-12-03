@@ -15,7 +15,7 @@ pub struct PPU {
     scroll_y : u8,
     window_x : u8,
     window_y : u8,
-    window : Window,
+    pub window : Window,
     framebuffer : [u32; 160*144],
 
 }
@@ -101,17 +101,44 @@ impl PPU {
             colour_num = colour_num << 1;
             colour_num |= PPU::get_bit(colourbit as u8, d1);
 
-            //let check : u8 = cpu.RAM[0xFF44];
-
-            if colour_num > 0 {
-                self.framebuffer[PPU::coords((i,cpu.RAM[0xFF44])) as usize] = 0xFF_00_FF_00;
-            }  else {
-                self.framebuffer[PPU::coords((i,cpu.RAM[0xFF44])) as usize] = 0;
-            }
+            self.framebuffer[PPU::coords((i,cpu.RAM[0xFF44])) as usize] = 
+            self.select_colors(cpu, colour_num, 0xFF47);
                 
         }
         
     }
+
+
+    fn select_colors(&mut self, cpu : &mut CPU, color_id : u8, addr : u16) -> u32 {
+        let mut color_hex : u32 = 0;
+        let mut color : u8 = 0;
+        let palette : u8 = cpu.RAM[addr as usize];
+        let mut high_bits : u8 = 0;
+        let mut low_bits : u8 = 0;
+
+        match color_id {
+            0 => { low_bits = 0; high_bits = 1; },
+            1 => { low_bits = 2; high_bits = 3; },
+            2 => { low_bits = 4; high_bits = 5; },
+            3 => { low_bits = 6; high_bits = 7; },
+            _ => { low_bits = 0; high_bits = 1; }
+        }
+
+        color = PPU::get_bit(high_bits, palette) << 1;
+        color = color | PPU::get_bit(low_bits, palette);
+
+        match color {
+            0 => color_hex = 0xFF9BBC0F,
+            1 => color_hex = 0xFF8BAC0F,
+            2 => color_hex = 0xFF306230,
+            3 => color_hex = 0xFF0F380F,
+            _ => color_hex = 0
+        }
+
+        color_hex
+    }
+
+
 
     fn lcd_status(&self, cpu : &mut CPU) -> bool {
     // get the state of the LCD control register
@@ -231,6 +258,6 @@ impl PPU {
     }
 
     fn coords(xy : (u8, u8)) -> u16 {
-        xy.1 as u16 * 160 + xy.0 as u16
+        (xy.1 - 1) as u16 * 160 + xy.0 as u16
     }
 }

@@ -35,6 +35,8 @@ pub struct CPU {
     pub RAM : [u8; 65536],
     pub STACK : LinkedList<u8>,
     freq_change : bool,
+    boot_rom : bool,
+    pub path : String,
 }
 
 impl CPU {
@@ -55,6 +57,8 @@ impl CPU {
             RAM : [0; 65536],
             STACK : LinkedList::new(),
             freq_change : false,
+            boot_rom : false,
+            path : String::from(""),
         }
     }
 
@@ -73,9 +77,23 @@ impl CPU {
 
         loop {
             while cycle < CYCLES && self.PC <= 65534 {
+
+                if self.PC == 0x100 && self.boot_rom == false {
+                    self.boot_rom = true;
+                    self.load_rom_header();
+                }
+
                 // fetch and decode opcode
                 joypad.scan_window_button_pressed(&ppu.window, self);
-                self.RAM[0xFF00] = joypad.update_state(self);
+
+                //self.RAM[0xFF00] = joypad.update_state(self);
+                if ppu.window.is_key_pressed(Key::S, KeyRepeat::Yes) {
+                    self.RAM[0xFF00] = 0x40;
+                }
+                if ppu.window.is_key_pressed(Key::W, KeyRepeat::Yes) {
+                    self.RAM[0xFF00] = 0xFF;
+                }
+
 
                 let instr_time : u8 = opcode.execute(self);
                 cycle += instr_time as u32;
@@ -91,14 +109,14 @@ impl CPU {
 
 
                 debug_data.parse_data_from_cpu(data);
-                // thread::sleep(time::Duration::from_millis(100));
+                //thread::sleep(time::Duration::from_millis(10));
                 if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
                     loop {
                         debugger.update_window(&debug_data);
                         if debugger.window.is_key_pressed(Key::LeftCtrl, KeyRepeat::No) {
                             println!("Stopped!");
                             break
-                        } 
+                        }
                     }
                 }
 
@@ -109,14 +127,15 @@ impl CPU {
 
                 timer.update(self, instr_time);
             }
+
             debugger.update_window(&debug_data);
             //vram.print_vram(self);
             ppu.render();
-            
+
             //println!("END OF THE CYCLE ------------------------");
             cycle = 0;
-        } 
-        
+        }
+
 /*
         while debugger.window.is_open() && !debugger.window.is_key_down(Key::Escape){
             debugger.update_window(&debug_data);
@@ -171,15 +190,28 @@ impl CPU {
         }
         println!("\nROM length (in bytes): {}", rom_buffer.len());
 
-        for i in 0x0100..rom_buffer.len() {
+        for i in 0x100..rom_buffer.len() {
             self.RAM[i] = rom_buffer[i];
         }
         println!("ROM copying done!");
     }
 
+    pub fn load_rom_header(&mut self) {
+        let mut rom_buffer : Vec<u8> = Vec::new();
+        let mut f = File::open(String::from("./rom/mario.gb"))
+        .expect("Error with file loading!");
+
+        f.read_to_end(&mut rom_buffer)
+        .expect("Error with file reading!");
+
+        for i in 0..0x100 {
+            self.RAM[i] = rom_buffer[i];
+        }
+    }
+
 
     pub fn write_ram(&mut self, address : u16, value : u8) {
-        let TMC = 0xFF07; 
+        let TMC = 0xFF07;
 
         if address == TMC {
             let old_freq = self.RAM[TMC as usize] & 0x3;
@@ -189,23 +221,23 @@ impl CPU {
             if old_freq != new_freq {
                 self.freq_change = true;
             }
-            return 
+            return
         }
 
         if address == 0xFF04 || address == 0xFF44 {
             self.RAM[address as usize] = 0;
-            return 
+            return
         }
 
         self.RAM[address as usize] = value;
     }
 
 
-    pub fn assemble_debug_data(&mut self, 
-        last_instruction : String, 
+    pub fn assemble_debug_data(&mut self,
+        last_instruction : String,
         last_opcode : u8,
-        lhs : u16, 
-        rhs : u16, 
+        lhs : u16,
+        rhs : u16,
         operand_mode : u8) -> (String, Vec<String>) {
 
            let actual_reg : Vec<String> = vec![
@@ -223,23 +255,23 @@ impl CPU {
            format!("{}", self.STACK.len()),
            ];
 
-           
+
 
            if operand_mode == 0 {
                /* println!("{}",format!("0x{:02X} : {}", last_opcode, last_instruction)); */
                (format!("0x{:02X} : {}", last_opcode, last_instruction), actual_reg)
            } else
            if operand_mode == 1 {
-/*                println!("{}",format!("0x{:02X} : {} 0x{:X}", 
-                                    last_opcode, 
-                                    last_instruction, 
+/*                println!("{}",format!("0x{:02X} : {} 0x{:X}",
+                                    last_opcode,
+                                    last_instruction,
                                     rhs)); */
                (format!("0x{:02X} : {} 0x{:X}", last_opcode, last_instruction, rhs), actual_reg)
            } else {
-/*                println!("{}",format!("0x{:02X} : {} 0x{:X} 0x{:X}", 
-               last_opcode, 
-               last_instruction, 
-               lhs, 
+/*                println!("{}",format!("0x{:02X} : {} 0x{:X} 0x{:X}",
+               last_opcode,
+               last_instruction,
+               lhs,
                rhs)); */
                (format!("0x{:02X} : {} 0x{:X} 0x{:X}", last_opcode, last_instruction, lhs, rhs), actual_reg)
            }
@@ -293,7 +325,7 @@ impl CPU {
             } else {
                 return 1
             }
-        } 
+        }
 
         if f == "N" {
             if self.FLAG & 0b0100_0000 == 0 {
@@ -301,7 +333,7 @@ impl CPU {
             } else {
                 return 1
             }
-        } 
+        }
 
         if f == "H" {
             if self.FLAG & 0b0010_0000 == 0 {
@@ -309,7 +341,7 @@ impl CPU {
             } else {
                 return 1
             }
-        }  
+        }
 
         if f == "C" {
             if self.FLAG & 0b0001_0000 == 0 {
@@ -340,7 +372,7 @@ impl CPU {
                                     opcode.rhs,
                                     opcode.operand_mode);
         println!("{}", data.0);
-    
+
         data
     }
 
@@ -406,7 +438,7 @@ impl CPU {
 
     fn get_bit(n : u8, reg : u8) -> bool {
         let mask : u8 = 1 << n;
-        
+
         if reg & mask == 0 {
             false
         } else {
@@ -417,7 +449,7 @@ impl CPU {
 }
 
 
-    
+
 
 
 
@@ -468,7 +500,7 @@ impl VRAM {
     pub fn print_vram(& mut self, cpu : &CPU) {
 
         for i in 0x8000..0xA000 {
-            
+
             if cpu.RAM[i] > 0 {
                 //println!("{:04X} : {:02X}", i, cpu.RAM[i]);
                 self.vram[i - 0x8000] = 0xFF_00_FF_00;
@@ -477,12 +509,12 @@ impl VRAM {
 
                 if i >= 0x9800 && i <= 0x9BFF {
                     self.vram[i - 0x8000] = 0xFF_FF_00_00;
-                    
-                } 
+
+                }
 
                 if i >= 0x8000 && i <= 0x8FFF {
                     self.vram[i - 0x8000] = 0xFF_00_00_FF;
-                } 
+                }
             }
 
 

@@ -51,11 +51,10 @@ impl PPU {
         self.scanline_count += cycle as u16;
         if self.scanline_count >= 456 {
             cpu.RAM[0xFF44] += 1;
-            
+
             self.scanline_count = 0;
 
             if cpu.RAM[0xFF44] < 144 {
-                // draw line
                 self.draw_line(cpu);
             }
 
@@ -71,21 +70,152 @@ impl PPU {
 
 
     fn draw_line(&mut self, cpu : &mut CPU) {
-        let tile_data : u16 = 0x8000;
-        let bg_mem : u16 = 0x9800;
-        let mut y_pos : u8 = 0;
 
-        y_pos = self.scroll_y + cpu.RAM[0xFF44];
+        if PPU::get_bit(0, cpu.RAM[0xFF40]) == 1  {
+            self.draw_tile(cpu);
+        }
+
+        if PPU::get_bit(1, cpu.RAM[0xFF40]) == 1  {
+            self.draw_sprite(cpu);
+        }
+    }
+
+
+
+    fn draw_sprite(&mut self, cpu : &mut CPU) {
+        let mut double_size : bool = false;
+
+        if PPU::get_bit(2, self.lcd_ctrl) == 1 {
+            double_size = true;
+        }
+
+        for i in 0..40 {
+            let sprite_addr : u16 = 0xFE00 + i * 4;
+            let y_pos : u8 = cpu.RAM[sprite_addr as usize].wrapping_sub(16);
+            let x_pos : u8 = cpu.RAM[(sprite_addr + 1) as usize].wrapping_sub(8);
+            let tile_location = (cpu.RAM[(sprite_addr + 2) as usize]) &
+                        (if double_size == true { 0xFE } else { 0xFF });
+            let attrib = cpu.RAM[(sprite_addr + 3) as usize];
+            let flip_x : bool = attrib & (1 << 5) != 0;
+            let flip_y : bool = attrib & (1 << 6) != 0;
+
+            let current_scanline : i16 = cpu.RAM[0xFF44] as i16;
+            let size_y : u8 = if double_size { 16 } else { 8 };
+
+            if current_scanline < y_pos as i16 ||
+            current_scanline >= (y_pos + size_y) as i16  { continue }
+
+            let mut line : i16 = (current_scanline) as i16;
+
+            if flip_y {
+                line = size_y as i16 - 1 - (line - y_pos as i16);
+            } else {
+                line = line - y_pos as i16;
+            }
+
+            let data_addr =
+            (0x8000 + (tile_location * 16) as u16 + line as u16 * 2) as u16;
+
+            let data_1 : u8 = cpu.RAM[data_addr as usize];
+            let data_2 : u8 = cpu.RAM[(data_addr + 1) as usize];
+
+            for j in (0..7).rev() {
+                let mut color_bit : i16 = j;
+
+
+                if flip_x {
+                    color_bit -= 7;
+                    color_bit *= -1;
+                }
+
+                let mut colour_num : u8 = PPU::get_bit(color_bit as u8, data_2);
+                colour_num = colour_num << 1;
+                colour_num |= PPU::get_bit(color_bit as u8, data_1);
+
+                let color_address : u16 =
+                if PPU::get_bit(4, attrib) == 1 { 0xFF49 } else { 0xFF48 };
+                let color : u32 = self.select_colors(cpu, colour_num, color_address);
+
+                if color == 0xFF9BBC0F {
+                    continue;
+                }
+
+                let pixel : u8 = x_pos as u8 + (7 - j as u8);
+
+                self.framebuffer[PPU::coords((pixel, cpu.RAM[0xFF44])) as usize] =
+                color;
+            }
+        }
+    }
+
+
+
+    fn draw_tile(&mut self, cpu : &mut CPU) {
+        let mut tile_data : u16 = 0;
+        let mut unsigned_data : bool = true;
+        let mut bg_mem : u16 = 0;
+        let mut y_pos : u8 = 0;
+        let mut using_window = false;
+
+        if PPU::get_bit(5, self.lcd_ctrl) == 1 {
+        // window enabled
+            if self.window_y <= cpu.RAM[0xFF44] {
+            // window on current line?
+                using_window = true;
+            }
+        }
+
+        if PPU::get_bit(4, self.lcd_ctrl) == 1 {
+        // tile data position
+            tile_data = 0x8000;
+        } else {
+            tile_data = 0x8800;
+            unsigned_data = false;
+        }
+
+        if !using_window {
+            if PPU::get_bit(3, self.lcd_ctrl) == 1 {
+                bg_mem = 0x9C00;
+            } else {
+                bg_mem = 0x9800;
+            }
+        } else {
+            if PPU::get_bit(6, self.lcd_ctrl) == 1 {
+                bg_mem = 0x9C00;
+            } else {
+                bg_mem = 0x9800;
+            }
+        }
+
+        if !using_window {
+            y_pos = self.scroll_y.wrapping_add(cpu.RAM[0xFF44]);
+        } else {
+            y_pos = cpu.RAM[0xFF44] - self.window_y;
+        }
+
         let tile_row : u16 = (y_pos as u16 / 8) * 32;
 
         for i in 0..160 {
-            let x_pos : u8 = i + self.scroll_x;
+            let mut x_pos : u8 = i + self.scroll_x;
+
+            if using_window && i >= self.window_x {
+                x_pos = i - self.window_x;
+            }
+
             let tile_col : u16 = x_pos as u16 / 8;
-            let tile_addr : u16 = bg_mem + tile_row + tile_col; 
-            let tile_num : u8 = cpu.RAM[tile_addr as usize];
+            let tile_addr : u16 = bg_mem + tile_row + tile_col;
+
+            let tile_num_u : u8 = cpu.RAM[tile_addr as usize];
+            let tile_num_i : i8 = cpu.RAM[tile_addr as usize] as i8;
 
             let mut tile_location : u16 = tile_data;
-            tile_location += tile_num as u16 * 16;
+
+            if unsigned_data {
+                tile_location += tile_num_u as u16 * 16;
+            } else {
+                tile_location += ((tile_num_i as i16 + 128) * 16) as u16;
+            }
+
             let mut line : u8 = y_pos % 8;
             line *= 2;
 
@@ -101,11 +231,11 @@ impl PPU {
             colour_num = colour_num << 1;
             colour_num |= PPU::get_bit(colourbit as u8, d1);
 
-            self.framebuffer[PPU::coords((i,cpu.RAM[0xFF44])) as usize] = 
+            self.framebuffer[PPU::coords((i,cpu.RAM[0xFF44])) as usize] =
             self.select_colors(cpu, colour_num, 0xFF47);
-                
+
         }
-        
+
     }
 
 
@@ -180,7 +310,7 @@ impl PPU {
 
             let lcd_mode_2_lim : u16 = 456 - 80;
             let lcd_mode_3_lim : u16 = lcd_mode_2_lim - 172;
-            
+
             if self.scanline_count >= lcd_mode_2_lim {
             // its time for handling mode 2 interrupt
 
@@ -188,7 +318,7 @@ impl PPU {
                 lcd_status_reg = PPU::set_bit(1, lcd_status_reg);
                 lcd_status_reg = PPU::reset_bit(0, lcd_status_reg);
                 IRQ = if PPU::get_bit(5, lcd_status_reg) == 1 { true } else { false };
-            
+
             } else if self.scanline_count >= lcd_mode_3_lim {
             // and now the mode 3 interrupt
 
@@ -228,7 +358,7 @@ impl PPU {
 
     fn get_bit(n : u8, reg : u8) -> u8 {
         let mask : u8 = 1 << n;
-        
+
         if reg & mask == 0 {
             0
         } else {

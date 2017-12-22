@@ -33,8 +33,7 @@ impl Timer {
         self.div_reg(cpu, cycle);
 
         if Timer::get_bit(2, cpu.RAM[self.TMC as usize]) {
-            self.timer_counter -= cycle as u32;
-            if self.timer_counter <= 0 {
+            if cycle as u32 > self.timer_counter  {
                 self.update_freq(cpu);
 
                 if cpu.RAM[self.TIMA as usize] == 255 {
@@ -46,6 +45,8 @@ impl Timer {
                     
                     cpu.write_ram(self.TIMA, TIMA + 1);
                 }
+            } else {
+                self.timer_counter -= cycle as u32;
             }
         }
     }

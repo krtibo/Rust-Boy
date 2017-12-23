@@ -100,6 +100,7 @@ impl Opcode {
         self.opc[0x6c] = Opcode::ld_r1r2_6c;
         self.opc[0x6d] = Opcode::ld_r1r2_6d;
         self.opc[0x6e] = Opcode::ld_r1r2_6e;
+        self.opc[0x36] = Opcode::ld_r1r2_36;
         // LD A,n
         self.opc[0x0a] = Opcode::ld_an_0a;
         self.opc[0x1a] = Opcode::ld_an_1a;
@@ -1586,8 +1587,8 @@ impl Opcode {
         let data_h : u8 = self.fetch(cpu);
         let sp = cpu.SP;
         let addr = Opcode::byte_cat(data_h, data_l);
-        cpu.write_ram(addr, (sp >> 8) as u8);
-        cpu.write_ram(addr + 1, (sp & 0x00FF) as u8);
+        cpu.write_ram(addr, (sp & 0x00FF) as u8);
+        cpu.write_ram(addr + 1, (sp >> 8) as u8);
 
         self.lhs = data_h as u16;
         self.rhs = data_l as u16;
@@ -3391,10 +3392,10 @@ impl Opcode {
 
         if (a + b) as u32 > 65535 {
             cpu.set_flag("C");
-            a = 65535;
+            a = a.wrapping_add(b);
         } else {
             cpu.reset_flag("C");
-            a += b;
+            a = a.wrapping_add(b);
         }
 
         cpu.H = (a >> 8) as u8;
@@ -3418,9 +3419,9 @@ impl Opcode {
 
         cpu.reset_flag("N");    // reset N flag
 
-        if a.wrapping_add(b) > 65535 {
+        if (a + b) as u32 > 65535 {
             cpu.set_flag("C");
-            a = 65535;
+            a = a.wrapping_add(b);
         } else {
             cpu.reset_flag("C");
             a = a.wrapping_add(b);
@@ -3449,10 +3450,10 @@ impl Opcode {
 
         if (a + b) as u32 > 65535 {
             cpu.set_flag("C");
-            a = 65535;
+            a = a.wrapping_add(b);
         } else {
             cpu.reset_flag("C");
-            a += b;
+            a = a.wrapping_add(b);
         }
 
         cpu.H = (a >> 8) as u8;
@@ -3476,12 +3477,12 @@ impl Opcode {
 
         cpu.reset_flag("N");    // reset N flag
 
-        if (a as u32 + b as u32) > 65535 {
+        if (a + b) as u32 > 65535 {
             cpu.set_flag("C");
-            a = 65535;
+            a = a.wrapping_add(b);
         } else {
             cpu.reset_flag("C");
-            a += b;
+            a = a.wrapping_add(b);
         }
 
         cpu.H = (a >> 8) as u8;
@@ -3616,14 +3617,14 @@ impl Opcode {
         let n : i8 = self.fetch(cpu) as i8;
 
         if cpu.get_flag("C") == 0 && n <= 0 {
-            cpu.PC = cpu.PC - (-n) as u16;
+            cpu.PC = cpu.PC.wrapping_sub((-n) as u16);
             self.rhs = (-n) as u16;
             self.last_instruction = "JR CZ, -";
             self.operand_mode = 1;
         } else
 
         if cpu.get_flag("C") == 0 && n > 0 {
-            cpu.PC = cpu.PC + (n as u16);
+            cpu.PC = cpu.PC.wrapping_add(n as u16);
             self.rhs = n as u16;
             self.last_instruction = "JR CZ,";
             self.operand_mode = 1;
@@ -3640,14 +3641,14 @@ impl Opcode {
         let n : i8 = self.fetch(cpu) as i8;
 
         if cpu.get_flag("C") == 1 && n <= 0 {
-            cpu.PC = cpu.PC - (-n) as u16;
+            cpu.PC = cpu.PC.wrapping_sub((-n) as u16);
             self.rhs = (-n) as u16;
             self.last_instruction = "JR C, -";
             self.operand_mode = 1;
         } else
 
         if cpu.get_flag("C") == 1 && n > 0 {
-            cpu.PC = cpu.PC + (n as u16);
+            cpu.PC = cpu.PC.wrapping_add(n as u16);
             self.rhs = n as u16;
             self.last_instruction = "JR C,";
             self.operand_mode = 1;
@@ -4748,7 +4749,7 @@ impl Opcode {
 
         if cpu.get_flag("N") == 0 {
             if cpu.A & 0x0F > 0x09 { adjust |= 0x06; }
-            if cpu.A > 0x99 { adjust |= 0x06; }
+            if cpu.A > 0x99 { adjust |= 0x60; }
             cpu.A = cpu.A.wrapping_add(adjust);
         } else {
             cpu.A = cpu.A.wrapping_sub(adjust);

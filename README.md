@@ -13,7 +13,7 @@ In the initial commit, I already made the project structure (which may be change
 ## Current TODOs
 
 - [ ] Implement and test the CPU instructions.
-  - [ ] **CRITICAL**: Correct the Stack implementation.
+  - [x] ~~**CRITICAL**: Correct the Stack implementation.~~
   - [x] Implementation.
   - [ ] Testing: 128 / 501.
 - [ ] Code cleaning.

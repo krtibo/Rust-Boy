@@ -1599,9 +1599,14 @@ impl Opcode {
 
 
     fn push_nn_f5(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.STACK.push_front(cpu.A);
-        cpu.STACK.push_front(cpu.F);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        let a : u8 = cpu.A;
+        let f : u8 = cpu.F;
+        //cpu.STACK.push_front(cpu.B);
+        //cpu.STACK.push_front(cpu.C);
+        cpu.write_ram(sp, f);
+        cpu.write_ram(sp + 1, a);
 
         self.last_instruction = "PUSH AF";
         self.operand_mode = 0;
@@ -1610,9 +1615,14 @@ impl Opcode {
 
 
     fn push_nn_c5(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.STACK.push_front(cpu.B);
-        cpu.STACK.push_front(cpu.C);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        let c : u8 = cpu.C;
+        let b : u8 = cpu.B;
+        //cpu.STACK.push_front(cpu.B);
+        //cpu.STACK.push_front(cpu.C);
+        cpu.write_ram(sp, c);
+        cpu.write_ram(sp + 1, b);
 
         self.last_instruction = "PUSH BC";
         self.operand_mode = 0;
@@ -1621,9 +1631,14 @@ impl Opcode {
 
 
     fn push_nn_d5(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.STACK.push_front(cpu.D);
-        cpu.STACK.push_front(cpu.E);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        let d : u8 = cpu.D;
+        let e : u8 = cpu.E;
+        //cpu.STACK.push_front(cpu.B);
+        //cpu.STACK.push_front(cpu.C);
+        cpu.write_ram(sp, e);
+        cpu.write_ram(sp + 1, d);
 
         self.last_instruction = "PUSH DE";
         self.operand_mode = 0;
@@ -1632,9 +1647,14 @@ impl Opcode {
 
 
     fn push_nn_e5(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.STACK.push_front(cpu.H);
-        cpu.STACK.push_front(cpu.L);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        let h : u8 = cpu.H;
+        let l : u8 = cpu.L;
+        //cpu.STACK.push_front(cpu.B);
+        //cpu.STACK.push_front(cpu.C);
+        cpu.write_ram(sp, l);
+        cpu.write_ram(sp + 1, h);
 
         self.last_instruction = "PUSH HL";
         self.operand_mode = 0;
@@ -1643,8 +1663,8 @@ impl Opcode {
 
 
     fn pop_nn_f1(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.F = cpu.STACK.pop_front().unwrap();
-        cpu.A = cpu.STACK.pop_front().unwrap();
+        cpu.F = cpu.RAM[cpu.SP as usize];
+        cpu.A = cpu.RAM[(cpu.SP + 1) as usize];
         cpu.SP += 2;
 
         self.last_instruction = "POP AF";
@@ -1654,8 +1674,8 @@ impl Opcode {
 
 
     fn pop_nn_c1(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.C = cpu.STACK.pop_front().unwrap();
-        cpu.B = cpu.STACK.pop_front().unwrap();
+        cpu.C = cpu.RAM[cpu.SP as usize];
+        cpu.B = cpu.RAM[(cpu.SP + 1) as usize];
         cpu.SP += 2;
 
         self.last_instruction = "POP BC";
@@ -1665,8 +1685,8 @@ impl Opcode {
 
 
     fn pop_nn_d1(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.E = cpu.STACK.pop_front().unwrap();
-        cpu.D = cpu.STACK.pop_front().unwrap();
+        cpu.E = cpu.RAM[cpu.SP as usize];
+        cpu.D = cpu.RAM[(cpu.SP + 1) as usize];
         cpu.SP += 2;
 
         self.last_instruction = "POP DE";
@@ -1676,8 +1696,8 @@ impl Opcode {
 
 
     fn pop_nn_e1(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.L = cpu.STACK.pop_front().unwrap();
-        cpu.H = cpu.STACK.pop_front().unwrap();
+        cpu.L = cpu.RAM[cpu.SP as usize];
+        cpu.H = cpu.RAM[(cpu.SP + 1) as usize];
         cpu.SP += 2;
 
         self.last_instruction = "POP HL";
@@ -3552,10 +3572,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
         cpu.SP -= 2;
-
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
         cpu.PC = Opcode::byte_cat(h,l);
 
         self.rhs = Opcode::byte_cat(h,l);
@@ -3771,9 +3791,10 @@ impl Opcode {
             let pc_h : u8 = ((cpu.PC) >> 8) as u8;
             let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-            cpu.STACK.push_front(pc_h);
-            cpu.STACK.push_front(pc_l);
             cpu.SP -= 2;
+            let sp : u16 = cpu.SP;
+            cpu.write_ram(sp, pc_l);
+            cpu.write_ram(sp + 1, pc_h);
             cpu.PC = Opcode::byte_cat(h,l);
         }
 
@@ -3794,9 +3815,10 @@ impl Opcode {
             let pc_h : u8 = ((cpu.PC) >> 8) as u8;
             let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-            cpu.STACK.push_front(pc_h);
-            cpu.STACK.push_front(pc_l);
             cpu.SP -= 2;
+            let sp : u16 = cpu.SP;
+            cpu.write_ram(sp, pc_l);
+            cpu.write_ram(sp + 1, pc_h);
             cpu.PC = Opcode::byte_cat(h,l);
         }
 
@@ -3817,9 +3839,10 @@ impl Opcode {
             let pc_h : u8 = ((cpu.PC) >> 8) as u8;
             let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-            cpu.STACK.push_front(pc_h);
-            cpu.STACK.push_front(pc_l);
             cpu.SP -= 2;
+            let sp : u16 = cpu.SP;
+            cpu.write_ram(sp, pc_l);
+            cpu.write_ram(sp + 1, pc_h);
             cpu.PC = Opcode::byte_cat(h,l);
         }
 
@@ -3840,9 +3863,10 @@ impl Opcode {
             let pc_h : u8 = ((cpu.PC) >> 8) as u8;
             let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-            cpu.STACK.push_front(pc_h);
-            cpu.STACK.push_front(pc_l);
             cpu.SP -= 2;
+            let sp : u16 = cpu.SP;
+            cpu.write_ram(sp, pc_l);
+            cpu.write_ram(sp + 1, pc_h);
             cpu.PC = Opcode::byte_cat(h,l);
         }
 
@@ -3859,9 +3883,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         cpu.PC = 0x0000;
 
@@ -3876,9 +3901,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         cpu.PC = 0x0008;
 
@@ -3893,9 +3919,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         cpu.PC = 0x0010;
 
@@ -3910,9 +3937,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         cpu.PC = 0x0018;
 
@@ -3927,9 +3955,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         cpu.PC = 0x0020;
 
@@ -3944,9 +3973,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         cpu.PC = 0x0028;
 
@@ -3962,9 +3992,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
         cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         cpu.PC = 0x0030;
 
@@ -3979,9 +4010,10 @@ impl Opcode {
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
 
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
-        cpu.SP = cpu.SP.wrapping_sub(2);
+        cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         cpu.PC = 0x0038;
 
@@ -3993,8 +4025,8 @@ impl Opcode {
 
     fn ret_c9(&mut self, cpu : &mut CPU) -> u8 {
 
-        let l : u8 = cpu.STACK.pop_front().unwrap();
-        let h : u8 = cpu.STACK.pop_front().unwrap();
+        let l : u8 = cpu.RAM[cpu.SP as usize];
+        let h : u8 = cpu.RAM[(cpu.SP + 1) as usize];
         cpu.SP += 2;
         cpu.PC = Opcode::byte_cat(h, l);
 
@@ -4006,8 +4038,8 @@ impl Opcode {
 
     fn reti_d9(&mut self, cpu : &mut CPU) -> u8 {
 
-        let l : u8 = cpu.STACK.pop_front().unwrap();
-        let h : u8 = cpu.STACK.pop_front().unwrap();
+        let l : u8 = cpu.RAM[cpu.SP as usize];
+        let h : u8 = cpu.RAM[(cpu.SP + 1) as usize];
         cpu.SP += 2;
         cpu.PC = Opcode::byte_cat(h, l);
 
@@ -4022,8 +4054,8 @@ impl Opcode {
     fn ret_cc_c0(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.get_flag("Z") == 0 {
-            let l : u8 = cpu.STACK.pop_front().unwrap();
-            let h : u8 = cpu.STACK.pop_front().unwrap();
+            let l : u8 = cpu.RAM[cpu.SP as usize];
+            let h : u8 = cpu.RAM[(cpu.SP + 1) as usize];
             cpu.SP += 2;
             cpu.PC = Opcode::byte_cat(h, l);
         }
@@ -4037,8 +4069,8 @@ impl Opcode {
     fn ret_cc_c8(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.get_flag("Z") == 1 {
-            let l : u8 = cpu.STACK.pop_front().unwrap();
-            let h : u8 = cpu.STACK.pop_front().unwrap();
+            let l : u8 = cpu.RAM[cpu.SP as usize];
+            let h : u8 = cpu.RAM[(cpu.SP + 1) as usize];
             cpu.SP += 2;
             cpu.PC = Opcode::byte_cat(h, l);
         }
@@ -4052,8 +4084,8 @@ impl Opcode {
     fn ret_cc_d0(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.get_flag("C") == 0 {
-            let l : u8 = cpu.STACK.pop_front().unwrap();
-            let h : u8 = cpu.STACK.pop_front().unwrap();
+            let l : u8 = cpu.RAM[cpu.SP as usize];
+            let h : u8 = cpu.RAM[(cpu.SP + 1) as usize];
             cpu.SP += 2;
             cpu.PC = Opcode::byte_cat(h, l);
         }
@@ -4067,8 +4099,8 @@ impl Opcode {
     fn ret_cc_d8(&mut self, cpu : &mut CPU) -> u8 {
 
         if cpu.get_flag("C") == 1 {
-            let l : u8 = cpu.STACK.pop_front().unwrap();
-            let h : u8 = cpu.STACK.pop_front().unwrap();
+            let l : u8 = cpu.RAM[cpu.SP as usize];
+            let h : u8 = cpu.RAM[(cpu.SP + 1) as usize];
             cpu.SP += 2;
             cpu.PC = Opcode::byte_cat(h, l);
         }

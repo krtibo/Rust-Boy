@@ -12,7 +12,10 @@ In the initial commit, I already made the project structure (which may be change
 
 ## Current TODOs
 
-- [ ] Test the already written instructions.
+- [ ] Implement and test the CPU instructions.
+  - [ ] **CRITICAL**: Correct the Stack implementation.
+  - [x] Implementation.
+  - [ ] Testing: 128 / 501.
 - [ ] Code cleaning.
 - [x] ~~Initial commit.~~
 - [x] ~~Combine the emulator with the debugger/tester I wrote for debugging the instructions.~~
@@ -21,12 +24,8 @@ In the initial commit, I already made the project structure (which may be change
   - [x] Testing.
   - [x] Keypress-to-stop-CPU mechanism so I can check out the listed instructions.
 - [x] ~~Check _every_ flag set / unset~~
-
-## Roadmap
-
-- [ ] Implement and test the CPU instructions.
-- [ ] Implement the rendering.
-  - [x] ~~Tile rendering.~~
-  - [ ] Sprite rendering.
+- [x] ~~Implement the rendering.~~
+  - [x] Tile rendering.
+  - [x] Sprite rendering.
 - [x] ~~Implement the CPU timing / interrupts.~~
 - [x] ~~Research and implement the GPU timing.~~

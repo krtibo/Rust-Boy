@@ -211,12 +211,17 @@ impl CPU {
 
 
     pub fn write_ram(&mut self, address : u16, value : u8) {
-        let TMC = 0xFF07;
 
-        if address == TMC {
-            let old_freq = self.RAM[TMC as usize] & 0x3;
+        if address == 0xFF46 {
+            println!("DMA!");
+            self.dma(value);
+            return
+        }
+
+        if address == 0xFF07 {
+            let old_freq = self.RAM[0xFF07] & 0x3;
             self.RAM[address as usize] = value;
-            let new_freq = self.RAM[TMC as usize] & 0x3;
+            let new_freq = self.RAM[0xFF07] & 0x3;
 
             if old_freq != new_freq {
                 self.freq_change = true;
@@ -230,6 +235,15 @@ impl CPU {
         }
 
         self.RAM[address as usize] = value;
+    }
+
+    pub fn dma(&mut self, value : u8) {
+        let addr : u16 = (value as u16) << 8;
+
+        for i in 0..0xA0 {
+            let n : u8 = self.RAM[(addr + i) as usize];
+            self.write_ram(0xFE00 + i, n);
+        }
     }
 
 
@@ -409,8 +423,10 @@ impl CPU {
         // push address onto stack
         let pc_h : u8 = ((self.PC) >> 8) as u8;
         let pc_l : u8 = ((self.PC) & 0x00FF) as u8;
-        self.STACK.push_front(pc_h);
-        self.STACK.push_front(pc_l);
+        self.SP -= 2;
+        let sp : u16 = self.SP;
+        self.write_ram(sp, pc_l);
+        self.write_ram(sp + 1, pc_h);
 
         // jump to interrupt function on RAM
         match t {

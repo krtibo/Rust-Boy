@@ -90,38 +90,39 @@ impl PPU {
         }
 
         for i in 0..40 {
-            let sprite_addr : u16 = 0xFE00 + i * 4;
-            let y_pos : u8 = cpu.RAM[sprite_addr as usize].wrapping_sub(16);
-            let x_pos : u8 = cpu.RAM[(sprite_addr + 1) as usize].wrapping_sub(8);
-            let tile_location = (cpu.RAM[(sprite_addr + 2) as usize]) &
-                        (if double_size == true { 0xFE } else { 0xFF });
+            let sprite_addr : u16 = 0xFE00 + (39 - i) as u16 * 4;
+            let y_pos : i32 = cpu.RAM[sprite_addr as usize] as u16 as i32 - 16;
+            let x_pos : i32 = cpu.RAM[(sprite_addr + 1) as usize] as u16 as i32 - 8;
+            let tile_location : u16 = ((cpu.RAM[(sprite_addr + 2) as usize]) &
+                        (if double_size == true { 0xFE } else { 0xFF })) as u16;
             let attrib = cpu.RAM[(sprite_addr + 3) as usize];
             let flip_x : bool = attrib & (1 << 5) != 0;
             let flip_y : bool = attrib & (1 << 6) != 0;
 
-            let current_scanline : i16 = cpu.RAM[0xFF44] as i16;
-            let size_y : u8 = if double_size { 16 } else { 8 };
+            let current_scanline : i32 = cpu.RAM[0xFF44] as i32;
+            let size_y : i32 = if double_size { 16 } else { 8 };
 
-            if current_scanline < y_pos as i16 ||
-            current_scanline >= (y_pos + size_y) as i16  { continue }
+            if current_scanline < y_pos ||
+            current_scanline >= (y_pos + size_y)  { continue }
 
-            let mut line : i16 = (current_scanline) as i16;
+            println!("addr {} {} {}",
+            cpu.RAM[sprite_addr as usize],
+            cpu.RAM[(sprite_addr + 1) as usize],
+            cpu.RAM[(sprite_addr + 3) as usize]);
 
-            if flip_y {
-                line = size_y as i16 - 1 - (line - y_pos as i16);
+            let line : u16 = if flip_y {
+                (size_y - 1 - (current_scanline - y_pos)) as u16
             } else {
-                line = line - y_pos as i16;
-            }
+                (current_scanline - y_pos) as u16
+            };
 
-            let data_addr =
-            (0x8000 + (tile_location * 16) as u16 + line as u16 * 2) as u16;
+            let data_addr = 0x8000 + (tile_location * 16) + line * 2;
 
             let data_1 : u8 = cpu.RAM[data_addr as usize];
             let data_2 : u8 = cpu.RAM[(data_addr + 1) as usize];
 
             for j in (0..7).rev() {
                 let mut color_bit : i16 = j;
-
 
                 if flip_x {
                     color_bit -= 7;

@@ -101,6 +101,14 @@ impl Opcode {
         self.opc[0x6d] = Opcode::ld_r1r2_6d;
         self.opc[0x6e] = Opcode::ld_r1r2_6e;
         self.opc[0x36] = Opcode::ld_r1r2_36;
+        self.opc[0x70] = Opcode::ld_r1r2_70;
+        self.opc[0x71] = Opcode::ld_r1r2_71;
+        self.opc[0x72] = Opcode::ld_r1r2_72;
+        self.opc[0x73] = Opcode::ld_r1r2_73;
+        self.opc[0x74] = Opcode::ld_r1r2_74;
+        self.opc[0x75] = Opcode::ld_r1r2_75;
+
+
         // LD A,n
         self.opc[0x0a] = Opcode::ld_an_0a;
         self.opc[0x1a] = Opcode::ld_an_1a;
@@ -304,6 +312,7 @@ impl Opcode {
         self.opc[0x1f] = Opcode::rra_1f;
         self.opc[0x2f] = Opcode::cpl_2f;
         self.opc[0x27] = Opcode::daa_27;
+        self.opc[0xf8] = Opcode::ld_hl_sp_f8;
 
 
 
@@ -314,7 +323,7 @@ impl Opcode {
 
 
 
-        self.cb_opc[0x11] = Opcode::cb_rl_11;
+
         self.cb_opc[0x40] = Opcode::cb_bit_40;
         self.cb_opc[0x50] = Opcode::cb_bit_50;
         self.cb_opc[0x60] = Opcode::cb_bit_60;
@@ -1415,7 +1424,7 @@ impl Opcode {
 
 
     fn ld_ac_f2(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.A = cpu.RAM[0xFF00 + cpu.C as usize];
+        cpu.A = cpu.RAM[0xFF00 | cpu.C as usize];
 
         self.last_instruction = "LD A,(C)";
         self.operand_mode = 0;
@@ -1424,7 +1433,7 @@ impl Opcode {
 
 
     fn ld_ca_e2(&mut self, cpu : &mut CPU) -> u8 {
-        let addr = 0xFF00 + cpu.C as u16;
+        let addr = 0xFF00 | cpu.C as u16;
         let a = cpu.A;
         cpu.write_ram(addr, a);
 
@@ -1492,7 +1501,7 @@ impl Opcode {
 
     fn ldh_na_e0(&mut self, cpu : &mut CPU) -> u8 {
         let n : u8 = self.fetch(cpu);
-        let addr = 0xFF00 + n as u16;
+        let addr = 0xFF00 | n as u16;
         let a = cpu.A;
         cpu.write_ram(addr, a);
 
@@ -1505,7 +1514,7 @@ impl Opcode {
 
     fn ldh_an_f0(&mut self, cpu : &mut CPU) -> u8 {
         let n : u8 = self.fetch(cpu);
-        cpu.A = cpu.RAM[0xFF00 + n as usize];
+        cpu.A = cpu.RAM[0xFF00 | n as usize];
 
         self.rhs = n as u16;
         self.last_instruction = "LDH A, (n)";
@@ -1663,8 +1672,14 @@ impl Opcode {
 
 
     fn pop_nn_f1(&mut self, cpu : &mut CPU) -> u8 {
-        cpu.F = cpu.RAM[cpu.SP as usize];
-        cpu.A = cpu.RAM[(cpu.SP + 1) as usize];
+
+        let f : u16 = cpu.RAM[cpu.SP as usize] as u16;
+        let a : u16 = (cpu.RAM[(cpu.SP + 1) as usize] as u16) << 8;
+        let mut af : u16 = a | f;
+        af &= 0xFFF0;
+
+        cpu.F = (af & 0x00FF) as u8;
+        cpu.A = (af >> 8) as u8;
         cpu.SP += 2;
 
         self.last_instruction = "POP AF";
@@ -3515,51 +3530,27 @@ impl Opcode {
 
 
     fn add_sp_n_e8(&mut self, cpu : &mut CPU) -> u8 {
-        let mut n : i8 = self.fetch(cpu) as i8;
+        let n : u16 = self.fetch(cpu) as i8 as i16 as u16;
 
         cpu.reset_flag("Z");
         cpu.reset_flag("N");
 
-        if n < 0 {
-
-            self.last_instruction = "ADD SP,-";
-
-            n = -n;
-
-            if (cpu.SP & 0x0FFF) < (n as u16 & 0x0FFF) {
-                cpu.set_flag("H");
-            } else {
-                cpu.reset_flag("H");
-            }
-
-            if cpu.SP < n as u16 {
-                cpu.set_flag("C");
-            } else {
-                cpu.reset_flag("C");
-            }
-
-            cpu.SP = cpu.SP.wrapping_sub(n as u16);
-
+        if (cpu.SP & 0x000F) + (n & 0x000F) > 0x000F {
+            cpu.set_flag("H");
         } else {
-
-            self.last_instruction = "ADD SP,";
-
-            if (((cpu.SP & 0x0fff) + (n as u16 & 0x0fff)) & 0x1000) == 0x1000 {
-                cpu.set_flag("H");
-            } else {
-                cpu.reset_flag("H");
-            }
-
-            if cpu.SP as u32 + n as u32 > 65535 {
-                cpu.set_flag("C");
-            } else {
-                cpu.reset_flag("C");
-            }
-
-            cpu.SP = cpu.SP.wrapping_add(n as u16);
+            cpu.reset_flag("H");
         }
 
-        self.rhs = n as u16;
+        if (cpu.SP & 0x00FF) + (n & 0x00FF) > 0x00FF {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        cpu.SP = cpu.SP.wrapping_add(n);
+
+        self.rhs = n;
+        self.last_instruction = "ADD SP,";
         self.operand_mode = 1;
         16
     }
@@ -9185,6 +9176,35 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
         self.last_instruction = "CB - RR (HL)";
         self.operand_mode = 0;
         16
+    }
+
+
+    fn ld_hl_sp_f8(&mut self, cpu : &mut CPU) -> u8 {
+        let data : u16 = self.fetch(cpu) as i8 as i16 as u16;
+
+        cpu.reset_flag("N");
+        cpu.reset_flag("Z");
+
+        if (cpu.SP & 0x000F) + (data & 0x000F) > 0x000F {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
+        if (cpu.SP & 0x00FF) + (data & 0x00FF) > 0x00FF {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        let hl : u16 = cpu.SP.wrapping_add(data);
+        cpu.H = (hl >> 8) as u8;
+        cpu.L = (hl & 0x00FF) as u8;
+
+        self.rhs = data as u16;
+        self.last_instruction = "LD HL,SP";
+        self.operand_mode = 1;
+        12
     }
 
 

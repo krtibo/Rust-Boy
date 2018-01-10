@@ -1501,7 +1501,7 @@ impl Opcode {
 
     fn ldh_na_e0(&mut self, cpu : &mut CPU) -> u8 {
         let n : u8 = self.fetch(cpu);
-        let addr = 0xFF00 | n as u16;
+        let addr = 0xFF00 + n as u16;
         let a = cpu.A;
         cpu.write_ram(addr, a);
 
@@ -1514,7 +1514,7 @@ impl Opcode {
 
     fn ldh_an_f0(&mut self, cpu : &mut CPU) -> u8 {
         let n : u8 = self.fetch(cpu);
-        cpu.A = cpu.RAM[0xFF00 | n as usize];
+        cpu.A = cpu.RAM[0xFF00 + n as usize];
 
         self.rhs = n as u16;
         self.last_instruction = "LDH A, (n)";
@@ -2782,29 +2782,29 @@ impl Opcode {
 
 
     fn add_an_87(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = cpu.A as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.A;
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
+        cpu.A = a.wrapping_add(b);
 
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.A;
         }
 
         self.last_instruction = "ADD A,A";
@@ -2814,29 +2814,28 @@ impl Opcode {
 
 
     fn add_an_80(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = cpu.B as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.B;
+        cpu.A = a.wrapping_add(b);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.B;
         }
 
         self.last_instruction = "ADD A,B";
@@ -2846,29 +2845,29 @@ impl Opcode {
 
 
     fn add_an_81(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = cpu.C as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.C;
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
+        cpu.A = a.wrapping_add(b);
 
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.C;
         }
 
         self.last_instruction = "ADD A,C";
@@ -2878,29 +2877,29 @@ impl Opcode {
 
 
     fn add_an_82(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = cpu.D as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.D;
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
+        cpu.A = a.wrapping_add(b);
 
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.D;
         }
 
         self.last_instruction = "ADD A,D";
@@ -2910,29 +2909,29 @@ impl Opcode {
 
 
     fn add_an_83(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = cpu.E as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.E;
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
+        cpu.A = a.wrapping_add(b);
 
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.E;
         }
 
         self.last_instruction = "ADD A,E";
@@ -2942,29 +2941,29 @@ impl Opcode {
 
 
     fn add_an_84(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = cpu.H as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.H;
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
+        cpu.A = a.wrapping_add(b);
 
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.H;
         }
 
         self.last_instruction = "ADD A,H";
@@ -2974,29 +2973,29 @@ impl Opcode {
 
 
     fn add_an_85(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = cpu.L as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.L;
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
+        cpu.A = a.wrapping_add(b);
 
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.L;
         }
 
         self.last_instruction = "ADD A,L";
@@ -3009,11 +3008,7 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
+        cpu.A = a.wrapping_add(b);
 
         if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
@@ -3021,14 +3016,18 @@ impl Opcode {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a as u16 + b as u16) > 255 {
+        if (a as u16) + (b as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = a.wrapping_add(b);
         } else {
             cpu.reset_flag("C");
-            cpu.A = a.wrapping_add(b);
         }
 
         self.last_instruction = "ADD A,(HL)";
@@ -3038,32 +3037,32 @@ impl Opcode {
 
 
     fn add_an_c6(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let b : u16 = self.fetch(cpu) as u16;
+        let a : u8 = cpu.A;
+        let b : u8 = self.fetch(cpu);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
+        cpu.A = a.wrapping_add(b);
 
-        if a + b == 0 {
+        if a.wrapping_add(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.reset_flag("N");
-
-        if (a + b) > 255 {
-            cpu.set_flag("C");
-            cpu.A = 255;
+        if (a & 0xF) + (b & 0xF) > 0xF {
+            cpu.set_flag("H");
         } else {
-            cpu.reset_flag("C");
-            cpu.A += b as u8;
+            cpu.reset_flag("H");
         }
 
-        self.rhs = b;
+        cpu.reset_flag("N");
+
+        if (a as u16) + (b as u16) > 0xFF {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.rhs = b as u16;
         self.last_instruction = "ADD A,";
         self.operand_mode = 1;
         8
@@ -3071,35 +3070,30 @@ impl Opcode {
 
 
     fn adc_an_8f(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = cpu.A as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.A;
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.A + carry;
         }
 
         self.last_instruction = "ADC A,A";
@@ -3109,35 +3103,30 @@ impl Opcode {
 
 
     fn adc_an_88(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = cpu.B as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.B;
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.B + carry;
         }
 
         self.last_instruction = "ADC A,B";
@@ -3147,35 +3136,30 @@ impl Opcode {
 
 
     fn adc_an_89(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = cpu.C as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.C;
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.C + carry;
         }
 
         self.last_instruction = "ADC A,C";
@@ -3185,35 +3169,30 @@ impl Opcode {
 
 
     fn adc_an_8a(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = cpu.D as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.D;
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.D + carry;
         }
 
         self.last_instruction = "ADC A,D";
@@ -3223,35 +3202,30 @@ impl Opcode {
 
 
     fn adc_an_8b(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = cpu.E as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.E;
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.E + carry;
         }
 
         self.last_instruction = "ADC A,E";
@@ -3261,35 +3235,30 @@ impl Opcode {
 
 
     fn adc_an_8c(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = cpu.H as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.H;
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.H + carry;
         }
 
         self.last_instruction = "ADC A,H";
@@ -3299,35 +3268,30 @@ impl Opcode {
 
 
     fn adc_an_8d(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = cpu.L as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.L;
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.L + carry;
         }
 
         self.last_instruction = "ADC A,L";
@@ -3337,35 +3301,30 @@ impl Opcode {
 
 
     fn adc_an_8e(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
+        } else {
+            cpu.reset_flag("H");
+        }
+
         cpu.reset_flag("N");
 
-        if (a + b) > 255 {
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
             cpu.set_flag("C");
-            cpu.A = 255;
         } else {
             cpu.reset_flag("C");
-            cpu.A += cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize] + carry;
         }
 
         self.last_instruction = "ADC A,(HL)";
@@ -3375,38 +3334,33 @@ impl Opcode {
 
 
     fn adc_an_ce(&mut self, cpu : &mut CPU) -> u8 {
-        let a : u16 = cpu.A as u16;
-        let mut b : u16 = self.fetch(cpu) as u16;
-        let mut carry : u8 = cpu.FLAG & 0b0001_0000;
+        let a : u8 = cpu.A;
+        let b : u8 = self.fetch(cpu);
+        let c : u8 = cpu.get_flag("C");
 
-        if carry > 0 {
-            carry = 1;
-            b += carry as u16;
-        }
+        cpu.A = a.wrapping_add(b).wrapping_add(c);
 
-        if (((a & 0xf) + (b & 0xf)) & 0x10) == 0x10 {
-            cpu.set_flag("H");
-        } else {
-            cpu.reset_flag("H");
-        }
-
-        if a + b == 0 {
+        if a.wrapping_add(b).wrapping_add(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.reset_flag("N");
-
-        if a.wrapping_add(b) > 255 {
-            cpu.set_flag("C");
-            cpu.A = 255;
+        if (a & 0xF) + (b & 0xF) + c > 0xF {
+            cpu.set_flag("H");
         } else {
-            cpu.reset_flag("C");
-            cpu.A = cpu.A.wrapping_add(b as u8 + carry);
+            cpu.reset_flag("H");
         }
 
-        self.rhs = b;
+        cpu.reset_flag("N");
+
+        if (a as u16) + (b as u16) + (c as u16) > 0xFF {
+            cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
+        }
+
+        self.rhs = b as u16;
         self.last_instruction = "ADC A,";
         self.operand_mode = 1;
         8
@@ -3417,7 +3371,7 @@ impl Opcode {
         let mut a : u16 = Opcode::byte_cat(cpu.H, cpu.L);
         let b : u16 = Opcode::byte_cat(cpu.B, cpu.C);
 
-        if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
+        if (a & 0x07FF) + (b & 0x07FF) > 0x07FF {
             cpu.set_flag("H");    // set H flag
         } else {
             cpu.reset_flag("H");
@@ -3425,7 +3379,7 @@ impl Opcode {
 
         cpu.reset_flag("N");    // reset N flag
 
-        if (a + b) as u32 > 65535 {
+        if a > 0xFFFF - b {
             cpu.set_flag("C");
             a = a.wrapping_add(b);
         } else {
@@ -3446,7 +3400,7 @@ impl Opcode {
         let mut a : u16 = Opcode::byte_cat(cpu.H, cpu.L);
         let b : u16 = Opcode::byte_cat(cpu.D, cpu.E);
 
-        if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
+        if (a & 0x07FF) + (b & 0x07FF) > 0x07FF {
             cpu.set_flag("H");    // set H flag
         } else {
             cpu.reset_flag("H");
@@ -3454,7 +3408,7 @@ impl Opcode {
 
         cpu.reset_flag("N");    // reset N flag
 
-        if (a + b) as u32 > 65535 {
+        if a > 0xFFFF - b {
             cpu.set_flag("C");
             a = a.wrapping_add(b);
         } else {
@@ -3475,7 +3429,7 @@ impl Opcode {
         let mut a : u16 = Opcode::byte_cat(cpu.H, cpu.L);
         let b : u16 = Opcode::byte_cat(cpu.H, cpu.L);
 
-        if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
+        if (a & 0x07FF) + (b & 0x07FF) > 0x07FF {
             cpu.set_flag("H");    // set H flag
         } else {
             cpu.reset_flag("H");
@@ -3483,7 +3437,7 @@ impl Opcode {
 
         cpu.reset_flag("N");    // reset N flag
 
-        if (a + b) as u32 > 65535 {
+        if a > 0xFFFF - b {
             cpu.set_flag("C");
             a = a.wrapping_add(b);
         } else {
@@ -3504,7 +3458,7 @@ impl Opcode {
         let mut a : u16 = Opcode::byte_cat(cpu.H, cpu.L);
         let b : u16 = cpu.SP;
 
-        if (((a & 0x0fff) + (b & 0x0fff)) & 0x1000) == 0x1000 {
+        if (a & 0x07FF) + (b & 0x07FF) > 0x07FF {
             cpu.set_flag("H");    // set H flag
         } else {
             cpu.reset_flag("H");
@@ -3512,7 +3466,7 @@ impl Opcode {
 
         cpu.reset_flag("N");    // reset N flag
 
-        if (a + b) as u32 > 65535 {
+        if a > 0xFFFF - b {
             cpu.set_flag("C");
             a = a.wrapping_add(b);
         } else {
@@ -4163,13 +4117,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.A;
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4177,13 +4131,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.last_instruction = "SUB A, A";
         self.operand_mode = 0;
@@ -4196,13 +4150,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.B;
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4210,13 +4164,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.last_instruction = "SUB A, B";
         self.operand_mode = 0;
@@ -4229,13 +4183,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.C;
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4243,13 +4197,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.last_instruction = "SUB A, C";
         self.operand_mode = 0;
@@ -4262,13 +4216,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.D;
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4276,13 +4230,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.last_instruction = "SUB A, D";
         self.operand_mode = 0;
@@ -4295,13 +4249,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.E;
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4309,13 +4263,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.last_instruction = "SUB A, E";
         self.operand_mode = 0;
@@ -4328,13 +4282,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.H;
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4342,13 +4296,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.last_instruction = "SUB A, H";
         self.operand_mode = 0;
@@ -4361,13 +4315,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.L;
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4375,13 +4329,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.last_instruction = "SUB A, L";
         self.operand_mode = 0;
@@ -4394,13 +4348,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4408,13 +4362,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.last_instruction = "SUB A, (HL)";
         self.operand_mode = 0;
@@ -4427,13 +4381,13 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = self.fetch(cpu);
 
-        if a == b {
+        cpu.A = a.wrapping_sub(b);
+
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4441,13 +4395,13 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b);
 
         self.rhs = b as u16;
         self.last_instruction = "SUB A,";
@@ -4462,27 +4416,27 @@ impl Opcode {
         let b : u8 = cpu.A;
         let c : u8 = cpu.get_flag("C");
 
-        if a == b.wrapping_add(c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < b.wrapping_add(c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b.wrapping_add(c));
 
         self.last_instruction = "SBC A, A";
         self.operand_mode = 0;
@@ -4496,27 +4450,27 @@ impl Opcode {
         let b : u8 = cpu.B;
         let c : u8 = cpu.get_flag("C");
 
-        if a == (b + c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < (b + c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b + c);
 
         self.last_instruction = "SBC A, B";
         self.operand_mode = 0;
@@ -4530,27 +4484,27 @@ impl Opcode {
         let b : u8 = cpu.C;
         let c : u8 = cpu.get_flag("C");
 
-        if a == (b + c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < (b + c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b + c);
 
         self.last_instruction = "SBC A, C";
         self.operand_mode = 0;
@@ -4564,27 +4518,27 @@ impl Opcode {
         let b : u8 = cpu.D;
         let c : u8 = cpu.get_flag("C");
 
-        if a == (b + c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < (b + c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b + c);
 
         self.last_instruction = "SBC A, D";
         self.operand_mode = 0;
@@ -4598,27 +4552,27 @@ impl Opcode {
         let b : u8 = cpu.E;
         let c : u8 = cpu.get_flag("C");
 
-        if a == (b + c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < (b + c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b + c);
 
         self.last_instruction = "SBC A, E";
         self.operand_mode = 0;
@@ -4632,27 +4586,27 @@ impl Opcode {
         let b : u8 = cpu.H;
         let c : u8 = cpu.get_flag("C");
 
-        if a == (b + c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < (b + c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b + c);
 
         self.last_instruction = "SBC A, H";
         self.operand_mode = 0;
@@ -4666,27 +4620,27 @@ impl Opcode {
         let b : u8 = cpu.L;
         let c : u8 = cpu.get_flag("C");
 
-        if a == (b + c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < (b + c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b + c);
 
         self.last_instruction = "SBC A, L";
         self.operand_mode = 0;
@@ -4700,27 +4654,27 @@ impl Opcode {
         let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
         let c : u8 = cpu.get_flag("C");
 
-        if a == (b + c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < (b + c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b + c);
 
         self.last_instruction = "SBC A, (HL)";
         self.operand_mode = 0;
@@ -4734,27 +4688,27 @@ impl Opcode {
         let b : u8 = self.fetch(cpu);
         let c : u8 = cpu.get_flag("C");
 
-        if a == (b + c) {
+        cpu.A = a.wrapping_sub(b).wrapping_sub(c);
+
+        if a.wrapping_sub(b).wrapping_sub(c) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
 
-        cpu.set_flag("N");
-
-        if (a & 0x0F) < (b & 0x0F) + c {
+        if (a & 0x0F) < ((b & 0x0F) + c) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");
         }
 
-        if a < (b + c) {
+        cpu.set_flag("N");
+
+        if (a as u16) < ((b as u16) + (c as u16)) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = a.wrapping_sub(b + c);
 
         self.rhs = b as u16;
         self.last_instruction = "SBC A,";
@@ -4797,13 +4751,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.A;
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4811,7 +4763,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -4828,13 +4782,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.B;
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4842,7 +4794,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -4859,13 +4813,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.C;
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4873,7 +4825,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -4890,13 +4844,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.D;
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4904,7 +4856,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -4921,13 +4875,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.E;
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4935,7 +4887,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -4952,13 +4906,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.H;
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4966,7 +4918,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -4983,13 +4937,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.L;
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -4997,7 +4949,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -5014,13 +4968,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -5028,7 +4980,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -5045,13 +4999,11 @@ impl Opcode {
         let a : u8 = cpu.A;
         let b : u8 = self.fetch(cpu);
 
-        if a == b {
+        if a.wrapping_sub(b) == 0 {
             cpu.set_flag("Z");
         } else {
             cpu.reset_flag("Z");
         }
-
-        cpu.set_flag("N");
 
         if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
@@ -5059,7 +5011,9 @@ impl Opcode {
             cpu.reset_flag("H");
         }
 
-        if a < b {
+        cpu.set_flag("N");
+
+        if (a as u16) < (b as u16) {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
@@ -9256,7 +9210,7 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
     fn get_bit(n : u8, reg : u8) -> u8 {
         let mask : u8 = 1 << n;
 
-        if reg & mask == 0 {
+        if (reg & mask) == 0 {
             0
         } else {
             1

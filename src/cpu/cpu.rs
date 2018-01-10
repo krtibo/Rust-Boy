@@ -9,12 +9,12 @@ use std::collections::LinkedList;
 use opcode::Opcode;
 use cpu::debugger::Debugger;
 use cpu::debugger::DebugData;
-// use std::{thread, time};
+use std::{thread, time};
 use ppu::PPU;
 use timer::Timer;
 use joypad::Joypad;
 extern crate minifb;
-use self::minifb::{Key, KeyRepeat, Window, WindowOptions, Scale};
+use self::minifb::{Key, KeyRepeat, Window, WindowOptions, Scale, MouseMode, MouseButton};
 
 const CYCLES : u32 = 69905; // 4194304 (clock cycle) / 60
 
@@ -51,7 +51,7 @@ impl CPU {
             H : 0,
             L : 0,
             SP : 0xFFFE,
-            PC : 0,
+            PC : 0x100,
             FLAG : 0,
             IR : false,
             RAM : [0; 65536],
@@ -69,10 +69,11 @@ impl CPU {
         let mut opcode : Opcode = Opcode::new();
         let mut debugger : Debugger = Debugger::new();
         let mut debug_data : DebugData = DebugData::new();
-        //let mut vram : VRAM = VRAM::new();
+        let mut vram : VRAM = VRAM::new();
         let mut ppu : PPU = PPU::new();
         let mut timer : Timer = Timer::new();
         let mut joypad : Joypad = Joypad::new();
+        let mut speed = 100;
         opcode.init();
 
         loop {
@@ -80,9 +81,10 @@ impl CPU {
 
                 if self.PC == 0x100 && self.boot_rom == false {
                     self.boot_rom = true;
-                    self.load_rom_header();
+                    //self.load_rom_header();
                 }
 
+                //self.interrupt_checker();
                 // fetch and decode opcode
                 joypad.scan_window_button_pressed(&ppu.window, self);
 
@@ -107,14 +109,27 @@ impl CPU {
                                                     opcode.rhs,
                                                     opcode.operand_mode);
 
+                if debugger.window.is_key_pressed(Key::H, KeyRepeat::Yes) {
+                    speed = 1;
+                }
+                if debugger.window.is_key_pressed(Key::D, KeyRepeat::Yes) {
+                    speed = 10;
+                }
+                if debugger.window.is_key_pressed(Key::F, KeyRepeat::Yes) {
+                    speed = 50;
+                }
+                if debugger.window.is_key_pressed(Key::G, KeyRepeat::Yes) {
+                    speed = 100;
+                }
 
                 debug_data.parse_data_from_cpu(data);
-                //thread::sleep(time::Duration::from_millis(10));
-                if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No) {
+                //thread::sleep(time::Duration::from_millis(speed));
+
+                if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No){
                     loop {
                         debugger.update_window(&debug_data);
+                        vram.print_vram(self);
                         if debugger.window.is_key_pressed(Key::LeftCtrl, KeyRepeat::No) {
-                            println!("Stopped!");
                             break
                         }
                     }
@@ -129,8 +144,11 @@ impl CPU {
             }
 
             debugger.update_window(&debug_data);
-            //vram.print_vram(self);
+            vram.print_vram(self);
             ppu.render();
+
+
+
 
             //println!("END OF THE CYCLE ------------------------");
             cycle = 0;
@@ -190,10 +208,41 @@ impl CPU {
         }
         println!("\nROM length (in bytes): {}", rom_buffer.len());
 
-        for i in 0x100..rom_buffer.len() {
+        for i in 0..rom_buffer.len() {
             self.RAM[i] = rom_buffer[i];
         }
-        println!("ROM copying done!");
+        println!("ROM copying done! {:x}", self.RAM[0x65]);
+
+        self.RAM[0xFF05] = 0;
+        self.RAM[0xFF06] = 0;
+        self.RAM[0xFF07] = 0;
+        self.RAM[0xFF10] = 0x80;
+        self.RAM[0xFF11] = 0xBF;
+        self.RAM[0xFF12] = 0xF3;
+        self.RAM[0xFF14] = 0xBF;
+        self.RAM[0xFF16] = 0x3F;
+        self.RAM[0xFF17] = 0;
+        self.RAM[0xFF19] = 0xBF;
+        self.RAM[0xFF1A] = 0x7F;
+        self.RAM[0xFF1B] = 0xFF;
+        self.RAM[0xFF1C] = 0x9F;
+        self.RAM[0xFF1E] = 0xFF;
+        self.RAM[0xFF20] = 0xFF;
+        self.RAM[0xFF21] = 0;
+        self.RAM[0xFF22] = 0;
+        self.RAM[0xFF23] = 0xBF;
+        self.RAM[0xFF24] = 0x77;
+        self.RAM[0xFF25] = 0xF3;
+        self.RAM[0xFF26] = 0xF1;
+        self.RAM[0xFF40] = 0x91;
+        self.RAM[0xFF42] = 0;
+        self.RAM[0xFF43] = 0;
+        self.RAM[0xFF45] = 0;
+        self.RAM[0xFF47] = 0xFC;
+        self.RAM[0xFF48] = 0xFF;
+        self.RAM[0xFF49] = 0xFF;
+        self.RAM[0xFF4A] = 0;
+        self.RAM[0xFF4B] = 0;
     }
 
     pub fn load_rom_header(&mut self) {
@@ -212,10 +261,13 @@ impl CPU {
 
     pub fn write_ram(&mut self, address : u16, value : u8) {
 
+        if address == 0xFF02 && value == 0x81 {
+            print!("{}", self.RAM[0xFF01] as char);
+        }
+
         if address == 0xFF46 {
             println!("DMA!");
             self.dma(value);
-            return
         }
 
         if address == 0xFF07 {
@@ -414,7 +466,6 @@ impl CPU {
     }
 
     pub fn handler(&mut self, t : u8) {
-
         // reset interrupt flags
         self.IR = false;
         let IR_flag : u8 = CPU::reset_bit(t, self.RAM[0xFF0F]);
@@ -492,7 +543,7 @@ impl CPU {
 
 
 pub struct VRAM {
-    pub vram : [u32; 128*64],
+    pub vram : [u32; 350*200],
     pub window : Window,
 }
 
@@ -501,10 +552,10 @@ impl VRAM {
     pub fn new() -> VRAM {
 
         VRAM {
-            vram : [0; 128*64],
-            window : Window::new("VRAM Map",
-                         128,
-                         64,
+            vram : [0; 350*200],
+            window : Window::new("RAM Map",
+                         350,
+                         200,
                          WindowOptions {
                              resize: false,
                              scale: Scale::X4,
@@ -515,28 +566,41 @@ impl VRAM {
 
     pub fn print_vram(& mut self, cpu : &CPU) {
 
-        for i in 0x8000..0xA000 {
+        for i in 0..65535 {
 
             if cpu.RAM[i] > 0 {
                 //println!("{:04X} : {:02X}", i, cpu.RAM[i]);
-                self.vram[i - 0x8000] = 0xFF_00_FF_00;
+                self.vram[i] = 0xFF0F380F;
                 //print!("{:X} ", cpu.RAM[i]);
+                if i >= 0xFE00 && i <= 0xFE9F { self.vram[i] = 0xFFF20056; } // sprite attribute table
+                if i >= 0x8000 && i <= 0x8FFF { self.vram[i] = 0xFF003399; } // tile 1
+                if i >= 0x8800 && i <= 0x97FF { self.vram[i] = 0xFF003399; } // tile 2
+                if i >= 0x9800 && i <= 0x9BFF { self.vram[i] = 0xFF453823; } // window 1
+                if i >= 0x9C00 && i <= 0x9FFF { self.vram[i] = 0xFF453823; } // window 2
             } else {
-
-                if i >= 0x9800 && i <= 0x9BFF {
-                    self.vram[i - 0x8000] = 0xFF_FF_00_00;
-
-                }
-
-                if i >= 0x8000 && i <= 0x8FFF {
-                    self.vram[i - 0x8000] = 0xFF_00_00_FF;
-                }
+                self.vram[i] = 0xFF9BBC0F;
+                if i >= 0xFE00 && i <= 0xFE9F { self.vram[i] = 0xFFFFBAD2; }
+                if i >= 0x8000 && i <= 0x8FFF { self.vram[i] = 0xFF66CCFF; }
+                if i >= 0x8800 && i <= 0x97FF { self.vram[i] = 0xFF66CCFF; }
+                if i >= 0x9800 && i <= 0x9BFF { self.vram[i] = 0xFFBAA378; }
+                if i >= 0x9C00 && i <= 0x9FFF { self.vram[i] = 0xFFBAA378; }
             }
 
 
         }
-        self.vram[0x9800-0x8000] = 0xFF_FF_00_00;
         self.window.update_with_buffer(&self.vram).unwrap();
-    }
+        if self.window.get_mouse_down(MouseButton::Left) {
+            self.window.get_mouse_pos(MouseMode::Clamp).map(|mouse| {
+                if mouse.0 as u32 + mouse.1 as u32 * 350 <= 65535 {
+                    let pos : u16 = mouse.0 as u16 + mouse.1 as u16 * 350;
+                    println!("BYTE: 0x{:02X} 0b{:08b} -- POSITION: 0x{:02X}",
+                    cpu.RAM[pos as usize],
+                    cpu.RAM[pos as usize],
+                    pos);
+                }
 
+            });
+        }
+
+    }
 }

@@ -58,7 +58,7 @@ impl Joypad {
 
     pub fn pressed_button(&mut self, button : u8, cpu : &mut CPU) {
 
-        println!("{:X} pressed", cpu.RAM[0xFF00]);
+        //println!("{:X} pressed", cpu.RAM[0xFF00]);
 
         let mut changed_state = false;
         let mut button_type = true;

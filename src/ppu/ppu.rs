@@ -222,7 +222,6 @@ impl PPU {
 
             let d1 : u8 = cpu.RAM[(tile_location + line as u16) as usize];
             let d2 : u8 = cpu.RAM[(tile_location + line as u16 + 1) as usize];
-            //println!("{:02X} {:02X}", tile_location + line as u16, tile_location + line as u16 + 1);
 
             let mut colourbit : i16 = x_pos as i16 % 8;
             colourbit -= 7;

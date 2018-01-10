@@ -135,7 +135,7 @@ pub struct Colors {
     pub teal : u32,
     pub yellow : u32,
     pub white : u32,
-    pub black : u32, 
+    pub black : u32,
 
 }
 
@@ -232,7 +232,7 @@ impl Debugger {
             }
         });
 
-        
+
 
         self.render_multiline_text(5,5,&dd.instructions);
         self.render_registers(&dd.register_states);
@@ -295,14 +295,14 @@ impl Debugger {
                 self.textbg_color = self.colors.white;
             }
 
-            // render the given text - if its longer than 38 chars, 
+            // render the given text - if its longer than 38 chars,
             // throw the remaining chars
             if &i.len() > &37 {
                 self.render_text(x, y + index as u32 *7, &i[..37].to_string());
             } else {
                 self.render_text(x, y + index as u32 *7, &i);
             }
-            
+
             self.print_color = 0xFF_FF_FF_FF;
             self.textbg_color = self.colors.black;
             index += 1;
@@ -545,16 +545,13 @@ impl Debugger {
                 self.render_text(172, 85, &String::from("SP"));
                 self.render_text(184, 85, &r[8]);
 
-                self.render_text(224, 85, &String::from("PC"));
-                self.render_text(236, 85, &r[9]);
-
                 //self.render_text(172, 105, &String::from("-------------------------------"));
 
-                self.render_text(172, 125, &String::from("FLAG"));
-                self.render_text(224, 125, &r[10]);
+                self.render_text(172, 125, &String::from("PC"));
+                self.render_text(224, 125, &r[9]);
 
-                self.render_text(172, 145, &String::from("STACK SIZE"));
-                self.render_text(224, 145, &r[11]);
+                self.render_text(172, 145, &String::from("FLAG"));
+                self.render_text(224, 145, &r[10]);
             }
             index += 1;
         }

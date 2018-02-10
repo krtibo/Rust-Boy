@@ -42,14 +42,14 @@ pub struct CPU {
 impl CPU {
     pub fn new() -> CPU {
         CPU {
-            A : 0,
-            B : 0,
-            C : 0,
-            D : 0,
-            E : 0,
-            F : 0,
-            H : 0,
-            L : 0,
+            A : 0x01,
+            B : 0x00,
+            C : 0x13,
+            D : 0x00,
+            E : 0xD8,
+            F : 0xB0,
+            H : 0x01,
+            L : 0x4D,
             SP : 0xFFFE,
             PC : 0x100,
             FLAG : 0,
@@ -84,17 +84,21 @@ impl CPU {
                     //self.load_rom_header();
                 }
 
-                //self.interrupt_checker();
+
                 // fetch and decode opcode
-                joypad.scan_window_button_pressed(&ppu.window, self);
+                //joypad.scan_window_button_pressed(&ppu.window, self);
 
                 //self.RAM[0xFF00] = joypad.update_state(self);
-                if ppu.window.is_key_pressed(Key::S, KeyRepeat::Yes) {
-                    self.RAM[0xFF00] = 0x40;
+                if ppu.window.is_key_pressed(Key::Space, KeyRepeat::Yes) {
+                    self.RAM[0xFF00] = !0x80;
+                    self.IRQ(4);
                 }
-                if ppu.window.is_key_pressed(Key::W, KeyRepeat::Yes) {
-                    self.RAM[0xFF00] = 0xFF;
+
+                if ppu.window.is_key_pressed(Key::RightShift, KeyRepeat::Yes) {
+                    self.RAM[0xFF00] = !0x40;
+                    self.IRQ(4);
                 }
+
 
 
                 let instr_time : u8 = opcode.execute(self);
@@ -139,14 +143,14 @@ impl CPU {
                     timer.update_freq(self);
                     self.freq_change = false;
                 }
-
+                self.interrupt_checker();
                 timer.update(self, instr_time);
             }
+
 
             debugger.update_window(&debug_data);
             vram.print_vram(self);
             ppu.render();
-
 
 
 
@@ -347,19 +351,19 @@ impl CPU {
     pub fn set_flag(&mut self, f : &str) {
 
         if f == "Z" {
-            self.FLAG |= 0b1000_0000;
+            self.F |= 0b1000_0000;
         }
 
         if f == "N" {
-            self.FLAG |= 0b0100_0000;
+            self.F |= 0b0100_0000;
         }
 
         if f == "H" {
-            self.FLAG |= 0b0010_0000;
+            self.F |= 0b0010_0000;
         }
 
         if f == "C" {
-            self.FLAG |= 0b0001_0000;
+            self.F |= 0b0001_0000;
         }
     }
 
@@ -367,26 +371,26 @@ impl CPU {
     pub fn reset_flag(&mut self, f : &str) {
 
         if f == "Z" {
-            self.FLAG &= 0b0111_1111;
+            self.F &= 0b0111_1111;
         }
 
         if f == "N" {
-            self.FLAG &= 0b1011_1111;
+            self.F &= 0b1011_1111;
         }
 
         if f == "H" {
-            self.FLAG &= 0b1101_1111;
+            self.F &= 0b1101_1111;
         }
 
         if f == "C" {
-            self.FLAG &= 0b1110_1111;
+            self.F &= 0b1110_1111;
         }
     }
 
     pub fn get_flag(&self, f : &str) -> u8 {
 
         if f == "Z" {
-            if self.FLAG & 0b1000_0000 == 0 {
+            if self.F & 0b1000_0000 == 0 {
                 return 0
             } else {
                 return 1
@@ -394,7 +398,7 @@ impl CPU {
         }
 
         if f == "N" {
-            if self.FLAG & 0b0100_0000 == 0 {
+            if self.F & 0b0100_0000 == 0 {
                 return 0
             } else {
                 return 1
@@ -402,7 +406,7 @@ impl CPU {
         }
 
         if f == "H" {
-            if self.FLAG & 0b0010_0000 == 0 {
+            if self.F & 0b0010_0000 == 0 {
                 return 0
             } else {
                 return 1
@@ -410,7 +414,7 @@ impl CPU {
         }
 
         if f == "C" {
-            if self.FLAG & 0b0001_0000 == 0 {
+            if self.F & 0b0001_0000 == 0 {
                 return 0
             } else {
                 return 1

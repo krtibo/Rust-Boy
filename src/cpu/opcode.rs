@@ -608,7 +608,7 @@ impl Opcode {
         self.rhs = 0x0000;
 
         // EI, DI instruction delay handler
-
+/*
         if self.disable_int && self.count_disable_int < 2 {
             self.count_disable_int += 1;
         }
@@ -616,7 +616,7 @@ impl Opcode {
         if self.disable_int && self.count_disable_int == 2 {
             self.disable_int = false;
             self.count_disable_int = 0;
-            //cpu.RAM[0xFFFF as usize] = 0b00011111; // enable interrupts
+            cpu.RAM[0xFFFF as usize] = 0b00011111; // enable interrupts
             cpu.IR = true;
         }
 
@@ -627,10 +627,10 @@ impl Opcode {
         if self.enable_int && self.count_enable_int == 2 {
             self.enable_int = false;
             self.count_enable_int = 0;
-            //cpu.RAM[0xFFFF as usize] = 0b00000000; // disable interrupts
+            cpu.RAM[0xFFFF as usize] = 0b00000000; // disable interrupts
             cpu.IR = false;
         }
-
+*/
         // fetcher
         self.last_opcode_cb = false;
         self.last_opcode = self.fetch(cpu);
@@ -4104,7 +4104,9 @@ impl Opcode {
 
     fn ei_fb(&mut self, cpu : &mut CPU) -> u8 {
 
-        self.enable_int = true;
+        //self.enable_int = true;
+        //cpu.write_ram(0xFFFF, 0b00011111);
+        cpu.IR = true;
 
         self.last_instruction = "EI";
         self.operand_mode = 0;
@@ -5030,7 +5032,7 @@ impl Opcode {
 
         let bit_7 = cpu.A & 0x80 == 0x80;
 
-        cpu.A = cpu.A << 1 | ( if bit_7 { 1 } else { 0 });
+        cpu.A = (cpu.A << 1) | ( if bit_7 { 1 } else { 0 });
 
         cpu.reset_flag("N");
         cpu.reset_flag("H");
@@ -5041,11 +5043,8 @@ impl Opcode {
             cpu.reset_flag("C");
         }
 
-        if cpu.A == 0 {
-            cpu.set_flag("Z");
-        } else {
-            cpu.reset_flag("Z");
-        }
+        cpu.reset_flag("Z");
+
 
         self.last_instruction = "RLCA";
         self.operand_mode = 0;
@@ -5060,7 +5059,7 @@ impl Opcode {
         cpu.reset_flag("N");
         cpu.reset_flag("H");
 
-        cpu.A = cpu.A << 1 | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
+        cpu.A = (cpu.A << 1) | ( if cpu.get_flag("C") == 1 { 1 } else { 0 });
 
         if bit_7 {
             cpu.set_flag("C");
@@ -5068,11 +5067,7 @@ impl Opcode {
             cpu.reset_flag("C");
         }
 
-        if cpu.A == 0 {
-            cpu.set_flag("Z");
-        } else {
-            cpu.reset_flag("Z");
-        }
+        cpu.reset_flag("Z");
 
         self.last_instruction = "RLA";
         self.operand_mode = 0;
@@ -5084,7 +5079,7 @@ impl Opcode {
 
         let bit_0 = cpu.A & 0x01 == 0x01;
 
-        cpu.A = cpu.A >> 1 | ( if bit_0 { 0x80 } else { 0 });
+        cpu.A = (cpu.A >> 1) | ( if bit_0 { 0x80 } else { 0 });
 
         cpu.reset_flag("N");
         cpu.reset_flag("H");
@@ -5095,11 +5090,7 @@ impl Opcode {
             cpu.reset_flag("C");
         }
 
-        if cpu.A == 0 {
-            cpu.set_flag("Z");
-        } else {
-            cpu.reset_flag("Z");
-        }
+        cpu.reset_flag("Z");
 
         self.last_instruction = "RRCA";
         self.operand_mode = 0;
@@ -5122,11 +5113,7 @@ impl Opcode {
             cpu.reset_flag("C");
         }
 
-        if cpu.A == 0 {
-            cpu.set_flag("Z");
-        } else {
-            cpu.reset_flag("Z");
-        }
+        cpu.reset_flag("Z");
 
         self.last_instruction = "RRA";
         self.operand_mode = 0;
@@ -7659,7 +7646,7 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sla_27(&mut self, cpu : &mut CPU) -> u8 {
-        let bit_7 : u8 = (cpu.A & 0b1000_0000) >> 7;
+        let bit_7 = cpu.A & 0x80 == 0x80;
         cpu.A = cpu.A << 1;
 
         if cpu.A == 0 {
@@ -7671,7 +7658,7 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
         cpu.reset_flag("N");
         cpu.reset_flag("H");
 
-        if bit_7 == 0 {
+        if !bit_7 {
             cpu.reset_flag("C");
         } else {
             cpu.set_flag("C");
@@ -7696,10 +7683,10 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
         cpu.reset_flag("N");
         cpu.reset_flag("H");
 
-        if bit_7 {
-            cpu.set_flag("C");
-        } else {
+        if !bit_7 {
             cpu.reset_flag("C");
+        } else {
+            cpu.set_flag("C");
         }
 
         self.last_instruction = "CB - SLA B";
@@ -7836,7 +7823,7 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
     fn cb_sla_26(&mut self, cpu : &mut CPU) -> u8 {
         let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
         let addr = Opcode::byte_cat(cpu.H, cpu.L);
-        let bit_7 = cpu.B & 0x80 == 0x80;
+        let bit_7 = hl & 0x80 == 0x80;
         cpu.write_ram(addr, hl << 1);
 
         if cpu.RAM[addr as usize] == 0 {
@@ -7848,10 +7835,10 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
         cpu.reset_flag("N");
         cpu.reset_flag("H");
 
-        if !bit_7 {
-            cpu.reset_flag("C");
-        } else {
+        if bit_7 {
             cpu.set_flag("C");
+        } else {
+            cpu.reset_flag("C");
         }
 
         self.last_instruction = "CB - SLA (HL)";
@@ -8056,15 +8043,14 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_28(&mut self, cpu : &mut CPU) -> u8 {
-        let msb : u8 = Opcode::get_bit(7, cpu.B);
-        if Opcode::get_bit(0, cpu.B) == 1 {
+        let bit = cpu.B & 0x01 == 0x01;
+        cpu.B = (cpu.B >> 1) | (cpu.B & 0x80);
+
+        if bit {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.B = cpu.B >> 1;
-        cpu.B |= msb << 7;
 
         if cpu.B == 0 {
             cpu.set_flag("Z");
@@ -8082,15 +8068,14 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_29(&mut self, cpu : &mut CPU) -> u8 {
-        let msb : u8 = Opcode::get_bit(7, cpu.C);
-        if Opcode::get_bit(0, cpu.C) == 1 {
+        let bit = cpu.C & 0x01 == 0x01;
+        cpu.C = (cpu.C >> 1) | (cpu.C & 0x80);
+
+        if bit {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.C = cpu.C >> 1;
-        cpu.C |= msb << 7;
 
         if cpu.C == 0 {
             cpu.set_flag("Z");
@@ -8108,15 +8093,14 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_2a(&mut self, cpu : &mut CPU) -> u8 {
-        let msb : u8 = Opcode::get_bit(7, cpu.D);
-        if Opcode::get_bit(0, cpu.D) == 1 {
+        let bit = cpu.D & 0x01 == 0x01;
+        cpu.D = (cpu.D >> 1) | (cpu.D & 0x80);
+
+        if bit {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.D = cpu.D >> 1;
-        cpu.D |= msb << 7;
 
         if cpu.D == 0 {
             cpu.set_flag("Z");
@@ -8134,15 +8118,14 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_2b(&mut self, cpu : &mut CPU) -> u8 {
-        let msb : u8 = Opcode::get_bit(7, cpu.E);
-        if Opcode::get_bit(0, cpu.E) == 1 {
+        let bit = cpu.E & 0x01 == 0x01;
+        cpu.E = (cpu.E >> 1) | (cpu.E & 0x80);
+
+        if bit {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.E = cpu.E >> 1;
-        cpu.E |= msb << 7;
 
         if cpu.E == 0 {
             cpu.set_flag("Z");
@@ -8160,15 +8143,14 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_2c(&mut self, cpu : &mut CPU) -> u8 {
-        let msb : u8 = Opcode::get_bit(7, cpu.H);
-        if Opcode::get_bit(0, cpu.H) == 1 {
+        let bit = cpu.H & 0x01 == 0x01;
+        cpu.H = (cpu.H >> 1) | (cpu.H & 0x80);
+
+        if bit {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.H = cpu.H >> 1;
-        cpu.H |= msb << 7;
 
         if cpu.H == 0 {
             cpu.set_flag("Z");
@@ -8186,15 +8168,14 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_2d(&mut self, cpu : &mut CPU) -> u8 {
-        let msb : u8 = Opcode::get_bit(7, cpu.L);
-        if Opcode::get_bit(0, cpu.L) == 1 {
+        let bit = cpu.L & 0x01 == 0x01;
+        cpu.L = (cpu.L >> 1) | (cpu.L & 0x80);
+
+        if bit {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.L = cpu.L >> 1;
-        cpu.L |= msb << 7;
 
         if cpu.L == 0 {
             cpu.set_flag("Z");
@@ -8212,19 +8193,16 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_2e(&mut self, cpu : &mut CPU) -> u8 {
-        let mut hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
-        let msb : u8 = Opcode::get_bit(7, hl);
+        let hl : u8 = cpu.RAM[Opcode::byte_cat(cpu.H, cpu.L) as usize];
         let addr = Opcode::byte_cat(cpu.H, cpu.L);
+        let bit = hl & 0x01 == 0x01;
+        cpu.write_ram(addr, (hl >> 1) | (hl & 0x80));
 
-        if Opcode::get_bit(0, hl) == 1 {
+        if bit {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.write_ram(addr, hl >> 1);
-        hl = cpu.RAM[addr as usize] | (msb << 7);
-        cpu.write_ram(addr, hl);
 
         if cpu.RAM[addr as usize] == 0 {
             cpu.set_flag("Z");
@@ -8242,15 +8220,14 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
 
 
     fn cb_sra_2f(&mut self, cpu : &mut CPU) -> u8 {
-        let msb : u8 = Opcode::get_bit(7, cpu.A);
-        if Opcode::get_bit(0, cpu.A) == 1 {
+        let bit = cpu.A & 0x01 == 0x01;
+        cpu.A = (cpu.A >> 1) | (cpu.A & 0x80);
+
+        if bit {
             cpu.set_flag("C");
         } else {
             cpu.reset_flag("C");
         }
-
-        cpu.A = cpu.A >> 1;
-        cpu.A |= msb << 7;
 
         if cpu.A == 0 {
             cpu.set_flag("Z");
@@ -9218,8 +9195,8 @@ fn cb_bit_48(&mut self, cpu : &mut CPU) -> u8 {
     }
 
     fn swap(reg : u8) -> u8 {
-        let upper_nibble : u8 = reg & 0xF0;
-        let lower_nibble : u8 = reg & 0x0F;
+        let upper_nibble : u8 = reg & 0b1111_0000;
+        let lower_nibble : u8 = reg & 0b0000_1111;
 
         (upper_nibble >> 4) | (lower_nibble << 4)
     }

@@ -23,34 +23,42 @@ impl Joypad {
 
         if window.is_key_pressed(Key::D, KeyRepeat::Yes) {
             self.pressed_button(0, cpu);
+            println!("D pressed");
         } else { self.released_button(0); }
 
         if window.is_key_pressed(Key::A, KeyRepeat::Yes) {
             self.pressed_button(1, cpu);
+            println!("A pressed");
         } else { self.released_button(1); }
 
         if window.is_key_pressed(Key::W, KeyRepeat::Yes) {
             self.pressed_button(2, cpu);
+            println!("W pressed");
         } else { self.released_button(2); }
 
         if window.is_key_pressed(Key::S, KeyRepeat::Yes) {
             self.pressed_button(3, cpu);
+            println!("S pressed");
         } else { self.released_button(3); }
 
         if window.is_key_pressed(Key::J, KeyRepeat::Yes) {
             self.pressed_button(4, cpu);
+            println!("J pressed");
         } else { self.released_button(4); }
 
         if window.is_key_pressed(Key::K, KeyRepeat::Yes) {
             self.pressed_button(5, cpu);
+            println!("K pressed");
         } else { self.released_button(5); }
 
         if window.is_key_pressed(Key::Space, KeyRepeat::Yes) {
             self.pressed_button(6, cpu);
+            println!("Space pressed");
         } else { self.released_button(6); }
 
         if window.is_key_pressed(Key::RightShift, KeyRepeat::Yes) {
             self.pressed_button(7, cpu);
+            println!("Right Shift pressed");
         } else { self.released_button(7); }
 
     }

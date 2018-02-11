@@ -86,19 +86,24 @@ impl CPU {
 
 
                 // fetch and decode opcode
-                //joypad.scan_window_button_pressed(&ppu.window, self);
+                joypad.scan_window_button_pressed(&ppu.window, self);
+                self.RAM[0xFF00] = joypad.update_state(self);
 
-                //self.RAM[0xFF00] = joypad.update_state(self);
+                //println!("{:08b}", self.RAM[0xFF00]);
+
+/*
+
                 if ppu.window.is_key_pressed(Key::Space, KeyRepeat::Yes) {
-                    self.RAM[0xFF00] = !0x80;
+                    println!("space");
+                    self.RAM[0xFF00] |= 0x0F;
                     self.IRQ(4);
                 }
-
                 if ppu.window.is_key_pressed(Key::RightShift, KeyRepeat::Yes) {
-                    self.RAM[0xFF00] = !0x40;
+                    println!("shift");
+                    self.RAM[0xFF00] = 215; // select
                     self.IRQ(4);
                 }
-
+*/
 
 
                 let instr_time : u8 = opcode.execute(self);
@@ -270,7 +275,7 @@ impl CPU {
         }
 
         if address == 0xFF46 {
-            println!("DMA!");
+            //println!("DMA!");
             self.dma(value);
         }
 

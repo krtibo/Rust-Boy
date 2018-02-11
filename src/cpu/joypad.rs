@@ -1,3 +1,17 @@
+/*
+Button    76543210   val
+------------------------
+Start     11100111 = 231
+Select    11101011 = 235
+B         11101101 = 237
+A         11101110 = 238
+
+Down      11010111 = 215
+Up        11011011 = 219
+Left      11011101 = 221
+Right     11011110 = 222
+*/
+
 #![allow(dead_code)]
 #![allow(unused_variables)]
 #![allow(unused_assignments)]
@@ -6,7 +20,7 @@
 use cpu::CPU;
 extern crate minifb;
 
-use self::minifb::{Window, Key, KeyRepeat};
+use self::minifb::{Window, Key};
 
 pub struct Joypad {
     joypad_state : u8,
@@ -21,44 +35,44 @@ impl Joypad {
 
     pub fn scan_window_button_pressed(&mut self, window : &Window, cpu : &mut CPU) {
 
-        if window.is_key_pressed(Key::D, KeyRepeat::Yes) {
+        if window.is_key_down(Key::D) {
             self.pressed_button(0, cpu);
-            println!("D pressed");
+            //println!("D pressed");
         } else { self.released_button(0); }
 
-        if window.is_key_pressed(Key::A, KeyRepeat::Yes) {
+        if window.is_key_down(Key::A) {
             self.pressed_button(1, cpu);
-            println!("A pressed");
+            //println!("A pressed");
         } else { self.released_button(1); }
 
-        if window.is_key_pressed(Key::W, KeyRepeat::Yes) {
+        if window.is_key_down(Key::W) {
             self.pressed_button(2, cpu);
-            println!("W pressed");
+            //println!("W pressed");
         } else { self.released_button(2); }
 
-        if window.is_key_pressed(Key::S, KeyRepeat::Yes) {
+        if window.is_key_down(Key::S) {
             self.pressed_button(3, cpu);
-            println!("S pressed");
+            //println!("S pressed");
         } else { self.released_button(3); }
 
-        if window.is_key_pressed(Key::J, KeyRepeat::Yes) {
+        if window.is_key_down(Key::J) {
             self.pressed_button(4, cpu);
-            println!("J pressed");
+            //println!("J pressed");
         } else { self.released_button(4); }
 
-        if window.is_key_pressed(Key::K, KeyRepeat::Yes) {
+        if window.is_key_down(Key::K) {
             self.pressed_button(5, cpu);
-            println!("K pressed");
+            //println!("K pressed");
         } else { self.released_button(5); }
 
-        if window.is_key_pressed(Key::Space, KeyRepeat::Yes) {
+        if window.is_key_down(Key::Space) {
             self.pressed_button(6, cpu);
-            println!("Space pressed");
+            //println!("Space pressed");
         } else { self.released_button(6); }
 
-        if window.is_key_pressed(Key::RightShift, KeyRepeat::Yes) {
+        if window.is_key_down(Key::RightShift) {
             self.pressed_button(7, cpu);
-            println!("Right Shift pressed");
+            //println!("Right Shift pressed");
         } else { self.released_button(7); }
 
     }
@@ -105,19 +119,15 @@ impl Joypad {
 
     pub fn update_state(&mut self, cpu : &mut CPU) -> u8 {
         let mut current_joypad_state : u8 = cpu.RAM[0xFF00];
-        current_joypad_state ^= 0xFF;
 
-        if !Joypad::get_bit(4, current_joypad_state) {
+        if current_joypad_state == 0x20 {
+            current_joypad_state = !current_joypad_state;
+            current_joypad_state &= self.joypad_state & 0x0F;
+        }
 
-            let mut upper_joypad = self.joypad_state >> 4;
-            upper_joypad |= 0xF0;
-            current_joypad_state &= upper_joypad;
-
-        } else if !Joypad::get_bit(5, current_joypad_state) {
-
-            let mut lower_joypad = self.joypad_state & 0xF;
-            lower_joypad |= 0xF0;
-            current_joypad_state &= lower_joypad;
+        if current_joypad_state == 0x10 {
+            current_joypad_state = !current_joypad_state;
+            current_joypad_state &= self.joypad_state >> 4;
         }
 
         current_joypad_state

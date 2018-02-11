@@ -90,14 +90,18 @@ impl PPU {
         }
 
         for i in 0..40 {
-            let sprite_addr : u16 = 0xFE00 + (39 - i) as u16 * 4;
+            let sprite_addr : u16 = 0xFE00 + i as u16 * 4;
             let y_pos : i32 = cpu.RAM[sprite_addr as usize] as u16 as i32 - 16;
             let x_pos : i32 = cpu.RAM[(sprite_addr + 1) as usize] as u16 as i32 - 8;
             let tile_location : u16 = ((cpu.RAM[(sprite_addr + 2) as usize]) &
                         (if double_size == true { 0xFE } else { 0xFF })) as u16;
             let attrib = cpu.RAM[(sprite_addr + 3) as usize];
-            let flip_x : bool = attrib & (1 << 5) != 0;
-            let flip_y : bool = attrib & (1 << 6) != 0;
+
+            let flip_x : bool =
+            if PPU::get_bit(5, attrib) == 1 { true } else { false };
+
+            let flip_y : bool =
+            if PPU::get_bit(6, attrib) == 1 { true } else { false };
 
             let current_scanline : i32 = cpu.RAM[0xFF44] as i32;
             let size_y : i32 = if double_size { 16 } else { 8 };
@@ -105,10 +109,10 @@ impl PPU {
             if current_scanline < y_pos ||
             current_scanline >= (y_pos + size_y)  { continue }
 
-            println!("addr {} {} {}",
+            /* println!("addr {} {} {}",
             cpu.RAM[sprite_addr as usize],
             cpu.RAM[(sprite_addr + 1) as usize],
-            cpu.RAM[(sprite_addr + 3) as usize]);
+            cpu.RAM[(sprite_addr + 3) as usize]); */
 
             let line : u16 = if flip_y {
                 (size_y - 1 - (current_scanline - y_pos)) as u16
@@ -122,7 +126,7 @@ impl PPU {
             let data_2 : u8 = cpu.RAM[(data_addr + 1) as usize];
 
             for j in (0..7).rev() {
-                let mut color_bit : i16 = j;
+                let mut color_bit : i8 = j;
 
                 if flip_x {
                     color_bit -= 7;
@@ -143,7 +147,7 @@ impl PPU {
 
                 let pixel : u8 = x_pos as u8 + (7 - j as u8);
 
-                self.framebuffer[PPU::coords((pixel, cpu.RAM[0xFF44])) as usize] =
+                self.framebuffer[PPU::coords((pixel, current_scanline as u8)) as usize] =
                 color;
             }
         }
@@ -251,7 +255,7 @@ impl PPU {
             1 => { low_bits = 2; high_bits = 3; },
             2 => { low_bits = 4; high_bits = 5; },
             3 => { low_bits = 6; high_bits = 7; },
-            _ => { low_bits = 0; high_bits = 1; }
+            _ => { low_bits = 0; high_bits = 0; }
         }
 
         color = PPU::get_bit(high_bits, palette) << 1;

@@ -51,7 +51,7 @@ impl CPU {
             H : 0x01,
             L : 0x4D,
             SP : 0xFFFE,
-            PC : 0x100,
+            PC : 0x00,
             FLAG : 0,
             IR : false,
             RAM : [0; 65536],
@@ -81,7 +81,7 @@ impl CPU {
 
                 if self.PC == 0x100 && self.boot_rom == false {
                     self.boot_rom = true;
-                    //self.load_rom_header();
+                    self.load_rom_header();
                 }
 
 
@@ -217,7 +217,7 @@ impl CPU {
         }
         println!("\nROM length (in bytes): {}", rom_buffer.len());
 
-        for i in 0..rom_buffer.len() {
+        for i in 0x100..rom_buffer.len() {
             self.RAM[i] = rom_buffer[i];
         }
         println!("ROM copying done! {:x}", self.RAM[0x65]);

@@ -50,7 +50,7 @@ impl PPU {
 
         self.scanline_count += cycle as u16;
         if self.scanline_count >= 456 {
-            cpu.RAM[0xFF44] += 1;
+
 
             self.scanline_count = 0;
 
@@ -61,6 +61,7 @@ impl PPU {
             if cpu.RAM[0xFF44] == 144 {
                 cpu.IRQ(0);
             }
+            cpu.RAM[0xFF44] += 1;
 
             if cpu.RAM[0xFF44] > 153 {
                 cpu.RAM[0xFF44] = 0;
@@ -97,6 +98,9 @@ impl PPU {
                         (if double_size == true { 0xFE } else { 0xFF })) as u16;
             let attrib = cpu.RAM[(sprite_addr + 3) as usize];
 
+            let bg_priority : bool =
+            if PPU::get_bit(7, attrib) == 1 { true } else { false };
+
             let flip_x : bool =
             if PPU::get_bit(5, attrib) == 1 { true } else { false };
 
@@ -125,7 +129,7 @@ impl PPU {
             let data_1 : u8 = cpu.RAM[data_addr as usize];
             let data_2 : u8 = cpu.RAM[(data_addr + 1) as usize];
 
-            for j in (0..7).rev() {
+            for j in (0..8).rev() {
                 let mut color_bit : i8 = j;
 
                 if flip_x {
@@ -141,14 +145,16 @@ impl PPU {
                 if PPU::get_bit(4, attrib) == 1 { 0xFF49 } else { 0xFF48 };
                 let color : u32 = self.select_colors(cpu, colour_num, color_address);
 
-                if color == 0xFF9BBC0F {
+                if color == 0xFF8BAC0F || bg_priority {
                     continue;
                 }
+                let x_pos_u8 : u8 = x_pos as u8;
+                let j_u8 = 7 - j as u8;
+                let pixel : u8 = x_pos_u8.wrapping_add(j_u8);
 
-                let pixel : u8 = x_pos as u8 + (7 - j as u8);
+                self.framebuffer[PPU::coords((pixel, cpu.RAM[0xFF44])) as usize] = color;
 
-                self.framebuffer[PPU::coords((pixel, current_scanline as u8)) as usize] =
-                color;
+
             }
         }
     }
@@ -201,7 +207,8 @@ impl PPU {
         let tile_row : u16 = (y_pos as u16 / 8) * 32;
 
         for i in 0..160 {
-            let mut x_pos : u8 = i + self.scroll_x;
+            let i_u8 : u8 = i as u8;
+            let mut x_pos : u8 = i_u8.wrapping_add(self.scroll_x);
 
             if using_window && i >= self.window_x {
                 x_pos = i - self.window_x;
@@ -259,7 +266,7 @@ impl PPU {
         }
 
         color = PPU::get_bit(high_bits, palette) << 1;
-        color = color | PPU::get_bit(low_bits, palette);
+        color |= PPU::get_bit(low_bits, palette);
 
         match color {
             0 => color_hex = 0xFF9BBC0F,
@@ -392,6 +399,6 @@ impl PPU {
     }
 
     fn coords(xy : (u8, u8)) -> u16 {
-        (xy.1 - 1) as u16 * 160 + xy.0 as u16
+        (xy.1) as u16 * 160 + xy.0 as u16
     }
 }

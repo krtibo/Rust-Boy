@@ -1,0 +1,187 @@
+\documentclass[12pt]{report}
+
+%Magyar nyelvi támogatás (Babel 3.7 vagy késõbbi kell!)
+\def\magyarOptions{defaults=hu-min}
+\usepackage[magyar]{babel}
+
+%Az ékezetes betûk használatához:
+\usepackage{t1enc}% ékezetes szavak automatikus elválasztásához
+\usepackage[latin2]{inputenc}% ékezetes szavak beviteléhez
+
+% A formai kovetelmenyekben megkövetelt Times betûtípus hasznalata:
+\usepackage{times}
+
+%Az AMS csomagjai
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+%A fejléc láblécek kialakításához:
+\usepackage{fancyhdr}
+
+%Természetesen további csomagok is használhatók,
+%például ábrák beillesztéséhez a graphix és a psfrag,
+%ha nincs rájuk szükség természetesen kihagyhatók.
+\usepackage{graphicx}
+\usepackage{psfrag}
+
+%Tételszerû környezetek definiálhatók, ezek most fejezetenkent egyutt szamozodnak, pl.
+\newtheorem{tét}{Tétel}[chapter]
+\newtheorem{defi}[tét]{Definíció}
+\newtheorem{lemma}[tét]{Lemma}
+\newtheorem{áll}[tét]{Állítás}
+\newtheorem{köv}[tét]{Következmény}
+
+%Ha a megjegyzések és a példak szövegét nem akarjuk dõlten szedni, akkor
+%az alábbi parancs után kell õket definiální:
+\theoremstyle{definition}
+\newtheorem{megj}[tét]{Megjegyzés}
+\newtheorem{pld}[tét]{Példa}
+
+%Margók:
+\hoffset -1in
+\voffset -1in
+\oddsidemargin 35mm
+\textwidth 150mm
+\topmargin 15mm
+\headheight 10mm
+\headsep 5mm
+\textheight 237mm
+
+
+
+
+\begin{document}
+
+%A FEJEZETEK KEZDÕOLDALAINAK FEJ ES LÁBLÉCE:
+%a plain oldalstílust kell átdefiniálni, hogy ott ne legyen fejléc:
+\fancypagestyle{plain}{%
+%ez mindent töröl:
+\fancyhf{}
+% a láblécbe jobboldalra kerüljön az oldalszám:
+\fancyfoot[R]{\thepage}
+%elválasztó vonal sem kell:
+\renewcommand{\headrulewidth}{0pt}
+}
+
+%A TÖBBI OLDAL FEJ ÉS LÁBLÉCE:
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Diplomamunka vázlat}
+\fancyfoot[R]{\thepage}
+
+
+%A címoldalra se fej- se lábléc nem kell:
+\thispagestyle{empty}
+
+\begin{center}
+{\LARGE\bf Diplomamunka vázlat}
+\vspace*{2cm}
+\end{center}
+
+\begin{enumerate}
+  \item \textbf{Bevezetés}
+
+  \item \textbf{Az emulátorokról}: Definíció, mûködés, fajtái, jelene, jövõje, jelentõsége
+
+  \item \textbf{Nintendo Game Boy}
+  \begin{enumerate}
+    \item Történelme, hardverspecifikáció
+    \item Architektúra
+  \end{enumerate}
+
+  \item \textbf{Emulátor fejlesztési folyamat/roadmap}: kutatási/implementálási/fejlesztési sorrend, az emulátor mûködése "madártávlatból"
+
+  \item \textbf{Implementáció}
+
+  \begin{enumerate}
+    \item \textbf{Eszközök}
+      \begin{enumerate}
+        \item Rust nyelv, minifb library
+        \item Források, dokumentációk, közösségi repozitórium, BGB Game Boy emulátor debuggere
+      \end{enumerate}
+
+    \item \textbf{Specifikáció}: input, output, elvárt mûködés
+    \begin{enumerate}
+      \item ROMok struktúrája, fajtáik
+    \end{enumerate}
+
+    \item \textbf{CPU}
+      \begin{enumerate}
+        \item Regiszterek, változók, flagek
+        \item Órajelciklus, mûveletigény
+      \end{enumerate}
+
+    \item \textbf{Utasításkészlet}
+      \begin{enumerate}
+        \item Load (LD) utasítások
+        \item Aritmetikus (ADD, ADC, SUB, SBC, INC, DEC) utasítások
+        \item Logikai (AND, XOR, OR, CP) utasítások
+        \item Jump, Call, Return (JP, CALL, RET) utasítások
+        \item Verem utasítások (PUSH, POP)
+        \item Bitmûveleti (RLC, RRC, RL, RR, SLA, SRA, SWAP, SRL, BIT, RES, SET) utasítások
+        \item Egyéb, speciális utasítások
+      \end{enumerate}
+
+    \item \textbf{RAM/MMU}
+      \begin{enumerate}
+        \item Memóriatérkép, fontosabb, kiemelt helyek, adatstruktúra
+        \item DMA
+        \item Implementációja, trap-ek
+        \item MBC
+      \end{enumerate}
+
+    \item \textbf{Idõzítõk}
+
+    \item \textbf{LCD}
+      \begin{enumerate}
+        \item V-blank, H-blank, interrupt
+      \end{enumerate}
+
+    \item \textbf{PPU}
+    \begin{enumerate}
+      \item Alapvetõ mûködés, memóriaterületek
+      \item Tile rendering
+      \item Sprite rendering
+      \begin{enumerate}
+        \item Paletta, sprite attribútumok (flip, priority bit)
+        \item Sprite Attribute Table
+      \end{enumerate}
+    \end{enumerate}
+
+    \item \textbf{Boot Rom}: futtatás, mûködés
+
+    \item \textbf{Joypad}
+      \begin{enumerate}
+        \item Kiosztás, wiring, mechanizmus
+        \item Implementáció, jellemzõk, interrupt
+      \end{enumerate}
+  \end{enumerate}
+
+  \item \textbf{Mûködés felhasználói szemmel}
+  \begin{enumerate}
+    \item Kinézet, screenshotok, használat
+    \item Kapcsolók, további funkciók
+    \item Dependenciák
+  \end{enumerate}
+
+  \item \textbf{Tesztelés}
+  \begin{enumerate}
+    \item Közösségi teszt ROMok, melyik mit tartalmaz
+    \item A tesztelések eredményei, értékelés
+  \end{enumerate}
+
+  \item \textbf{Végszó}: mi nem került implementálásra, mit kellett volna másképp, a projekt jövõje
+  \item Köszönetnyilvánítás
+  \item Mellékletek
+
+
+\end{enumerate}
+
+
+
+
+
+
+
+\end{document}

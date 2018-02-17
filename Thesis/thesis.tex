@@ -1,0 +1,268 @@
+% LaTeX mintafájl szakdolgozat és diplomamunkáknak az
+% SZTE Informatikai Tanszekcsoportja által megkövetelt
+% formai követelményeinek megvalósításához
+% Modositva: 2011.04.28 Nemeth L. Zoltan
+% A fájl használatához szükséges a magyar.ldf 2005/05/12 v1.5-ös vagy késõbbi verziója
+% ez letölthetõ a http://www.math.bme.hu/latex/ weblapról, a magyar nyelvû szedéshez
+% Hasznos információk, linekek, LaTeX leirasok a www.latex.lap.hu weboldalon vannak.
+%
+
+
+\documentclass[12pt]{report}
+
+%Magyar nyelvi támogatás (Babel 3.7 vagy késõbbi kell!)
+\def\magyarOptions{defaults=hu-min}
+\usepackage[magyar]{babel}
+
+%Az ékezetes betûk használatához:
+\usepackage{t1enc}% ékezetes szavak automatikus elválasztásához
+\usepackage[latin2]{inputenc}% ékezetes szavak beviteléhez
+
+% A formai kovetelmenyekben megkövetelt Times betûtípus hasznalata:
+\usepackage{times}
+
+%Az AMS csomagjai
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+%A fejléc láblécek kialakításához:
+\usepackage{fancyhdr}
+
+%Természetesen további csomagok is használhatók,
+%például ábrák beillesztéséhez a graphix és a psfrag,
+%ha nincs rájuk szükség természetesen kihagyhatók.
+\usepackage{graphicx}
+\usepackage{psfrag}
+
+%Tételszerû környezetek definiálhatók, ezek most fejezetenkent egyutt szamozodnak, pl.
+\newtheorem{tét}{Tétel}[chapter]
+\newtheorem{defi}[tét]{Definíció}
+\newtheorem{lemma}[tét]{Lemma}
+\newtheorem{áll}[tét]{Állítás}
+\newtheorem{köv}[tét]{Következmény}
+
+%Ha a megjegyzések és a példak szövegét nem akarjuk dõlten szedni, akkor
+%az alábbi parancs után kell õket definiální:
+\theoremstyle{definition}
+\newtheorem{megj}[tét]{Megjegyzés}
+\newtheorem{pld}[tét]{Példa}
+
+%Margók:
+\hoffset -1in
+\voffset -1in
+\oddsidemargin 35mm
+\textwidth 150mm
+\topmargin 15mm
+\headheight 10mm
+\headsep 5mm
+\textheight 237mm
+
+
+
+
+\begin{document}
+
+%A FEJEZETEK KEZDÕOLDALAINAK FEJ ES LÁBLÉCE:
+%a plain oldalstílust kell átdefiniálni, hogy ott ne legyen fejléc:
+\fancypagestyle{plain}{%
+%ez mindent töröl:
+\fancyhf{}
+% a láblécbe jobboldalra kerüljön az oldalszám:
+\fancyfoot[R]{\thepage}
+%elválasztó vonal sem kell:
+\renewcommand{\headrulewidth}{0pt}
+}
+
+%A TÖBBI OLDAL FEJ ÉS LÁBLÉCE:
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Az emulátor fejlesztési folyamat bemutatása a Nintendo Game Boy konzolon}
+\fancyfoot[R]{\thepage}
+
+
+%A címoldalra se fej- se lábléc nem kell:
+\thispagestyle{empty}
+
+\begin{center}
+\vspace*{1cm}
+{\Large\bf Szegedi Tudományegyetem}
+
+\vspace{0.5cm}
+
+{\Large\bf Informatikai Intézet}
+
+\vspace*{3.8cm}
+
+
+{\LARGE\bf Az emulátor fejlesztési folyamat bemutatása a Nintendo Game Boy konzolon}
+
+
+\vspace*{3.6cm}
+
+{\Large Diplomamunka}
+% vagy {\Large Szakdolgozat}
+
+\vspace*{4cm}
+
+%Értelemszerûen megváltoztatandó:
+{\large
+\begin{tabular}{c@{\hspace{4cm}}c}
+\emph{Készítette:}     &\emph{Témavezetõ:}\\
+\bf{Krizsák Tibor}  &\bf{Dr. Tanács Attila}\\
+informatika szakos     &egyetemi adjunktus\\
+hallgató&
+\end{tabular}
+}
+
+\vspace*{2.3cm}
+
+{\Large
+Szeged
+\\
+\vspace{2mm}
+2018
+}
+\end{center}
+
+
+%A tartalomjegyzék:
+\tableofcontents
+
+%A \chapter* parancs nem ad a fejezetnek sorszámot
+\chapter*{Feladatkiírás}
+%A tartalomjegyzékben mégis szerepeltetni kell, mint szakasz(section) szerepeljen:
+\addcontentsline{toc}{section}{Feladatkiírás}
+
+\noindent A Nintendo Game Boy egy 1989-ban bemutatott, 8 bites kézi videojáték-konzol. A konzolban egy Zilog Z80 (az Intel 8080 "utódja") processzor mûködik, kiegészítve néhány specifikus utasítással.  \\
+
+\noindent A feladat egy emulátor fejlesztési fázisainak bemutatása a Nintendo Game Boy hardveren, valamint a kész emulátor tesztelése. Az emulátor Rust nyelven legyen megvalósítva, illetve a tesztelés a más Zilog Z80 emulátor fejlesztõk által készített teszt ROM-okon történjen.
+
+\chapter*{Tartalmi összefoglaló}
+\addcontentsline{toc}{section}{Tartalmi összefoglaló}
+
+\begin{itemize}
+  \item \textbf{A téma megnevezése:} \\
+  Egy emulátor fejlesztési fázisainak bemutatása a Nintendo Game Boy hardveren keresztül, Rust nyelven implementálva.
+
+  \item \textbf{A megadott feladat megfogalmazása:} \\
+  A feladat egy Nintendo Game Boy emulátor implementálása, és fejlesztési fázisainak bemutatása. A bemutatás során a CPU utasításait, a GPU renderelésének mûködését, a memóriakezelést, és a megszakítás-vezérlést kell érinteni, illetve az egyéb kisebb, de a mûködéshez elengedhetetlen megoldások is megemlítésre kerülnek. Ahhoz, hogy ezek megfelelõen mûködjenek, a CPU frekvenciájára, illetve a képfrissítési gyorsaságra is tekintettel kell lenni.
+
+  \item \textbf{A megoldási mód:} \\
+  Az emulátor fejlesztõ közösség által összegyûjtött - reverse-engineered - információkra, illetve a processzor gyártója által kiadott technikai dokumentációra hagyatkozva felépítettem és implementáltam a CPU strukúráját, uasításkészletét, majd a többi modult, részegységet. Meghatároztam a modulok közti kommunikációt, idõzítéseket, adatfolyamot. A videojáték-, illetve teszt ROM-ok byte-jait sorra beolvasva az emulátor meghatározza a megfelelõ mûveletet, meghatározott idõközönként renderel, illetve kezeli a meg\-szakításokat.
+
+  \item \textbf{Alkalmazott eszközök, módszerek:} \\
+  Az emulátor Linux rendszeren, Rust nyelven került implementálásra, a \texttt{rustc} fordító, illetve a \texttt{cargo} package manager segítségével. A rendereléshez a \texttt{minifb} libraryt használtam, ami egy nagyon egyszerû framebuffer használatát teszi lehetõvé. A fejlesztésre került egy debugger eszköz, illetve egy memória térkép eszköz is, ami nagyban megkönnyítette a hibakeresést.
+
+  \item \textbf{Elért eredmények:} \\
+  Az implementált emulátor képes futtatni Memory Banking nélküli videojáték ROM-okat, az inputra az elvárásoknak megfelelõen reagálva. A processzor mûveletek és a renderelés az eredeti konzollal megegyezõ eredményt adnak. A közösségi Game Boy teszt ROM-ok szinte mindegyikét sikerrel végrehajtja.
+
+  \item \textbf{Kulcsszavak:} \\
+  Nintendo, Game Boy, emulátor, fejlesztés, Rust
+
+\end{itemize}
+
+
+
+
+\chapter*{Bevezetés}
+\addcontentsline{toc}{section}{Bevezetés}
+
+Itt kezdõdik a bevezetés, mely nem kap sorszámot.
+
+
+
+\chapter{Egy találó cím}
+
+Ez pedig már az elsõ fejezet, ...
+
+\section{Alcím}
+Ebben alfejezetek is lehetnek
+
+\subsection{Al-al cím}
+Sõt al-al fejezetek is.
+
+%Oldaltörést is alkalmazhatunk
+\pagebreak
+
+
+\chapter*{Nyilatkozat}
+%Egy üres sort adunk a tartalomjegyzékhez:
+\addtocontents{toc}{\ }
+\addcontentsline{toc}{section}{Nyilatkozat}
+%\hspace{\parindent}
+
+% A nyilatkozat szövege más titkos és nem titkos dolgozatok esetében.
+% Csak az egyik tipusú myilatokzatnak kell a dolgozatban szerepelni
+% A ponok helyére az adatok értelemszerûen behelyettesídendõk es
+% a szakdolgozat /diplomamunka szo megfeleloen kivalasztando.
+
+
+%A nyilatkozat szövege TITKOSNAK NEM MINÕSÍTETT dolgozatban a következõ:
+%A pontokkal jelölt szövegrészek értelemszerûen a szövegszerkesztõben és
+%nem kézzel helyettesítendõk:
+
+\noindent
+Alulírott \makebox[4cm]{\dotfill} szakos hallgató, kijelentem, hogy a dolgozatomat a Szegedi Tudományegyetem, Informatikai Intézet \makebox[4cm]{\dotfill} Tanszékén készítettem, \makebox[4cm]{\dotfill} diploma megszerzése érdekében.
+
+Kijelentem, hogy a dolgozatot más szakon korábban nem védtem meg, saját munkám eredménye, és csak a hivatkozott forrásokat (szakirodalom, eszközök, stb.) használtam fel.
+
+Tudomásul veszem, hogy szakdolgozatomat / diplomamunkámat a Szegedi Tudományegyetem Informatikai Intézet könyvtárában, a helyben olvasható könyvek között helyezik el.
+
+\vspace*{2cm}
+
+\begin{tabular}{lc}
+Szeged, \today\
+\hspace{2cm} & \makebox[6cm]{\dotfill} \\
+& aláírás \\
+\end{tabular}
+
+
+\vspace*{4cm}
+
+\chapter*{Köszönetnyilvánítás}
+\addcontentsline{toc}{section}{Köszönetnyilvánítás}
+
+Ezúton szeretnék köszönetet mondani \textbf{X. Y-nak} ezért és ezért \ldots
+
+
+%% Az itrodalomjegyzek keszitheto a BibTeX segedprogrammal:
+%\bibliography{diploma}
+%\bibliographystyle{plain}
+
+%VAGY "kézzel" a következõ módon:
+
+\begin{thebibliography}{9}
+%10-nél kevesebb hivatkozás esetén
+
+%\begin{thebibliography}{99}
+% 10-nél több hivatkozás esetén
+
+\addcontentsline{toc}{section}{Irodalomjegyzék}
+
+%Elso szerzok vezetekneve alapjan ábécérendben rendezve.
+
+
+%folyóirat cikk: szerzok(k), a folyóirat neve kiemelve,
+%az evfolyam felkoveren, zarojelben az evszam, vegul az oldalszamok es pont.
+\bibitem{Gischer}
+J. L. Gischer,
+The equational theory of pomsets.
+\emph{Theoret. Comput. Sci.}, \textbf{61}(1988), 199--224.
+
+%könyv (szerzo(k), a könyv neve kiemelve, utana a kiado, a kiado szekhelye, az evszam es pont.)
+\bibitem{Pin}
+J.-E. Pin,
+\emph{Varieties of Formal Languages},
+Plenum Publishing Corp., New York, 1986.
+
+
+
+
+
+\end{thebibliography}
+
+
+
+
+\end{document}

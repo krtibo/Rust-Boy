@@ -1,6 +1,6 @@
 # Rust Boy
 
-![Current stage](/doc/logo.gif)
+![Current stage](/Emulator/doc/logo.gif)
 
 This is project **Rust Boy**, which is my thesis for the master's degree.
 

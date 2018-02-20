@@ -2,14 +2,14 @@
 
                     ===    THIS IS RUST BOY    ===
 
-    This is the test report generator and test mini framework for the 
+    This is the test report generator and test mini framework for the
     Rust Boy Emulator.
 
-    It takes the test cases from a txt file, processes them, and checks 
+    It takes the test cases from a txt file, processes them, and checks
     the given result.
 
     INPUT : ../../tests/tests.txt file
-    OUTPUT : Generated index.html file which takes use of the css 
+    OUTPUT : Generated index.html file which takes use of the css
              stylesheet.
 
     REQUIRED TEST FILE FORMAT :
@@ -17,10 +17,10 @@
           e.g. 3E 12  --> this means LD A, 12
         * result check part
             - to check a register, type in its name and its hoped result
-              e.g. 3E 12 A 12  --> this does the instruction and checks 
+              e.g. 3E 12 A 12  --> this does the instruction and checks
               if A is whether 0x12 or not
             - to check the flag, type in FLAG and its value in binary
-              e.g. 2E 33 FLAG 10000000 
+              e.g. 2E 33 FLAG 10000000
             - to check a byte in RAM, type in RAM, its location in RAM
               and its value
               e.g. 3E 12 RAM 12 32
@@ -79,11 +79,11 @@ pub fn test_parser(& mut self){
         <head>
         <meta charset=\"UTF-8\">
         <title>Rust Boy Test Report</title>
-        
+
             <link href=\"https://afeld.github.io/emoji-css/emoji.css\" rel=\"stylesheet\">
             <link rel=\"stylesheet\" href=\"css/style.css\">
 
-        
+
         </head>
 
         <body>
@@ -121,7 +121,7 @@ pub fn test_parser(& mut self){
     let f = File::open("./tests/tests.txt")
         .expect("Error with test loading!");
     let tests = BufReader::new(&f);
-    
+
     for line in tests.lines() {
         let line_string = line.unwrap();
         let iter = line_string.split_whitespace();
@@ -154,8 +154,8 @@ pub fn test_parser(& mut self){
             let b2 : u8 = vec_str[vec_str.len()-1].parse().unwrap();
             self.test_writer(
                     if self.rb.RAM[b1 as usize] == b2
-                    {true} else {false}, 
-                    &mut out, 
+                    {true} else {false},
+                    &mut out,
                     data);
 
             continue;
@@ -186,49 +186,49 @@ pub fn test_parser(& mut self){
 
         match vec_str[vec_str.len()-2] {
             "A" => self.test_writer(
-                    if self.rb.A == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
-                    {true} else {false}, 
-                    &mut out, 
+                    if self.rb.A == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
+                    {true} else {false},
+                    &mut out,
                     data),
             "B" => self.test_writer(
-                    if self.rb.B == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
-                    {true} else {false}, 
-                    &mut out, 
+                    if self.rb.B == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
+                    {true} else {false},
+                    &mut out,
                     data),
             "C" => self.test_writer(
-                    if self.rb.C == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
-                    {true} else {false}, 
-                    &mut out, 
+                    if self.rb.C == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
+                    {true} else {false},
+                    &mut out,
                     data),
             "D" => self.test_writer(
-                    if self.rb.D == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
-                    {true} else {false}, 
-                    &mut out, 
+                    if self.rb.D == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
+                    {true} else {false},
+                    &mut out,
                     data),
             "E" => self.test_writer(
-                    if self.rb.E == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
-                    {true} else {false}, 
-                    &mut out, 
+                    if self.rb.E == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
+                    {true} else {false},
+                    &mut out,
                     data),
             "F" => self.test_writer(
-                    if self.rb.F == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
+                    if self.rb.F == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
                     {true} else {false}, 
-                    &mut out, 
+                    &mut out,
                     data),
             "H" => self.test_writer(
-                    if self.rb.H == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
-                    {true} else {false}, 
-                    &mut out, 
+                    if self.rb.H == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
+                    {true} else {false},
+                    &mut out,
                     data),
             "L" => self.test_writer(
-                    if self.rb.L == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap() 
-                    {true} else {false}, 
-                    &mut out, 
+                    if self.rb.L == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
+                    {true} else {false},
+                    &mut out,
                     data),
             "FLAG" => self.test_writer(
-                    if self.rb.FLAG == u8::from_str_radix(vec_str[vec_str.len()-1], 2).unwrap()
-                    {true} else {false}, 
-                    &mut out, 
+                    if self.rb.F == u8::from_str_radix(vec_str[vec_str.len()-1], 2).unwrap()
+                    {true} else {false},
+                    &mut out,
                     data),
             _ => println!("NAO"),
         }

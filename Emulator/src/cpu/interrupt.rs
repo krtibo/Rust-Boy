@@ -15,9 +15,8 @@ impl Interrupt {
 
     #[allow(non_snake_case)]
     pub fn IRQ(&self, cpu : &mut CPU, t : u8) {
-        let IR_flag : u8 = Interrupt::set_bit(t, cpu.RAM[0xFF0F]);
+        let IR_flag : u8 = CPU::set_bit(t, cpu.RAM[0xFF0F]);
         cpu.RAM[0xFF0F] = IR_flag;
-        println!("IRQ number {}", t);
     }
 
     pub fn interrupt_checker(&mut self, cpu : &mut CPU) {
@@ -28,8 +27,8 @@ impl Interrupt {
             for i in 0..5 {
 
                 // if it has a request and its enabled
-                if Interrupt::get_bit(i, cpu.RAM[0xFF0F]) &&
-                Interrupt::get_bit(i, cpu.RAM[0xFFFF]) {
+                if CPU::get_bit(i, cpu.RAM[0xFF0F]) &&
+                CPU::get_bit(i, cpu.RAM[0xFFFF]) {
 
                     self.handler(cpu, i);
                 }
@@ -41,14 +40,16 @@ impl Interrupt {
 
         // reset interrupt flags
         cpu.IR = false;
-        let IR_flag : u8 = Interrupt::reset_bit(t, cpu.RAM[0xFF0F]);
+        let IR_flag : u8 = CPU::reset_bit(t, cpu.RAM[0xFF0F]);
         cpu.RAM[0xFF0F] = IR_flag;
 
         // push address onto stack
         let pc_h : u8 = ((cpu.PC) >> 8) as u8;
         let pc_l : u8 = ((cpu.PC) & 0x00FF) as u8;
-        cpu.STACK.push_front(pc_h);
-        cpu.STACK.push_front(pc_l);
+        cpu.SP -= 2;
+        let sp : u16 = cpu.SP;
+        cpu.write_ram(sp, pc_l);
+        cpu.write_ram(sp + 1, pc_h);
 
         // jump to interrupt function on RAM
         match t {
@@ -59,29 +60,4 @@ impl Interrupt {
             _ => return,
         }
     }
-
-    fn set_bit(n : u8, reg : u8) -> u8 {
-        let mut value : u8 = 0;
-        let mask : u8 = 1 << n;
-        value = reg | mask;
-        value
-    }
-
-    fn reset_bit(n : u8, reg : u8) -> u8 {
-        let mut value : u8 = 0;
-        let mask : u8 = 1 << n;
-        value = reg & (0xFF - mask);
-        value
-    }
-
-    fn get_bit(n : u8, reg : u8) -> bool {
-        let mask : u8 = 1 << n;
-        
-        if reg & mask == 0 {
-            false
-        } else {
-            true
-        }
-    }
-
 }

@@ -4,6 +4,7 @@
 #![allow(non_snake_case)]
 
 use cpu::CPU;
+use interrupt::Interrupt;
 extern crate minifb;
 
 use self::minifb::{WindowOptions, Window, Scale};
@@ -17,7 +18,7 @@ pub struct PPU {
     window_y : u8,
     pub window : Window,
     framebuffer : [u32; 160*144],
-
+    interrupt : Interrupt,
 }
 
 impl PPU {
@@ -38,6 +39,7 @@ impl PPU {
                              ..WindowOptions::default()})
                              .unwrap(),
             framebuffer : [0; 160*144],
+            interrupt : Interrupt::new(),
         }
     }
 
@@ -59,7 +61,7 @@ impl PPU {
             }
 
             if cpu.RAM[0xFF44] == 144 {
-                cpu.IRQ(0);
+                self.interrupt.IRQ(cpu, 0);
             }
             cpu.RAM[0xFF44] += 1;
 
@@ -72,11 +74,11 @@ impl PPU {
 
     fn draw_line(&mut self, cpu : &mut CPU) {
 
-        if PPU::get_bit(0, cpu.RAM[0xFF40]) == 1  {
+        if CPU::get_bit(0, cpu.RAM[0xFF40])  {
             self.draw_tile(cpu);
         }
 
-        if PPU::get_bit(1, cpu.RAM[0xFF40]) == 1  {
+        if CPU::get_bit(1, cpu.RAM[0xFF40])  {
             self.draw_sprite(cpu);
         }
     }
@@ -86,7 +88,7 @@ impl PPU {
     fn draw_sprite(&mut self, cpu : &mut CPU) {
         let mut double_size : bool = false;
 
-        if PPU::get_bit(2, self.lcd_ctrl) == 1 {
+        if CPU::get_bit(2, self.lcd_ctrl) {
             double_size = true;
         }
 
@@ -99,13 +101,13 @@ impl PPU {
             let attrib = cpu.RAM[(sprite_addr + 3) as usize];
 
             let bg_priority : bool =
-            if PPU::get_bit(7, attrib) == 1 { true } else { false };
+            if CPU::get_bit(7, attrib) { true } else { false };
 
             let flip_x : bool =
-            if PPU::get_bit(5, attrib) == 1 { true } else { false };
+            if CPU::get_bit(5, attrib) { true } else { false };
 
             let flip_y : bool =
-            if PPU::get_bit(6, attrib) == 1 { true } else { false };
+            if CPU::get_bit(6, attrib) { true } else { false };
 
             let current_scanline : i32 = cpu.RAM[0xFF44] as i32;
             let size_y : i32 = if double_size { 16 } else { 8 };
@@ -137,12 +139,13 @@ impl PPU {
                     color_bit *= -1;
                 }
 
-                let mut colour_num : u8 = PPU::get_bit(color_bit as u8, data_2);
+                let mut colour_num : u8 = if CPU::get_bit(color_bit as u8, data_2)
+                { 1 } else { 0 };
                 colour_num = colour_num << 1;
-                colour_num |= PPU::get_bit(color_bit as u8, data_1);
+                colour_num |= if CPU::get_bit(color_bit as u8, data_1) { 1 } else { 0 };
 
                 let color_address : u16 =
-                if PPU::get_bit(4, attrib) == 1 { 0xFF49 } else { 0xFF48 };
+                if CPU::get_bit(4, attrib) { 0xFF49 } else { 0xFF48 };
                 let color : u32 = self.select_colors(cpu, colour_num, color_address);
 
                 if color == 0xFF8BAC0F || bg_priority {
@@ -168,7 +171,7 @@ impl PPU {
         let mut y_pos : u8 = 0;
         let mut using_window = false;
 
-        if PPU::get_bit(5, self.lcd_ctrl) == 1 {
+        if CPU::get_bit(5, self.lcd_ctrl) {
         // window enabled
             if self.window_y <= cpu.RAM[0xFF44] {
             // window on current line?
@@ -176,7 +179,7 @@ impl PPU {
             }
         }
 
-        if PPU::get_bit(4, self.lcd_ctrl) == 1 {
+        if CPU::get_bit(4, self.lcd_ctrl) {
         // tile data position
             tile_data = 0x8000;
         } else {
@@ -185,13 +188,13 @@ impl PPU {
         }
 
         if !using_window {
-            if PPU::get_bit(3, self.lcd_ctrl) == 1 {
+            if CPU::get_bit(3, self.lcd_ctrl) {
                 bg_mem = 0x9C00;
             } else {
                 bg_mem = 0x9800;
             }
         } else {
-            if PPU::get_bit(6, self.lcd_ctrl) == 1 {
+            if CPU::get_bit(6, self.lcd_ctrl) {
                 bg_mem = 0x9C00;
             } else {
                 bg_mem = 0x9800;
@@ -238,9 +241,10 @@ impl PPU {
             colourbit -= 7;
             colourbit *= -1;
 
-            let mut colour_num : u8 = PPU::get_bit(colourbit as u8, d2);
+            let mut colour_num : u8 = if CPU::get_bit(colourbit as u8, d2)
+            { 1 } else { 0 };
             colour_num = colour_num << 1;
-            colour_num |= PPU::get_bit(colourbit as u8, d1);
+            colour_num |= if CPU::get_bit(colourbit as u8, d1) { 1 } else { 0 };
 
             self.framebuffer[PPU::coords((i,cpu.RAM[0xFF44])) as usize] =
             self.select_colors(cpu, colour_num, 0xFF47);
@@ -265,8 +269,8 @@ impl PPU {
             _ => { low_bits = 0; high_bits = 0; }
         }
 
-        color = PPU::get_bit(high_bits, palette) << 1;
-        color |= PPU::get_bit(low_bits, palette);
+        color = if CPU::get_bit(high_bits, palette) { 1 } else { 0 } << 1;
+        color |= if CPU::get_bit(low_bits, palette) { 1 } else { 0 };
 
         match color {
             0 => color_hex = 0xFF9BBC0F,
@@ -284,7 +288,7 @@ impl PPU {
     fn lcd_status(&self, cpu : &mut CPU) -> bool {
     // get the state of the LCD control register
 
-        if PPU::get_bit(7, cpu.RAM[0xFF40]) == 1 {
+        if CPU::get_bit(7, cpu.RAM[0xFF40]) {
             true
         } else {
             false
@@ -299,7 +303,7 @@ impl PPU {
             self.scanline_count = 456;
             cpu.RAM[0xFF44] = 0;
             lcd_status_reg = lcd_status_reg & 0b1111_1100;
-            lcd_status_reg = PPU::set_bit(0, lcd_status_reg);
+            lcd_status_reg = CPU::set_bit(0, lcd_status_reg);
             cpu.write_ram(0xFF41, lcd_status_reg);
             return
         }
@@ -313,9 +317,9 @@ impl PPU {
         // let us handle mode 1 interrupt
 
             lcd_mode = 1;
-            lcd_status_reg = PPU::set_bit(0, lcd_status_reg);
-            lcd_status_reg = PPU::reset_bit(1, lcd_status_reg);
-            IRQ = if PPU::get_bit(4, lcd_status_reg) == 1 { true } else { false };
+            lcd_status_reg = CPU::set_bit(0, lcd_status_reg);
+            lcd_status_reg = CPU::reset_bit(1, lcd_status_reg);
+            IRQ = if CPU::get_bit(4, lcd_status_reg) { true } else { false };
 
         } else {
 
@@ -326,73 +330,45 @@ impl PPU {
             // its time for handling mode 2 interrupt
 
                 lcd_mode = 2;
-                lcd_status_reg = PPU::set_bit(1, lcd_status_reg);
-                lcd_status_reg = PPU::reset_bit(0, lcd_status_reg);
-                IRQ = if PPU::get_bit(5, lcd_status_reg) == 1 { true } else { false };
+                lcd_status_reg = CPU::set_bit(1, lcd_status_reg);
+                lcd_status_reg = CPU::reset_bit(0, lcd_status_reg);
+                IRQ = if CPU::get_bit(5, lcd_status_reg) { true } else { false };
 
             } else if self.scanline_count >= lcd_mode_3_lim {
             // and now the mode 3 interrupt
 
                 lcd_mode = 3;
-                lcd_status_reg = PPU::set_bit(1, lcd_status_reg);
-                lcd_status_reg = PPU::set_bit(0, lcd_status_reg);
+                lcd_status_reg = CPU::set_bit(1, lcd_status_reg);
+                lcd_status_reg = CPU::set_bit(0, lcd_status_reg);
 
             } else {
             // the last one is the mode 0 interrupt
 
                 lcd_mode = 0;
-                lcd_status_reg = PPU::reset_bit(1, lcd_status_reg);
-                lcd_status_reg = PPU::reset_bit(0, lcd_status_reg);
-                IRQ = if PPU::get_bit(3, lcd_status_reg) == 1 { true } else { false };
+                lcd_status_reg = CPU::reset_bit(1, lcd_status_reg);
+                lcd_status_reg = CPU::reset_bit(0, lcd_status_reg);
+                IRQ = if CPU::get_bit(3, lcd_status_reg) { true } else { false };
             }
         }
 
         if IRQ == true && lcd_mode != lcd_current_mode {
         // IRQ time!
 
-            cpu.IRQ(1);
+            self.interrupt.IRQ(cpu, 1);
         }
 
         if cpu.RAM[0xFF44] == cpu.RAM[0xFF45] {
-            lcd_status_reg = PPU::set_bit(2, lcd_status_reg);
+            lcd_status_reg = CPU::set_bit(2, lcd_status_reg);
 
-            if PPU::get_bit(6, lcd_status_reg) == 1 {
-                cpu.IRQ(1);
+            if CPU::get_bit(6, lcd_status_reg) {
+                self.interrupt.IRQ(cpu, 1);
             }
         } else {
-            lcd_status_reg = PPU::reset_bit(2, lcd_status_reg);
+            lcd_status_reg = CPU::reset_bit(2, lcd_status_reg);
         }
 
         cpu.write_ram(0xFF41, lcd_status_reg);
     }
-
-
-    fn get_bit(n : u8, reg : u8) -> u8 {
-        let mask : u8 = 1 << n;
-
-        if reg & mask == 0 {
-            0
-        } else {
-            1
-        }
-    }
-
-
-    fn set_bit(n : u8, reg : u8) -> u8 {
-        let mut value : u8 = 0;
-        let mask : u8 = 1 << n;
-        value = reg | mask;
-        value
-    }
-
-
-    fn reset_bit(n : u8, reg : u8) -> u8 {
-        let mut value : u8 = 0;
-        let mask : u8 = 1 << n;
-        value = reg & (0xFF - mask);
-        value
-    }
-
 
     pub fn render(&mut self) {
         self.window.update_with_buffer(&self.framebuffer).unwrap();

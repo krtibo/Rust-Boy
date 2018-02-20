@@ -4,6 +4,7 @@
 #![allow(non_snake_case)]
 
 use cpu::CPU;
+use interrupt::Interrupt;
 
 pub struct Timer {
     timer_counter : u32,
@@ -13,6 +14,7 @@ pub struct Timer {
     pub TMC : u16,
     TMA : u16,
     TIMA : u16,
+    interrupt : Interrupt,
 }
 
 impl Timer {
@@ -25,24 +27,25 @@ impl Timer {
             TMC : 0xFF07,
             TMA : 0xFF06,
             TIMA : 0xFF05,
+            interrupt : Interrupt::new(),
         }
     }
 
     pub fn update(&mut self, cpu : &mut CPU, cycle : u8) {
-
+        let interrupt : Interrupt = Interrupt::new();
         self.div_reg(cpu, cycle);
 
-        if Timer::get_bit(2, cpu.RAM[self.TMC as usize]) {
+        if CPU::get_bit(2, cpu.RAM[self.TMC as usize]) {
             if cycle as u32 > self.timer_counter  {
                 self.update_freq(cpu);
 
                 if cpu.RAM[self.TIMA as usize] == 255 {
                     let TMA = cpu.RAM[self.TMA as usize];
                     cpu.write_ram(self.TIMA, TMA);
-                    cpu.IRQ(2);
+                    self.interrupt.IRQ(cpu, 2);
                 } else {
                     let TIMA = cpu.RAM[self.TIMA as usize];
-                    
+
                     cpu.write_ram(self.TIMA, TIMA + 1);
                 }
             } else {
@@ -59,7 +62,7 @@ impl Timer {
             1 => self.timer_counter = 16,
             2 => self.timer_counter = 64,
             3 => self.timer_counter = 256,
-            _ => return            
+            _ => return
         }
     }
 
@@ -74,31 +77,6 @@ impl Timer {
         if self.divider_register >= 255 && cpu.RAM[0xFF04] == 255 {
             self.divider_register = 0;
             cpu.RAM[0xFF04] = 0;
-        }
-    }
-
-
-    fn set_bit(n : u8, reg : u8) -> u8 {
-        let mut value : u8 = 0;
-        let mask : u8 = 1 << n;
-        value = reg | mask;
-        value
-    }
-
-    fn reset_bit(n : u8, reg : u8) -> u8 {
-        let mut value : u8 = 0;
-        let mask : u8 = 1 << n;
-        value = reg & (0xFF - mask);
-        value
-    }
-
-    fn get_bit(n : u8, reg : u8) -> bool {
-        let mask : u8 = 1 << n;
-        
-        if reg & mask == 0 {
-            false
-        } else {
-            true
         }
     }
 

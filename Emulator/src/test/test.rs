@@ -1,4 +1,4 @@
-/*
+/*************************************************************************
 
                     ===    THIS IS RUST BOY    ===
 
@@ -25,7 +25,7 @@
               and its value
               e.g. 3E 12 RAM 12 32
 
-*/
+*************************************************************************/
 
 use cpu::CPU;
 use std::fs::File;
@@ -212,7 +212,7 @@ pub fn test_parser(& mut self){
                     data),
             "F" => self.test_writer(
                     if self.rb.F == u8::from_str_radix(vec_str[vec_str.len()-1], 16).unwrap()
-                    {true} else {false}, 
+                    {true} else {false},
                     &mut out,
                     data),
             "H" => self.test_writer(

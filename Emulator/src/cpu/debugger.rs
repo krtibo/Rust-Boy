@@ -1,4 +1,4 @@
-/*
+/*************************************************************************
 
                     ===    THIS IS RUST BOY    ===
 
@@ -13,118 +13,13 @@
             They need to have the same size! (max 50 - 50)
     OUTPUT : 256 x 360 screen buffer with the rendered data
 
-    REQUIRED SPECS FOR EMBEDDING :
-        * endless loop for rendering
-        * child window handling - if closed, open up again on keypress
-        (this feature is written in the beginning of this file)
-        * scrolling wheel handling for scrolling through the instructions
-        (this feature is also written)
-
-*/
+***************************************************************************/
 
 #![allow(unused_variables)]
 
 extern crate minifb;
-
 use self::minifb::{WindowOptions, Window, Scale};
 use std::collections::LinkedList;
-
-
-/*
-fn main() {
-
-    let mut r = Debugger::new();
-    /*
-    let mut window = Window::new("TEST",
-                                 256,
-                                 360,
-                                 WindowOptions {
-                                     resize: false,
-                                     scale: Scale::X2,
-                                     ..WindowOptions::default()})
-                                 .unwrap();*/
-
-     /* CREATING ANOTHER WINDOW - EXAMPLE
-     let mut debug = Window::new("TEST",
-                                   256,
-                                   360,
-                                   WindowOptions {
-                                       resize: false,
-                                       scale: Scale::X2,
-                                       ..WindowOptions::default()})
-                                   .unwrap();
-     */
-
-    // register data
-    let mut registers_vec : LinkedList<Vec<String>> = LinkedList::new();
-
-    for i in 0..50 {
-        let mut register : Vec<String> = Vec::new();
-        for j in 0..8 {
-            register.push(format!("0x{:X}", rand::thread_rng().gen::<u8>()));
-        }
-        register.push(format!("0x{:X}", rand::thread_rng().gen::<u16>()));
-        register.push(format!("0x{:X}", rand::thread_rng().gen::<u16>()));
-        register.push(format!("0b{:b}", rand::thread_rng().gen::<u8>()));
-        register.push(format!("{}", rand::thread_rng().gen::<u8>()));
-
-        registers_vec.push_back(register);
-    }
-
-
-
-    // main rendering loop
-    while r.window.is_open() && !r.window.is_key_down(Key::Escape){
-
-        // instruction data vector
-        let mut instructions : LinkedList<String> = LinkedList::new();
-        instructions.push_back(String::from("NOP"));
-        instructions.push_back(String::from("LD"));
-        instructions.push_back(String::from("JR"));
-        instructions.push_back(String::from("RL"));
-        instructions.push_back(String::from("POP"));
-        instructions.push_back(String::from("ADD"));
-        instructions.push_back(String::from("SWAP"));
-
-        // handling the scrolling wheel to scroll
-
-
-        // giving the instructions and register data to the renderer
-        let mut dd = DebugData::new();
-        dd.instructions = instructions;
-        dd.register_states = registers_vec.clone();
-
-        r.update_window(dd);
-        // updating the window with the new buffer
-
-
-
-        /* HANDLING THE CHILD WINDOW - EXAMPLE
-        if debug.is_open() {
-            debug.update_with_buffer(&r.vram);
-        }
-
-        if debug.is_open() == false && window.is_key_pressed(Key::D, KeyRepeat::No) {
-            debug = Window::new("TEST",
-                                          256,
-                                          360,
-                                          WindowOptions {
-                                              resize: false,
-                                              scale: Scale::X2,
-                                              ..WindowOptions::default()})
-                                          .unwrap();
-            debug.update_with_buffer(&r.vram);
-        }
-        */
-
-
-    }
-
-
-} // fn main
-
-*/
-
 
 pub struct Colors {
     pub pink : u32,

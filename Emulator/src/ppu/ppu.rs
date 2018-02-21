@@ -1,12 +1,23 @@
+/*************************************************************************
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the PPU. It handles the LCD, renders the tiles and the
+    sprites. It also makes an IRQ in special cases.
+
+    PARAMETERS :
+        * CPU
+        * Currect cycle
+
+***************************************************************************/
+
 #![allow(dead_code)]
-#![allow(unused_variables)]
 #![allow(unused_assignments)]
 #![allow(non_snake_case)]
 
 use cpu::CPU;
 use interrupt::Interrupt;
 extern crate minifb;
-
 use self::minifb::{WindowOptions, Window, Scale};
 
 pub struct PPU {
@@ -51,8 +62,8 @@ impl PPU {
         self.window_y = cpu.RAM[0xFF4A];
 
         self.scanline_count += cycle as u16;
-        if self.scanline_count >= 456 {
 
+        if self.scanline_count >= 456 {
 
             self.scanline_count = 0;
 
@@ -114,11 +125,6 @@ impl PPU {
 
             if current_scanline < y_pos ||
             current_scanline >= (y_pos + size_y)  { continue }
-
-            /* println!("addr {} {} {}",
-            cpu.RAM[sprite_addr as usize],
-            cpu.RAM[(sprite_addr + 1) as usize],
-            cpu.RAM[(sprite_addr + 3) as usize]); */
 
             let line : u16 = if flip_y {
                 (size_y - 1 - (current_scanline - y_pos)) as u16
@@ -352,8 +358,6 @@ impl PPU {
         }
 
         if IRQ == true && lcd_mode != lcd_current_mode {
-        // IRQ time!
-
             self.interrupt.IRQ(cpu, 1);
         }
 

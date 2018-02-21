@@ -1,5 +1,23 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
+/*************************************************************************
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the file that implements the CPU's structure. By structure,
+    I mean registers, flags, and every other module the CPU is connected
+    with. This is also some kind of interconnect class -- almost every
+    module has an object here.
+
+    It contains the main cycle, the RAM writing method, the DMA implemen-
+    tation, the ROM loading functions, a function for my mini test frame-
+    work, and some additional public functions.
+
+    PARAMETERS :
+        * Boot ROM path
+        * ROM path
+        * Options u8 flag
+
+*************************************************************************/
+
 #![allow(unused_assignments)]
 #![allow(non_snake_case)]
 
@@ -63,7 +81,7 @@ impl CPU {
             rom_path : path_r,
             options : o,
         }
-    }
+    } // fn new
 
     pub fn cycle(&mut self) {
         let mut cycle : u32 = 0;
@@ -132,7 +150,6 @@ impl CPU {
                 }
 
                 // check and handle the interrupts
-                //self.interrupt_checker();
                 interrupt.interrupt_checker(self);
                 // update the timers
                 timer.update(self, instr_time);
@@ -165,46 +182,55 @@ impl CPU {
             self.RAM[i] = rom_buffer[i];
         }
 
-    }
+    } // fn load_bootrom
 
     pub fn load_rom(&mut self) {
         let mut rom_buffer : Vec<u8> = Vec::new();
+
+        // open the ROM
         let mut f = File::open(&self.rom_path)
         .expect("Error with file loading!");
 
+        // read the ROM to rom_buffer
         f.read_to_end(&mut rom_buffer)
         .expect("Error with file reading!");
 
+        // copy rom_buffer to RAM 0x100..
         for i in 0x100..rom_buffer.len() {
             self.RAM[i] = rom_buffer[i];
         }
-        println!("ROM copying done! {:x}", self.RAM[0x65]);
-    }
+    } // fn load_rom
 
     pub fn load_rom_header(&mut self) {
         let mut rom_buffer : Vec<u8> = Vec::new();
+
+        //open the ROM
         let mut f = File::open(&self.rom_path)
         .expect("Error with file loading!");
 
+        // read the ROM to rom_buffer
         f.read_to_end(&mut rom_buffer)
         .expect("Error with file reading!");
 
+        // copy rom_buffer to RAM 0x0..0x100
         for i in 0..0x100 {
             self.RAM[i] = rom_buffer[i];
         }
-    }
+    } // fn load_rom_header
 
     pub fn write_ram(&mut self, address : u16, value : u8) {
 
+        // blargg test ROM string output
         if address == 0xFF02 && value == 0x81 {
             print!("{}", self.RAM[0xFF01] as char);
         }
 
+        // if writing address is 0xFF46 -> DMA
         if address == 0xFF46 {
-            //println!("DMA!");
             self.dma(value);
         }
 
+        // if writing address is 0xFF07 -> frequency change
         if address == 0xFF07 {
             let old_freq = self.RAM[0xFF07] & 0x3;
             self.RAM[address as usize] = value;
@@ -216,22 +242,26 @@ impl CPU {
             return
         }
 
+        // if writing address is 0xFF04 or 0xFF44 -> trap
         if address == 0xFF04 || address == 0xFF44 {
             self.RAM[address as usize] = 0;
             return
         }
 
+        // if writing address is not special, write value to address
         self.RAM[address as usize] = value;
-    }
+    } // fn write_ram
 
     pub fn dma(&mut self, value : u8) {
+        // copiable data start address
         let addr : u16 = (value as u16) << 8;
 
+        // start copying
         for i in 0..0xA0 {
             let n : u8 = self.RAM[(addr + i) as usize];
             self.write_ram(0xFE00 + i, n);
         }
-    }
+    } // fn dma
 
     pub fn assemble_debug_data(&mut self,
         last_instruction : String,
@@ -240,6 +270,7 @@ impl CPU {
         rhs : u16,
         operand_mode : u8) -> (String, Vec<String>) {
 
+       // make a vector of the values in String format
        let actual_reg : Vec<String> = vec![
        format!("0x{:02X}", self.A),
        format!("0x{:02X}", self.B),
@@ -255,15 +286,19 @@ impl CPU {
        format!("{}", self.STACK.len()),
        ];
 
+       // if there is no operand
        if operand_mode == 0 {
            (format!("0x{:02X} : {}", last_opcode, last_instruction), actual_reg)
        } else
+
+       // if there is 1 operand
        if operand_mode == 1 {
            (format!("0x{:02X} : {} 0x{:X}", last_opcode, last_instruction, rhs), actual_reg)
        } else {
+       // if there are 2 operands
            (format!("0x{:02X} : {} 0x{:X} 0x{:X}", last_opcode, last_instruction, lhs, rhs), actual_reg)
        }
-    }
+   } // fn assemble_debug_data
 
     pub fn set_flag(&mut self, f : &str) {
 
@@ -282,7 +317,7 @@ impl CPU {
         if f == "C" {
             self.F |= 0b0001_0000;
         }
-    }
+    } // fn set_flag
 
     pub fn reset_flag(&mut self, f : &str) {
 
@@ -301,7 +336,7 @@ impl CPU {
         if f == "C" {
             self.F &= 0b1110_1111;
         }
-    }
+    } // fn reset_flag
 
     pub fn get_flag(&self, f : &str) -> u8 {
 
@@ -336,9 +371,8 @@ impl CPU {
                 return 1
             }
         }
-
         0
-    }
+    } // fn get_flag
 
     pub fn test_bytes(&mut self, bytes : &[u8]) -> (String, Vec<String>) {
         self.PC = 0;
@@ -359,21 +393,21 @@ impl CPU {
         println!("{}", data.0);
 
         data
-    }
+    } // fn test_bytes
 
     pub fn set_bit(n : u8, reg : u8) -> u8 {
         let mut value : u8 = 0;
         let mask : u8 = 1 << n;
         value = reg | mask;
         value
-    }
+    } // fn set_bit
 
     pub fn reset_bit(n : u8, reg : u8) -> u8 {
         let mut value : u8 = 0;
         let mask : u8 = 1 << n;
         value = reg & (0xFF - mask);
         value
-    }
+    } // fn reset_bit
 
     pub fn get_bit(n : u8, reg : u8) -> bool {
         let mask : u8 = 1 << n;
@@ -383,6 +417,6 @@ impl CPU {
         } else {
             true
         }
-    }
+    } // fn get_bit
 
-}
+} // impl CPU

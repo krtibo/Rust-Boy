@@ -1,7 +1,17 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
-#![allow(unused_assignments)]
-#![allow(non_snake_case)]
+/*************************************************************************
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the Opcode class, which implements every CPU opcode. It
+    features a function pointer array, which contains every opcode's
+    function address. The opcode function calls are very convenient
+    because of this solution. The fetch and execute functions sould be
+    called in every CPU cycle.
+
+    PARAMETERS :
+        * CPU
+
+*************************************************************************/
 
 use cpu::CPU;
 
@@ -108,7 +118,6 @@ impl Opcode {
         self.opc[0x74] = Opcode::ld_r1r2_74;
         self.opc[0x75] = Opcode::ld_r1r2_75;
 
-
         // LD A,n
         self.opc[0x0a] = Opcode::ld_an_0a;
         self.opc[0x1a] = Opcode::ld_an_1a;
@@ -142,13 +151,11 @@ impl Opcode {
         self.opc[0xf9] = Opcode::ld_sphl_f9;
         self.opc[0x08] = Opcode::ld_nnsp_08;
         //push
-        // TODO check these
         self.opc[0xf5] = Opcode::push_nn_f5;
         self.opc[0xc5] = Opcode::push_nn_c5;
         self.opc[0xd5] = Opcode::push_nn_d5;
         self.opc[0xe5] = Opcode::push_nn_e5;
         // pop
-        // TODO check these as well
         self.opc[0xf1] = Opcode::pop_nn_f1;
         self.opc[0xc1] = Opcode::pop_nn_c1;
         self.opc[0xd1] = Opcode::pop_nn_d1;
@@ -270,7 +277,6 @@ impl Opcode {
         self.opc[0xd8] = Opcode::ret_cc_d8;
         self.opc[0x76] = Opcode::halt_76;
 
-
         self.opc[0x3f] = Opcode::ccf_3f;
         self.opc[0x37] = Opcode::scf_37;
         self.opc[0xf3] = Opcode::di_f3;
@@ -313,16 +319,6 @@ impl Opcode {
         self.opc[0x2f] = Opcode::cpl_2f;
         self.opc[0x27] = Opcode::daa_27;
         self.opc[0xf8] = Opcode::ld_hl_sp_f8;
-
-
-
-
-
-
-
-
-
-
 
         self.cb_opc[0x40] = Opcode::cb_bit_40;
         self.cb_opc[0x50] = Opcode::cb_bit_50;
@@ -587,9 +583,6 @@ impl Opcode {
         self.cb_opc[0x1d] = Opcode::cb_rr_1d;
         self.cb_opc[0x1e] = Opcode::cb_rr_1e;
         self.cb_opc[0x1f] = Opcode::cb_rr_1f;
-
-
-
     }
 
 
@@ -607,30 +600,6 @@ impl Opcode {
         self.lhs = 0x0000;
         self.rhs = 0x0000;
 
-        // EI, DI instruction delay handler
-/*
-        if self.disable_int && self.count_disable_int < 2 {
-            self.count_disable_int += 1;
-        }
-
-        if self.disable_int && self.count_disable_int == 2 {
-            self.disable_int = false;
-            self.count_disable_int = 0;
-            cpu.RAM[0xFFFF as usize] = 0b00011111; // enable interrupts
-            cpu.IR = true;
-        }
-
-        if self.enable_int && self.count_enable_int < 2 {
-            self.count_enable_int += 1;
-        }
-
-        if self.enable_int && self.count_enable_int == 2 {
-            self.enable_int = false;
-            self.count_enable_int = 0;
-            cpu.RAM[0xFFFF as usize] = 0b00000000; // disable interrupts
-            cpu.IR = false;
-        }
-*/
         // fetcher
         self.last_opcode_cb = false;
         self.last_opcode = self.fetch(cpu);

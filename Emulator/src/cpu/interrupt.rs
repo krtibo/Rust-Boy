@@ -1,6 +1,17 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
-#![allow(unused_assignments)]
+/*************************************************************************
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the interruple handler class. Whenever an IRQ is made, this
+    module handles the details. The interrupt checker function should be
+    called from the CPU in every cycle.
+
+    PARAMETERS :
+        * CPU
+        * Interrupt type (number)
+
+*************************************************************************/
+
 #![allow(non_snake_case)]
 
 use cpu::CPU;
@@ -17,7 +28,7 @@ impl Interrupt {
     pub fn IRQ(&self, cpu : &mut CPU, t : u8) {
         let IR_flag : u8 = CPU::set_bit(t, cpu.RAM[0xFF0F]);
         cpu.RAM[0xFF0F] = IR_flag;
-    }
+    } // fn IRQ
 
     pub fn interrupt_checker(&mut self, cpu : &mut CPU) {
 
@@ -34,7 +45,7 @@ impl Interrupt {
                 }
             }
         }
-    }
+    } // fn interrupt_checker
 
     pub fn handler(&self, cpu : &mut CPU, t : u8) {
 
@@ -59,5 +70,6 @@ impl Interrupt {
             4 => cpu.PC = 0x60,
             _ => return,
         }
-    }
-}
+    } // fn handler
+
+} // impl Interrupt

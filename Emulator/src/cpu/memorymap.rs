@@ -1,3 +1,19 @@
+/*************************************************************************
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the Memory Map rendering class. It renders every byte of the
+    RAM as a pixel. The pixel is dark if that exact byte is not 0. If it
+    is, its light colored.
+
+    If the user clicks on one of the pixels, the print_ram function prints
+    its value to the terminal.
+
+    PARAMETERS :
+        * CPU
+        
+*************************************************************************/
+
 use cpu::CPU;
 extern crate minifb;
 

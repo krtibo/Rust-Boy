@@ -1,6 +1,17 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
-#![allow(unused_assignments)]
+/*************************************************************************
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the Timer class. It synchronizes every timer in the Game Boy.
+    If the timer hits the u8 limit, it makes an IRQ. The update function
+    should be called in every CPU cycle.
+
+    PARAMETERS :
+        * CPU
+        * Current cycle
+
+*************************************************************************/
+
 #![allow(non_snake_case)]
 
 use cpu::CPU;
@@ -9,8 +20,6 @@ use interrupt::Interrupt;
 pub struct Timer {
     timer_counter : u32,
     divider_register : u16,
-    freq : u32,
-    clockspeed : u32,
     pub TMC : u16,
     TMA : u16,
     TIMA : u16,
@@ -20,8 +29,6 @@ pub struct Timer {
 impl Timer {
     pub fn new() -> Timer {
         Timer {
-            clockspeed : 4194304,
-            freq : 4096,
             timer_counter : 0,
             divider_register : 0,
             TMC : 0xFF07,
@@ -71,7 +78,6 @@ impl Timer {
         if self.divider_register >= 255 && cpu.RAM[0xFF04] < 255 {
             self.divider_register = 0;
             cpu.RAM[0xFF04] += 1;
-            //println!("{}", cpu.RAM[0xFF04]);
         }
 
         if self.divider_register >= 255 && cpu.RAM[0xFF04] == 255 {

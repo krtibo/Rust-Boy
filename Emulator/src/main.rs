@@ -1,3 +1,12 @@
+/*************************************************************************
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the main file, the RUST BOY's entry point. It handles the
+    command line arguments, and passes the paths and options to the CPU.
+
+*************************************************************************/
+
 #![allow(unused_variables)]
 
 pub mod cpu;

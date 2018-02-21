@@ -1,12 +1,24 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
+/*************************************************************************
+
+                    ===    THIS IS RUST BOY    ===
+
+    This is the joypad handler class. It scans for any pressed and un-
+    pressed buttons, and if it's in a different state than it was before,
+    an IRQ is requested. The scan_window_button_pressed function should be
+    called in every CPU cycles.
+
+    PARAMETERS :
+        * A Window, for scanning keystrokes
+        * CPU (for RAM writing)
+
+***************************************************************************/
+
 #![allow(unused_assignments)]
 #![allow(non_snake_case)]
 
 use cpu::CPU;
 use interrupt::Interrupt;
 extern crate minifb;
-
 use self::minifb::{Window, Key};
 
 pub struct Joypad {
@@ -26,50 +38,40 @@ impl Joypad {
 
         if window.is_key_down(Key::D) {
             self.pressed_button(0, cpu);
-            //println!("D pressed");
         } else { self.released_button(0); }
 
         if window.is_key_down(Key::A) {
             self.pressed_button(1, cpu);
-            //println!("A pressed");
         } else { self.released_button(1); }
 
         if window.is_key_down(Key::W) {
             self.pressed_button(2, cpu);
-            //println!("W pressed");
         } else { self.released_button(2); }
 
         if window.is_key_down(Key::S) {
             self.pressed_button(3, cpu);
-            //println!("S pressed");
         } else { self.released_button(3); }
 
         if window.is_key_down(Key::J) {
             self.pressed_button(4, cpu);
-            //println!("J pressed");
         } else { self.released_button(4); }
 
         if window.is_key_down(Key::K) {
             self.pressed_button(5, cpu);
-            //println!("K pressed");
         } else { self.released_button(5); }
 
         if window.is_key_down(Key::Space) {
             self.pressed_button(6, cpu);
-            //println!("Space pressed");
         } else { self.released_button(6); }
 
         if window.is_key_down(Key::RightShift) {
             self.pressed_button(7, cpu);
-            //println!("Right Shift pressed");
         } else { self.released_button(7); }
 
-    }
+    } // fn scan_window_button_pressed
 
 
     pub fn pressed_button(&mut self, button : u8, cpu : &mut CPU) {
-
-        //println!("{:X} pressed", cpu.RAM[0xFF00]);
 
         let mut changed_state = false;
         let mut button_type = true;
@@ -101,7 +103,7 @@ impl Joypad {
         if !changed_state && IRQ {
             self.interrupt.IRQ(cpu, 4);
         }
-    }
+    } // fn pressed_button
 
     pub fn released_button(&mut self, button : u8) {
         self.joypad_state = CPU::set_bit(button, self.joypad_state);
@@ -121,5 +123,6 @@ impl Joypad {
         }
 
         current_joypad_state
-    }
-}
+    } // fn update_state
+
+} // impl Joypad

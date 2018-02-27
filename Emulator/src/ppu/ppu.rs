@@ -49,7 +49,7 @@ impl PPU {
                              scale: Scale::X2,
                              ..WindowOptions::default()})
                              .unwrap(),
-            framebuffer : [0; 160*144],
+            framebuffer : [0xFFCADC9F; 160*144],
             interrupt : Interrupt::new(),
         }
     }

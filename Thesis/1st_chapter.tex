@@ -1,0 +1,18 @@
+\chapter{Az emulátorokról}
+
+\begin{itemize}
+  \item Definíció, mûködés, fajtái, jelene, jövõje, jelentõsége
+\end{itemize}
+
+\noindent Az utóbbi évtizedekben végbement -- és jelenleg is tartó -- technikai fejlõdés következ\-mé\-nyeként rendkívül gyors a technológiai elavulás. Ennek következményeképp az eszközök életciklusa megrövidül, értékük rohamosan csökken. Gyakran elõfordul azonban, hogy szükség van a régi \textit{legacy} rendszerekre, vagy elengedhetetlen a visszafelé kompatibilitás, esetleg szeretnénk az adott hardvert a számítástechnikai jelentõsége miatt valamilyen formában megõrizni, használhatóvá tenni. Az emulátorok ezekre a problémákra igyekeznek megoldást kínálni -- persze rendkívül sok egyéb felhasználási terület mellett.
+
+\section{Az emulátor fogalma}
+
+Definíció szerint olyan hardvert vagy szoftvert nevezünk \textbf{emulátornak}, amely lehetõvé teszi, hogy egy számítástechnikai rendszer (szokás ezt \textit{host}-nak nevezni) úgy viselkedjen, mint egy másik számítástechnikai rendszer (ez pedig a \textit{guest}). Jellemzõen az emulátor a \textit{host} rendszer számára teszi lehetõvé olyan szoftver futtatását vagy periféria használatát, amely a \textit{guest} rendszerhez lett kifejlesztve. Röviden megfogalmazva az emulátor egy olyan hardver vagy szoftver, ami egy másik eszközt vagy programot emulál, imitál.
+
+\section{Az emulátorok típusai}
+
+Az emulátorok többsége csak a hardver architektúrát emulálja -- ha operációs rendszer vagy egyéb szoftver is szükséges az emuláláshoz, akkor azt is biztosítani kell. Ebben az esetben az operációs rendszert és a szoftvert \textit{interpretálni} (értelmezni) fogja az emulátor. A gépi kód \textit{interpreteren} kívül azonban az emulátornak tartalmaznia kell a \textit{guest} hardver minden lehetséges jellemzõjét, és viselkedését is virtuálisan: ha például egy adott me\-mó\-ri\-a\-hely\-re való írás befolyásolja azt, hogy mi jelenik meg a képernyõn, úgy azt is emulálni kell. Habár lehetne az emulációt extrém részletességgel, atomi szinten végezni -- például az áramkör adott részei által kibocsátott pontos feszültség-ingadozás emulálásával, stb. -- ez egyáltalán nem gyakori, az emulátorok általában megállnak a dokumentált hardver specifikáció, és digitális logika szimulációjának szintjén. \\
+Némely hardver hatékony emulálásához extrém pontosság szükséges: az óraciklusokat, nem dokumentált jellemzõket, kiszámíthatatlan analóg elemeket, és \textit{bugokat} mind-mind implementálni kell. A klasszikus otthoni számítógépek esetében (például a Commodore 64) ez hatványozottan igaz, mert az ezekre a hardverekre írt szoftverek gyakran kihasználtak alacsonyszintû programozási trükköket, melyeket fõként a videojáték programozók és a \textit{demoscene} fedeztek fel.  
+
+In contrast, some other platforms have had very little use of direct hardware addressing, such as an emulator for the PlayStation Vita. In these cases, a simple compatibility layer may suffice. This translates system calls for the emulated system into system calls for the host system e.g., the Linux compatibility layer used on *BSD to run closed source Linux native software on FreeBSD, NetBSD and OpenBSD. For example, while the Nintendo 64 graphic processor was fully programmable, most games used one of a few pre-made programs, which were mostly self-contained and communicated with the game via FIFO; therefore, many emulators do not emulate the graphic processor at all, but simply interpret the commands received from the CPU as the original program would. Developers of software for embedded systems or video game consoles often design their software on especially accurate emulators called simulators before trying it on the real hardware.

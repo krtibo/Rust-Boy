@@ -92,7 +92,7 @@
 
   \item \textbf{Emulátor fejlesztési folyamat/roadmap}: kutatási/implementálási/fejlesztési sorrend, az emulátor mûködése "madártávlatból"
 
-  \item \textbf{Implementáció}
+  \item \textbf{Alkalmazott eszközök és a feladat specifikációja}
 
   \begin{enumerate}
     \item \textbf{Eszközök}
@@ -105,7 +105,10 @@
     \begin{enumerate}
       \item ROMok struktúrája, fajtáik
     \end{enumerate}
+  \end{enumerate}
 
+  \item \textbf{A processzor és a memória implementációja}
+  \begin{enumerate}
     \item \textbf{CPU}
       \begin{enumerate}
         \item Regiszterek, változók, flagek
@@ -132,20 +135,24 @@
       \end{enumerate}
 
     \item \textbf{Idõzítõk}
+    \end{enumerate}
 
-    \item \textbf{LCD}
-      \begin{enumerate}
-        \item V-blank, H-blank, interrupt
-      \end{enumerate}
-
-    \item \textbf{PPU}
+    \item \textbf{A kijelzõ és a Pixel Feldolgozó Egység implementációja}
     \begin{enumerate}
-      \item Alapvetõ mûködés, memóriaterületek
-      \item Tile rendering
-      \item Sprite rendering
+      \item \textbf{LCD}
+        \begin{enumerate}
+          \item V-blank, H-blank, interrupt
+        \end{enumerate}
+
+      \item \textbf{PPU}
       \begin{enumerate}
-        \item Paletta, sprite attribútumok (flip, priority bit)
-        \item Sprite Attribute Table
+        \item Alapvetõ mûködés, memóriaterületek
+        \item Tile rendering
+        \item Sprite rendering
+        \begin{enumerate}
+          \item Paletta, sprite attribútumok (flip, priority bit)
+          \item Sprite Attribute Table
+        \end{enumerate}
       \end{enumerate}
     \end{enumerate}
 
@@ -156,7 +163,7 @@
         \item Kiosztás, wiring, mechanizmus
         \item Implementáció, jellemzõk, interrupt
       \end{enumerate}
-  \end{enumerate}
+
 
   \item \textbf{Mûködés felhasználói szemmel}
   \begin{enumerate}

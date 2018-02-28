@@ -1,4 +1,4 @@
-# Rust Boy
+# Rust Boy [![Build Status](https://travis-ci.org/blackxparade/Rust-Boy.svg?branch=master)](https://travis-ci.org/blackxparade/Rust-Boy)
 
 ![Current stage](/Emulator/doc/logo.gif)
 

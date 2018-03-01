@@ -302,76 +302,38 @@ impl CPU {
 
     pub fn set_flag(&mut self, f : &str) {
 
-        if f == "Z" {
-            self.F |= 0b1000_0000;
+        match f {
+            "Z" => self.F |= 0b1000_0000,
+            "N" => self.F |= 0b0100_0000,
+            "H" => self.F |= 0b0010_0000,
+            "C" => self.F |= 0b0001_0000,
+            _ => panic!("Set flag uses unknown flag!")
         }
 
-        if f == "N" {
-            self.F |= 0b0100_0000;
-        }
-
-        if f == "H" {
-            self.F |= 0b0010_0000;
-        }
-
-        if f == "C" {
-            self.F |= 0b0001_0000;
-        }
     } // fn set_flag
 
     pub fn reset_flag(&mut self, f : &str) {
 
-        if f == "Z" {
-            self.F &= 0b0111_1111;
+        match f {
+            "Z" => self.F &= 0b0111_1111,
+            "N" => self.F &= 0b1011_1111,
+            "H" => self.F &= 0b1101_1111,
+            "C" => self.F &= 0b1110_1111,
+            _ => panic!("Reset flag uses unknown flag!")
         }
 
-        if f == "N" {
-            self.F &= 0b1011_1111;
-        }
-
-        if f == "H" {
-            self.F &= 0b1101_1111;
-        }
-
-        if f == "C" {
-            self.F &= 0b1110_1111;
-        }
     } // fn reset_flag
 
     pub fn get_flag(&self, f : &str) -> u8 {
 
-        if f == "Z" {
-            if self.F & 0b1000_0000 == 0 {
-                return 0
-            } else {
-                return 1
-            }
+        match f {
+            "Z" => { if self.F & 0b1000_0000 == 0 { return 0 } else { return 1 } },
+            "N" => { if self.F & 0b0100_0000 == 0 { return 0 } else { return 1 } },
+            "H" => { if self.F & 0b0010_0000 == 0 { return 0 } else { return 1 } },
+            "C" => { if self.F & 0b0001_0000 == 0 { return 0 } else { return 1 } },
+            _ => panic!("Get flag uses unknown flag!")
         }
 
-        if f == "N" {
-            if self.F & 0b0100_0000 == 0 {
-                return 0
-            } else {
-                return 1
-            }
-        }
-
-        if f == "H" {
-            if self.F & 0b0010_0000 == 0 {
-                return 0
-            } else {
-                return 1
-            }
-        }
-
-        if f == "C" {
-            if self.F & 0b0001_0000 == 0 {
-                return 0
-            } else {
-                return 1
-            }
-        }
-        0
     } // fn get_flag
 
     pub fn test_bytes(&mut self, bytes : &[u8]) -> (String, Vec<String>) {

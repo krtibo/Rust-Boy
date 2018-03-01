@@ -1483,6 +1483,7 @@ impl Opcode {
 
     fn ldh_an_f0(&mut self, cpu : &mut CPU) -> u8 {
         let n : u8 = self.fetch(cpu);
+
         cpu.A = cpu.RAM[0xFF00 + n as usize];
 
         self.rhs = n as u16;

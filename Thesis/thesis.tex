@@ -34,6 +34,8 @@
 %ha nincs rájuk szükség természetesen kihagyhatók.
 \usepackage{graphicx}
 \usepackage{psfrag}
+\usepackage{wrapfig}
+
 
 %Tételszerû környezetek definiálhatók, ezek most fejezetenkent egyutt szamozodnak, pl.
 \newtheorem{tét}{Tétel}[chapter]
@@ -172,8 +174,8 @@ A dolgozat elsõ néhány fejezetében az emulátorokról, a Nintendo Game Boy hardver
 A processzor modellezése a regiszterek, flagek, és egyéb jellemzõk megtervezésével kez\-dõ\-dik, majd következõ lépésként az utasításkészlet megvalósításával folytatódik. A CPU-hoz szorosan kapcsolódó memória ez után kerül tárgyalásra. A memória ismertetése után az idõzítõk, majd a PPU felépítése és mûködése szerepel. Az implementáció ezen pontján a boot ROM már futtathatóvá válik, errõl is esik majd néhány szó. A fej\-lesz\-té\-si részt a joypad jellemzõi és megoldásai zárják. \\
 A dolgozat zárásaként bemutatásra kerül az emulátor használata, illetve a fejlesztésbõl adódó dependenciák, majd végül a teszt ROM-ok jellemzõi, futtatásuk, és a futtatási e\-red\-mé\-nyeik.
 
-\input{./1st_chapter.tex}
-
+\input{./1st_chapter.tex} % Az emulátorokról
+\input{./2nd_chapter.tex} % Nintendo Game Boy
 
 \chapter*{Nyilatkozat}
 %Egy üres sort adunk a tartalomjegyzékhez:
@@ -215,7 +217,8 @@ Szeged, \today\
 Ezúton szeretnék köszönetet mondani \textbf{X. Y-nak} ezért és ezért \ldots
 
 
-%% Az itrodalomjegyzek keszitheto a BibTeX segedprogrammal:
+% A folyoszovegben \cite{bibitemazonosito}-val lehet hivatkozni
+%% Az irodalomjegyzek keszitheto a BibTeX segedprogrammal:
 %\bibliography{diploma}
 %\bibliographystyle{plain}
 

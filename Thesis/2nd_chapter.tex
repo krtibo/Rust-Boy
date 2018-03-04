@@ -4,25 +4,64 @@
 
 \noindent Egy emulátor fejlesztési folyamatának bemutatására a Nintendo Game Boy tökéletes példa több szempontból is. Elsõ sorban széles körûen ismert, ebbõl adódóan az emulátor fejlesztõi közösség által is jól dokumentált, a hardver szinte az utolsó részletig vissza lett fejtve. Ezekbõl a dokumentációk tehát jó kiindulási alapot nyújtanak. Az is fontos szempont, hogy a hardver a 8 bites érából származik, ami szinte garantálja az egyszerûbb architektúrát (ez persze relatív), így a könnyebb implementálhatóságot. Szintén meg\-em\-lí\-ten\-dõ, hogy a fejlesztõi közösség által készített teszt ROM-ok nagyban segítik a hibakeresést, verifikációt.
 
-\section{Történelme, jelentõsége}
+\section{Története, jelentõsége}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=1.06\textwidth,trim={1.1cm 0.5cm 0 0.5cm},clip]{./Resources/gb_logo.eps}
+    \includegraphics[width=1.06\textwidth,trim={1.1cm 0.5cm 0 1cm},clip]{./Resources/gb_logo.eps}
     \caption{A Nintendo Game Boy logója}
     \label{fig:gb_logo}
 \end{figure}
 
-\noindent A Game Boy egy Nintendo által gyártott hordozható videojáték konzol, amit a nagy\-kö\-zön\-ség számára 1989-ben mutattak be. Ez volt a gyártó elsõ 8 bites kézi konzolja, amihez a játékokat cserélhetõ kazetta formájában (angolul \textit{cartridge}) lehetett megvásárolni.
-%\begin{wrapfigure}{l}{4.5cm}
-%    \centering
-%    \includegraphics[width=3cm]{./Resources/cart_mario.eps}
-%    \caption{Nintendo Game Boy kazetta}
-%    \label{fig:cartridge}
-%\end{wrapfigure}
-Az okos marketingnek, és a jó Nintendo \textit{brand}-nek köszönhetõen a Game Boy kora leg\-si\-ke\-re\-sebb kézi konzolja lett, annak ellenére, hogy a versenytársaihoz (Atari Lynx, Sega Game Gear) mérten elavult technológiát használt. Ez egyben azt is jelentette, hogy a Game Boy-ban használt alkatrészek olcsóbbak, ismertebbek és kiforrottabbak voltak, mint a riválisoké. A tervezõk alapgondolata az volt, hogy régebbi technológiát használnak fel innovatív módon. A konzol sikerét az olcsósága, az akkumulátor idõtartama, és a platformon elérhetõ rengeteg játék mennyisége és minõsége koronázta meg. Az 1997-ig értékesített 60 milliós példányszám a Game Boy-t a gyártó egyik legsikeresebb termékévé tette.
-
-
-
+\noindent A Game Boy egy Nintendo által gyártott hordozható videojáték konzol, amit a nagy\-kö\-zön\-ség számára 1989-ben mutattak be. Ez volt a gyártó elsõ 8 bites kézi konzolja, amihez a játékokat cserélhetõ kazetta formájában (angolul \textit{cartridge}) lehetett megvásárolni. \\
+Az okos marketingnek, és a jó Nintendo \textit{brand}-nek köszönhetõen a Game Boy kora leg\-si\-ke\-re\-sebb kézi konzolja lett, annak ellenére, hogy a versenytársaihoz (Atari Lynx, Sega Game Gear) mérten elavult technológiát használt. Ez egyben azt is jelentette, hogy a Game Boy-ban használt alkatrészek olcsóbbak, ismertebbek és kiforrottabbak voltak, mint a riválisoké. A tervezõk alapgondolata az volt, hogy régebbi technológiát használnak fel innovatív módon. A konzol sikerét az olcsósága, az akkumulátor idõtartama, és a platformon elérhetõ rengeteg játék mennyisége és minõsége koronázta meg. Az 1997-ig értékesített 60 milliós példányszám a Game Boy-t a gyártó egyik legsikeresebb termékévé tette. A készülék jellegzetes logója a \ref{fig:gb_logo}-es ábrán látható.
 
 \section{Hardver specifikáció}
+
+\noindent A hardver specifikációját két logikai egységre lehet osztani: a Game Boy hardverére és a \textit{cartridge} hardverre. Ugyan ezek együtt alkotnak egészet, hiszen egyik sem használható a másik nélkül, ám technikailag két különálló egységrõl beszélhetünk.
+
+\subsection{Game Boy}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth, trim={0.4cm 0 0.4cm 0},clip]{./Resources/gb_manual.eps}
+    \caption{A Game Boy és részei}
+    \label{fig:gb_manual}
+\end{figure}
+
+\noindent A konzol külseje, és kezelõszervei a \ref{fig:gb_manual}-es ábrán figyelhetõk meg, az általa tartalmazott hardver elemek pedig a következõk:
+
+\begin{itemize}
+  \item \textbf{CPU}: a 8 bites \textit{Zilog Z80}-as CISC-processzor architektúrán alapuló -- annak utasításkészletén enyhén módosított változata -- \textit{Sharp LR35902}.
+  \item \textbf{RAM}: 8kB beépített S-RAM
+  \item \textbf{VRAM} (Video memória): 8 kB beépített
+  \item \textbf{ROM}: 256 Byte (Boot ROM-nak fenntartva)
+  \item \textbf{Hang}: 2 négyszögjel generátor, 1 programozható 32 mintás 4 bites PCM hullám, 1 fehér zaj, és egy audio bemenet a kazettából (A külsõ kazetta bemenetet soha egy piacra dobott játék sem használta.) A jack kimeneten keresztül sztereó hangot ad.
+  \item \textbf{Kijelzõ}: 166 $\times$ 144 pixel felbontású LCD kijelzõ, mérete átlósan 66 mm.
+  \item \textbf{Színpaletta}: 4 árnyalat 2 biten tárolva -- világos zöldtõl a sötét zöldig.
+  \item \textbf{Tápellátás}: 4 db AA elem, amely megközelítõleg 14-35 óra játékidõt biztosít.
+\end{itemize}
+
+\subsection{Cartridge}
+
+\begin{wrapfigure}{l}{4.5cm}
+    \centering
+    \includegraphics[width=4.5cm, trim={0 0.2cm 0 0.2cm},clip]{./Resources/cart_mario.eps}
+    \caption{A Dr. Mario játék kazettája}
+    \label{fig:cartridge}
+\end{wrapfigure}
+
+A konzolhoz tartozó játék kazettákat a konzol hátuljába kellett címkével kifelé fordítva becsúsztatni. Ezek a kazetták jól felismerhetõek voltak a jellegzetes (nagyrészt) szürke színükrõl, illetve az elejükre ragasztott, az adott játékot ábrázoló címkéjükrõl, ami a \ref{fig:cartridge}-es ábrán is megfigyelhetõ. A Game Boy-hoz több típusú kazetta volt forgalomban, melyet az indokolt, hogy némely játék nagyobb erõforrást igényelt a futásához. A konzolnak köztudottan kicsi volt a memória mérete, így a játékfejlesztõknek különféle trükköket kellett bevetniük ahhoz, hogy a játékaikat futásra bírják. Erre a problémára a \textit{Memory Bank Controller} alkalmazása volt a megoldás, ennek használatával a fejlesztõk számára nagyobb ROM, illetve \textit{MBC} verziótól függõen nagyobb RAM volt elérhetõ. Az \textit{MBC} részleteirõl és típusairól az egyik késõbbi fejezetben lesz szó.\\
+A kazetták többségében volt egy \texttt{CR2025}-ös típusú gombelem is, ami az elmentett játékállások tárolásából adódó erõforrás-ellátásért felelt. Az elem viszont nem tartott örökké -- így mikor hosszú idõ után ugyan, de lemerült, az összes mentett állás elveszett. \\
+További érdekesség még a \textit{cartridge}-ekkel kapcsolatban a Nintendo által kifejlesztett korabeli (de meglepõen hatékony) másolásvédelmi és \textit{homebrew}\footnote{A \textit{homebrew} fogalmat azokra a videojátékokra vagy egyéb szoftverekre használjuk, amelyeket a fogyasztói réteg készít el a zárt forrású hardverekre, platformokra -- tehát nincsenek kapcsolatban a célhardver gyártójával.}-fejlesztõket kizáró mechanizmus. Annak érdekében hogy a kazettákat ne lehessen lemásolni és így terjeszteni, illetve a gyártóval kapcsolatba nem lépõ hobbi fejlesztõk ne tudjanak játékot kiadni a platformra, a Nintendo szokatlan, de hatékony megoldást választott. Amikor a felhasználó behelyezi a kazettát a Game Boy-ba, és bekapcsolja azt, akkor a Boot ROM lefutását követõen a játék csak akkor indul el, ha a játék kódjában megtalálhatók a Nintendo logót alkotó byte-ok. Ha ez hiányzik, akkor a játék nem fog futni. A trükk az, hogy ugyan a törvény nem tiltja, hogy játékokat fejlesszenek a hobbi fejlesztõk a konzolra, viszont a Nintendo logó felhasználását szerzõi jogi törvények védik. Így, ha a hobbi fejlesztõ terjesztené a játékát, akkor be kell ágyaznia a Nintendo logót a kódba, amivel viszont szerzõi jogi szabályokat sért. Ezzel a Nintendo elérte, hogy a konzolra kiadott játékok minõsége magas legyen, hiszen minden játék kiadásáról végsõ soron õk döntöttek.
+
+\subsection{Boot ROM}
+
+\begin{figure}[h]%
+    \centering
+    \subfloat[label 1]{{\includegraphics[height=5cm]{./Resources/Boot_ROM_overview.eps} }}%
+    \qquad
+    \subfloat[label 2]{{\includegraphics[height=5cm]{./Resources/Boot_ROM_zoom.eps} }}%
+    \caption{2 Figures side by side}%
+    \label{fig:example}%
+\end{figure}

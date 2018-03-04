@@ -25,6 +25,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
+\usepackage{subfig}
+
 
 %A fejléc láblécek kialakításához:
 \usepackage{fancyhdr}
@@ -35,19 +37,11 @@
 \usepackage{graphicx}
 \usepackage{psfrag}
 \usepackage{wrapfig}
-
 %Tételszerû környezetek definiálhatók, ezek most fejezetenkent egyutt szamozodnak, pl.
-\newtheorem{tét}{Tétel}[chapter]
-\newtheorem{defi}[tét]{Definíció}
-\newtheorem{lemma}[tét]{Lemma}
-\newtheorem{áll}[tét]{Állítás}
-\newtheorem{köv}[tét]{Következmény}
 
 %Ha a megjegyzések és a példak szövegét nem akarjuk dõlten szedni, akkor
 %az alábbi parancs után kell õket definiální:
-\theoremstyle{definition}
-\newtheorem{megj}[tét]{Megjegyzés}
-\newtheorem{pld}[tét]{Példa}
+
 
 %Margók:
 \hoffset -1in
@@ -93,10 +87,11 @@
 \vspace*{3.8cm}
 
 
-{\LARGE\bf Az emulátor fejlesztési folyamat bemutatása a Nintendo Game Boy konzolon}
+{\LARGE\bf Az emulátor fejlesztési folyamat bemutatása a \\
+\vspace{0.3cm} Nintendo Game Boy konzolon}
 
 
-\vspace*{3.6cm}
+\vspace*{3.3cm}
 
 {\Large Diplomamunka}
 % vagy {\Large Szakdolgozat}
@@ -193,11 +188,11 @@ A dolgozat zárásaként bemutatásra kerül az emulátor használata, illetve a fejles
 %nem kézzel helyettesítendõk:
 
 \noindent
-Alulírott \makebox[4cm]{\dotfill} szakos hallgató, kijelentem, hogy a dolgozatomat a Szegedi Tudományegyetem, Informatikai Intézet \makebox[4cm]{\dotfill} Tanszékén készítettem, \makebox[4cm]{\dotfill} diploma megszerzése érdekében.
+Alulírott \makebox[4cm]{\dotfill} szakos hallgató, kijelentem, hogy a dolgozatomat a Sze\-ge\-di Tudományegyetem, Informatikai Intézet \makebox[4cm]{\dotfill} Tanszékén készí\-tet\-tem, \makebox[4cm]{\dotfill} diploma megszerzése érdekében.
 
 Kijelentem, hogy a dolgozatot más szakon korábban nem védtem meg, saját munkám eredménye, és csak a hivatkozott forrásokat (szakirodalom, eszközök, stb.) használtam fel.
 
-Tudomásul veszem, hogy szakdolgozatomat / diplomamunkámat a Szegedi Tudományegyetem Informatikai Intézet könyvtárában, a helyben olvasható könyvek között helyezik el.
+Tudomásul veszem, hogy diplomamunkámat a Szegedi Tu\-do\-mány\-e\-gye\-tem In\-for\-ma\-ti\-ka\-i Intézet könyvtárában, a helyben olvasható könyvek között helyezik el.
 
 \vspace*{2cm}
 
@@ -213,7 +208,6 @@ Szeged, \today\
 \chapter*{Köszönetnyilvánítás}
 \addcontentsline{toc}{section}{Köszönetnyilvánítás}
 
-Ezúton szeretnék köszönetet mondani \textbf{X. Y-nak} ezért és ezért \ldots
 
 
 % A folyoszovegben \cite{bibitemazonosito}-val lehet hivatkozni

@@ -127,9 +127,11 @@ Szeged
 %A tartalomjegyzékben mégis szerepeltetni kell, mint szakasz(section) szerepeljen:
 \addcontentsline{toc}{section}{Feladatkiírás}
 
-\noindent A Nintendo Game Boy egy 1989-ban bemutatott, 8 bites kézi videojáték-konzol. A konzolban egy Zilog Z80 (az Intel 8080 utódja) processzor mûködik, kiegészítve néhány specifikus utasítással.  \\
+\noindent A Nintendo Game Boy egy 1989-ban bemutatott, 8 bites kézi videojáték-konzol. A kon\-zol\-ban egy Zilog Z80 (az Intel 8080 utódja) processzor mûködik, kiegészítve néhány specifikus utasítással. A Game Boy emulátor fejlesztésének bemutatása során a CPU utasításait, a GPU renderelésének mûködését, a memóriakezelést, és a megszakítás-ve\-zér\-lést kell implementálni. Ahhoz, hogy ezek megfelelõen mûködjenek, a CPU frek\-ven\-ci\-á\-já\-ra, illetve a képfrissítési gyorsaságra is tekintettel kell lenni. \\
 
-\noindent A feladat egy emulátor fejlesztési fázisainak bemutatása a Nintendo Game Boy hardveren, valamint a kész emulátor tesztelése. Az emulátor Rust nyelven legyen megvalósítva, illetve a tesztelés a más Zilog Z80 emulátor fejlesztõk által készített teszt ROM-okon történjen.
+\noindent A játékkonzol emulátorok fejlesztése során a szûk, ezzel foglalkozó fejlesztõi réteg ki\-a\-la\-kí\-tott egy egyértelmû, jól követhetõ fejlesztési folyamatot. A dolgozatban ezen keresztül kerüljenek bemutatásra a Nintendo Game Boy emulátor fejlesztési fázisai. \\
+
+\noindent A tesztelés a más Zilog Z80 emulátor fejlesztõk által készített teszt ROM-okon történjen.
 
 \chapter*{Tartalmi összefoglaló}
 \addcontentsline{toc}{section}{Tartalmi összefoglaló}
@@ -139,7 +141,7 @@ Szeged
   Egy emulátor fejlesztési fázisainak bemutatása a Nintendo Game Boy hardveren keresztül, Rust nyelven implementálva.
 
   \item \textbf{A megadott feladat megfogalmazása:} \\
-  A feladat egy Nintendo Game Boy emulátor implementálása, és fejlesztési fá\-zi\-sa\-i\-nak bemutatása. A bemutatás során a CPU utasításait, a GPU renderelésének mûködését, a memóriakezelést, és a megszakítás-vezérlést kell érinteni, illetve az egyéb kisebb, de a mûködéshez elengedhetetlen megoldások is megemlítésre kerül\-nek. Ahhoz, hogy ezek megfelelõen mûködjenek, a CPU frekvenciájára, illetve a képfrissítési gyakoriságra is tekintettel kell lenni.
+  A feladat egy Nintendo Game Boy emulátor implementálása, és fejlesztési fá\-zi\-sa\-i\-nak bemutatása. A bemutatás során a CPU utasításait, a GPU renderelésének mûködését, a memóriakezelést, és a megszakítás-vezérlést kell érinteni, illetve az egyéb kisebb, de a mûködéshez elengedhetetlen megoldások is megemlítésre kerül\-nek. Ahhoz, hogy ezek megfelelõen mûködjenek, a CPU frekvenciájára, illetve a képfrissítési gyorsaságra is tekintettel kell lenni.
 
   \item \textbf{A megoldási mód:} \\
   Az emulátor fejlesztõ közösség által összegyûjtött, -- \textit{reverse-engineered} -- in\-for\-má\-ci\-ók\-ra, illetve a processzor gyártója által kiadott technikai dokumentációra ha\-gyat\-koz\-va felépítettem és implementáltam a CPU struktúráját, utasításkészletét, majd a többi modult, részegységet. Meghatároztam a modulok közti kommunikációt, idõzítéseket, adatfolyamot. A videojáték-, illetve teszt ROM-ok byte-jait sorra be\-ol\-vas\-va az emulátor meghatározza a megfelelõ mûveletet, meghatározott i\-dõ\-kö\-zön\-ként renderel, illetve kezeli a meg\-szakításokat.

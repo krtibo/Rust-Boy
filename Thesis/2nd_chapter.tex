@@ -2,14 +2,14 @@
 
 % \includegraphics[scale=0.4]{./Resources/placeholder.eps}
 
-\noindent Egy emulátor fejlesztési folyamatának bemutatására a Nintendo Game Boy tökéletes példa több szempontból is. Elsõ sorban széles körûen ismert, ebbõl adódóan az emulátor fejlesztõi közösség által is jól dokumentált, a hardver szinte az utolsó részletig vissza lett fejtve. Ezekbõl a dokumentációk tehát jó kiindulási alapot nyújtanak. Az is fontos szempont, hogy a hardver a 8 bites érából származik, ami szinte garantálja az egyszerûbb architektúrát (ez persze relatív), így a könnyebb implementálhatóságot. Szintén meg\-em\-lí\-ten\-dõ, hogy a fejlesztõi közösség által készített teszt ROM-ok nagyban segítik a hibakeresést, verifikációt.
+\noindent Egy emulátor fejlesztési folyamatának bemutatására a Nintendo Game Boy tökéletes példa több szempontból is. Elsõsorban széleskörûen ismert, ebbõl adódóan az emulátor fejlesztõi közösség által is jól dokumentált, a hardver szinte az utolsó részletig vissza lett fejtve. Ezekbõl a dokumentációk tehát jó kiindulási alapot nyújtanak. Az is fontos szempont, hogy a hardver a 8 bites érából származik, ami szinte garantálja az egyszerûbb architektúrát (ez persze relatív), így a könnyebb implementálhatóságot. Szintén meg\-em\-lí\-ten\-dõ, hogy a fejlesztõi közösség által készített teszt ROM-ok nagyban segítik a hibakeresést, verifikációt.
 
 \section{Története, jelentõsége}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=1.06\textwidth,trim={1.1cm 0.5cm 0 1cm},clip]{./Resources/gb_logo.eps}
-    \caption{A Nintendo Game Boy logója}
+    \caption{\textit{A Nintendo Game Boy logója}}
     \label{fig:gb_logo}
 \end{figure}
 
@@ -25,18 +25,18 @@ Az okos marketingnek, és a jó Nintendo \textit{brand}-nek köszönhetõen a Game Bo
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth, trim={0.4cm 0 0.4cm 0},clip]{./Resources/gb_manual.eps}
-    \caption{A Game Boy és részei}
+    \caption{\textit{A Game Boy és részei}}
     \label{fig:gb_manual}
 \end{figure}
 
 \noindent A konzol külseje, és kezelõszervei a \ref{fig:gb_manual}-es ábrán figyelhetõk meg, az általa tartalmazott hardver elemek pedig a következõk:
 
 \begin{itemize}
-  \item \textbf{CPU}: a 8 bites \textit{Zilog Z80}-as CISC-processzor architektúrán alapuló -- annak utasításkészletén enyhén módosított változata -- \textit{Sharp LR35902}.
-  \item \textbf{RAM}: 8kB beépített S-RAM
-  \item \textbf{VRAM} (Video memória): 8 kB beépített
+  \item \textbf{CPU}: a 8 bites \textit{Zilog Z80}-as CISC-processzor architektúrán alapuló -- annak u\-ta\-sí\-tás\-kész\-le\-tén enyhén módosított változata -- \textit{Sharp LR35902}.
+  \item \textbf{RAM}: 8 kB beépített S-RAM
+  \item \textbf{VRAM} (video memória): 8 kB beépített
   \item \textbf{ROM}: 256 Byte (Boot ROM-nak fenntartva)
-  \item \textbf{Hang}: 2 négyszögjel generátor, 1 programozható 32 mintás 4 bites PCM hullám, 1 fehér zaj, és egy audio bemenet a kazettából (A külsõ kazetta bemenetet soha egy piacra dobott játék sem használta.) A jack kimeneten keresztül sztereó hangot ad.
+  \item \textbf{Hang}: 2 négyszögjel generátor, 1 programozható 32 mintás 4 bites PCM hullám, 1 fehér zaj, és egy audio bemenet a kazettából. (A külsõ kazetta bemenetet soha egy piacra dobott játék sem használta.) A jack kimeneten keresztül sztereó hangot ad.
   \item \textbf{Kijelzõ}: 166 $\times$ 144 pixel felbontású LCD kijelzõ, mérete átlósan 66 mm.
   \item \textbf{Színpaletta}: 4 árnyalat 2 biten tárolva -- világos zöldtõl a sötét zöldig.
   \item \textbf{Tápellátás}: 4 db AA elem, amely megközelítõleg 14-35 óra játékidõt biztosít.
@@ -47,7 +47,7 @@ Az okos marketingnek, és a jó Nintendo \textit{brand}-nek köszönhetõen a Game Bo
 \begin{wrapfigure}{l}{4.5cm}
     \centering
     \includegraphics[width=4.5cm, trim={0 0.2cm 0 0.2cm},clip]{./Resources/cart_mario.eps}
-    \caption{A Dr. Mario játék kazettája}
+    \caption{\textit{A Dr. Mario játék kazettája}}
     \label{fig:cartridge}
 \end{wrapfigure}
 
@@ -57,11 +57,13 @@ További érdekesség még a \textit{cartridge}-ekkel kapcsolatban a Nintendo által 
 
 \subsection{Boot ROM}
 
+A Nintendo Game Boy Boot ROM-ja végzi a hardver elindulását követõ inicializáló folyamatokat, illetve az elõzõ részben említett másolásvédelmi eljárást. A ROM pontos tartalma egészen 2003-ig ismeretlen volt -- ekkor viszont egy \textit{Neviksti} nevû felhasználó publikálta a \textit{cherryroms.com} fórumára a program teljes változatát. \textit{Neviksti} azt is leírta, hogy hogyan sikerült visszafejtenie a kódot: a Game Boy processzor chip tetejének le\-sze\-dé\-se után mikroszkóppal megvizsgálta az áramkört, majd amint megtalálta a Boot ROM lehetséges helyét (256 kB ROM van elkülönítve erre a CPU-ban), lefényképezte azt, majd bitrõl bitre haladva rekonstruálta a bináris állományt. A teljes processzor madártávlati nézete a \ref{fig:example}-es ábrának \textit{(a)} részén látható, a belenagyított \textit{(b)} ábrán pedig az áramkör Boot ROM-ot tároló része szerepel, amin szemmel is jól láthatók a programot alkotó bitek.
+
 \begin{figure}[h]%
     \centering
-    \subfloat[label 1]{{\includegraphics[height=5cm]{./Resources/Boot_ROM_overview.eps} }}%
+    \subfloat[\textit{A Sharp LR35902 CPU}]{{\includegraphics[height=5.5cm]{./Resources/Boot_ROM_overview.eps} }}%
     \qquad
-    \subfloat[label 2]{{\includegraphics[height=5cm]{./Resources/Boot_ROM_zoom.eps} }}%
-    \caption{2 Figures side by side}%
+    \subfloat[\textit{A Boot ROM bitjei}]{{\includegraphics[height=5.5cm]{./Resources/Boot_ROM_zoom.eps} }}%
+    \caption{\textit{A CPU és a Boot ROM}}%
     \label{fig:example}%
 \end{figure}

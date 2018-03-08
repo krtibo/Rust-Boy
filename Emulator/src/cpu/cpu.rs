@@ -88,7 +88,7 @@ impl CPU {
         let mut opcode : Opcode = Opcode::new();
         let mut debugger : Debugger = Debugger::new();
         let mut debug_data : DebugData = DebugData::new();
-        let mut mem : MemoryMap = MemoryMap::new();
+        let  mem : MemoryMap = MemoryMap::new();
         let mut ppu : PPU = PPU::new();
         let mut timer : Timer = Timer::new();
         let mut joypad : Joypad = Joypad::new();
@@ -127,6 +127,7 @@ impl CPU {
                     opcode.rhs,
                     opcode.operand_mode);
 
+
                 debug_data.parse_data_from_cpu(data);
 
                 // if the user stops the emulator with the space button,
@@ -134,7 +135,7 @@ impl CPU {
                 if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No){
                     loop {
                         debugger.update_window(&debug_data);
-                        mem.print_ram(self);
+                        //mem.print_ram(self);
 
                         // if the left control is pressed, resume the emulator
                         if debugger.window.is_key_pressed(Key::LeftCtrl, KeyRepeat::No) {
@@ -158,7 +159,7 @@ impl CPU {
 
             // update the debugger, memory map and render the PPU VRAM
             debugger.update_window(&debug_data);
-            mem.print_ram(self);
+            //mem.print_ram(self);
             ppu.render();
             cycle = 0;
 

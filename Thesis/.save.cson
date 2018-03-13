@@ -1,1 +1,1 @@
-"**/*.tex": "latex -output-directory Output thesis.tex && dvipdfm Output/thesis.dvi && mv thesis.pdf Output/thesis.pdf"
+"**/*.tex": "latex -shell-escape -output-directory Output thesis.tex && dvipdfm Output/thesis.dvi && mv thesis.pdf Output/thesis.pdf"

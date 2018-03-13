@@ -27,6 +27,15 @@
 \usepackage{amsthm}
 \usepackage{subfig}
 
+% Minted package and its dependencies
+\usepackage[outputdir=Output]{minted}
+\usemintedstyle{emacs}
+\usepackage{fancyvrb}
+\usepackage{float}
+\usepackage{ifplatform}
+\usepackage{etoolbox}
+\usepackage{xstring}
+\usepackage{lineno}
 
 %A fejléc láblécek kialakításához:
 \usepackage{fancyhdr}
@@ -170,9 +179,9 @@ A dolgozat elsõ néhány fejezetében az emulátorokról, a Nintendo Game Boy hardver
 A processzor modellezése a regiszterek, flagek, és egyéb jellemzõk megtervezésével kez\-dõ\-dik, majd következõ lépésként az utasításkészlet megvalósításával folytatódik. A CPU-hoz szorosan kapcsolódó memória ez után kerül tárgyalásra. A memória ismertetése után az idõzítõk, majd a PPU felépítése és mûködése szerepel. Az implementáció ezen pontján a Boot ROM már futtathatóvá válik, errõl is esik majd néhány szó. A fej\-lesz\-té\-si részt a joypad jellemzõi és megoldásai zárják. \\
 A dolgozat zárásaként bemutatásra kerül az emulátor használata, illetve a fejlesztésbõl adódó dependenciák, majd végül a teszt ROM-ok jellemzõi, futtatásuk, és a futtatási e\-red\-mé\-nyeik.
 
-\input{./1st_chapter.tex} % Az emulátorokról
-\input{./2nd_chapter.tex} % Nintendo Game Boy
-\input{./3rd_chapter.tex} % Az emulátor fejlesztési folyamata
+\input{./1st_chapter.tex} % Az emulátorok és a Nindendo Game Boy
+\input{./2nd_chapter.tex} % Az emulátor fejlesztési folyamata
+%\input{./3rd_chapter.tex} % Az emulátor fejlesztési folyamata
 
 \chapter*{Nyilatkozat}
 %Egy üres sort adunk a tartalomjegyzékhez:

@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{loop}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{+w}{  }\PYG{c+c1}{// endless loop}
+\PYG{+w}{  }\PYG{k+kd}{let}\PYG{+w}{ }\PYG{n}{next\PYGZus{}byte}: \PYG{n+nc}{Byte}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{fetch\PYGZus{}byte}\PYG{p}{();}
+\PYG{+w}{  }\PYG{k+kd}{let}\PYG{+w}{ }\PYG{n}{instruction}: \PYG{n+nc}{Instruction}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{decode\PYGZus{}instruction}\PYG{p}{(}\PYG{n}{next\PYGZus{}byte}\PYG{p}{);}
+\PYG{+w}{  }\PYG{n}{execute}\PYG{p}{(}\PYG{n}{instruction}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

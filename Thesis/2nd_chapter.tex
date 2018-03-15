@@ -34,7 +34,7 @@ A fõ ciklus megtervezése tipikusan a CPU alap struktúrájának (regiszterek, RAM, 
 \section{Alkalmazott eszközök}
 
 A fejlesztéshez alkalmazott eszközök meghatározása fontos tényezõ, hiszen nagyban meg\-könnyíthetjük vagy megnehezíthetjük a saját munkánkat. Elõször is célszerû egy prog\-ra\-mo\-zá\-si nyelvet választani, lehetõség szerint olyat, amihez léteznek olyan \textit{library}-k, amelyekkel megvalósítható a program. Emellett az is lényeges, hogy a programozási nyelv gyors binárist generáljon -- természetesen megvalósíthatjuk az emulátort \textit{Javascript} nyelven is, csak észrevehetõen lassabb lesz, mint mondjuk a \textit{C++}-os variánsa. \\
-A programozási nyelv mellett a \textit{debug}-olást nagyban megkönnyíti egy \textit{disassembler}, vagy optimális esetben egy másik emulátorhoz készített \textit{debugger}. A ROM fájlokhoz szükséges lehet még egy \textit{hex editor}\footnote{A \textit{hex editor} egy olyan szoftver, amely segítségével megtekinteni és módosítani lehet egy bináris adatfájlt. A "\textit{hex}" elõtag a hexadecimális rövidítésbõl ered: a bináris fájl bájtjait 16-os számrendszerben mutatja a program.}, hogy pontosan lássuk azt, hogy milyen bájtokkal dolgozunk. Ahhoz hogy lássuk, hogy a memóriában milyen adatok szerepelnek, célszerû egy memória térkép eszközt készíteni a fejlesztés során. 
+A programozási nyelv mellett a \textit{debug}-olást nagyban megkönnyíti egy \textit{disassembler}, vagy optimális esetben egy másik emulátorhoz készített \textit{debugger}. A ROM fájlokhoz szükséges lehet még egy \textit{hex editor}\footnote{A \textit{hex editor} egy olyan szoftver, amely segítségével megtekinteni és módosítani lehet egy bináris adatfájlt. A "\textit{hex}" elõtag a hexadecimális rövidítésbõl ered: a bináris fájl bájtjait 16-os számrendszerben mutatja a program.}, hogy pontosan lássuk azt, hogy milyen bájtokkal dolgozunk. Ahhoz hogy lássuk, hogy a memóriában milyen adatok szerepelnek, célszerû egy memóriatérkép eszközt készíteni a fejlesztés során. 
 
 \subsection{A Rust programozási nyelv}
 Az emulátor fejlesztéséhez a Rust programozási nyelvet választottam, több okból. Egyrészt ez elõtt egy kisebb emulátor projekten dolgoztam a nyelvvel, és már akkor megtetszett az egyszerûsége, a környezete, a nyelv köré alakult közösség. Másrészt a nyelvet az ehhez hasonló performancia-orientált feladatokra tervezték.\\
@@ -97,5 +97,33 @@ A \texttt{rustc} fordító \textit{targetjeként} a \texttt{stable-x86\_64-unknown-
 
 \subsection{\textit{Debugger}}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth, trim={0 14cm 0 0},clip]{./Resources/debugger.eps}
+    \caption{\textit{Az emulátorhoz fejlesztett debugger}}
+    \label{fig:debugger}
+\end{figure}
+
+\noindent Fontos eszköz volt a fejlesztés során a \textit{debugger}, amelyet az emulátorral pár\-hu\-za\-mo\-san fejlesztettem. Nagyon hasznos, hogy pontosan végig lehet követni az emulátor mûködését, és az egyes processzormûveletek után beállt állapotokat, hiszen ez nagyban megkönnyíti a hibakeresést. A \ref{fig:debugger}-es ábrán láthatjuk az eszközt mûködés közben: bal oldalon találhatóak a már elvégzett mûveletek, a jobb oldal pedig a regiszterek állapotát mutatja. \\
+Az elvégzett mûveletek listájában legfelül a legutóbb végrehajtott mûvelet szerepel, a végén pedig a legrégebbi. A program az utolsó 50 állapotot tudja eltárolni, melyek közül az éppen kijelölt, aktív elemet piros kiemelés jelzi. Az egyes listaelemek az alábbi módon épülnek fel:
+
+\begin{center}
+  \colorbox{black}{\textcolor{DebuggerBlue}{\textbf{\texttt{0x21\;: LD HL,nn 0xFF 0xE6}}}} \\
+\end{center}
+
+\noindent A \texttt{0x21} jelzi az aktuális mûvelet \textit{opkódját}\footnote{Operációkód, azaz mûveleti kód, vagy mûveleti jelkód, utasításkészletek leírásában mûveleti jelrész. A CPU által beolvasott bináris szám, amit végrehajtható utasítás kódjaként értelmez.}, mellette szerepel a mûvelet \textit{mnemonikja}\footnote{A mnemonik az informatikában általában hosszabb elnevezésû mûvelet(sor) elnevezésére használatos rövidítés, amelyet az egész kifejezés helyettesítésére alkalmaznak, pl.: \texttt{ADD}, \texttt{SUB}.}, jelen esetben az \texttt{LD HL,nn}. A harmadik tag a mûvelet által beolvasott, és (o\-pe\-ran\-dus\-ként) felhasznált bájtokat tartalmazza, itt: \texttt{0xFF 0xE6}. A példában (és a \textit{debuggerben} is) be van színezve az utasítás -- ennek egyszerû oka van: az utasításokat kategóriákra bontottam, majd külön színeket rendeltem hozzájuk, így már ránézésre is meg lehet mondani, hogy milyen típusú mûveletrõl van szó. A mellékletként csatolt opkód táblázatban lévõ színek megegyeznek a \textit{debuggerben} látható színekkel. \\
+A \textit{debugger} jobb oldalában foglal helyet a regiszterek nézete, itt található meg rendre az összes regiszter, a \textit{Stack Pointer}, és a \textit{Program Counter} értéke, valamint az \texttt{F} \textit{Flag} regiszter értéke binárisan -- hogy látható legyen az összes általa tartalmazott flag állapota. Ezen értékek annak függvényében változnak (és mutatják az aktuális értékeket), hogy épp melyik mûvelet van kijelölve.
+
+\subsection{Memóriatérkép}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth, trim={0 1.7cm 0 0},clip]{./Resources/memorymap.eps}
+    \caption{\textit{Az emulátorhoz fejlesztett memóriatérkép}}
+    \label{fig:memorymap}
+\end{figure}
+
+\noindent A \textit{debugger} mellett a másik sokat használt eszköz a memóriatérkép. Ebben az ablakban megjelenik a Game Boy memóriájának összes bájtja, egy-egy pixel által reprezentálva. Az adott pixel világos, ha a bájt nulla, egyébként pedig sötétebb árnyalatú. A \ref{fig:memorymap}-es ábrán megfigyelhetõ, hogy több féle szín is megjelenik -- ezek jelölik az egyes fontosabb, elkülönölõ részeket a memóriában. A színeket is bevonva a reprezentációba a \textit{debuggerhez} hasonlóan ennél az eszköznél is ránézésre leolvashatók adatok. Ahhoz, hogy pontosan megtudjuk egy adott bájt értékét és pozícióját a memóriában, rá kell kattintani, és a terminál ablakban kiírásra kerülnek a szükséges információk. \\
+A Game Boy architektúrájában gyakori, hogy egyes regiszterek a memóriában kapnak helyet -- errõl a késõbbiekben szó lesz --, és a memóriatérkép megoldással könnyedén meg lehet figyelni ezek értékeit, esetleg változásait. Emellett a dedikált és külön színnel kiemelt memória részeken látszik, hogy fel van-e töltve, vagy teljesen üres -- egy \textit{sprite} renderelési \textit{bug} kijavítását nagy mértékben megkönnyítette az, hogy látszott a me\-mó\-ri\-a\-tér\-ké\-pen a \textit{spriteok} hiánya.
 
 \section{A feladat specifikációja}

@@ -135,7 +135,7 @@ impl CPU {
                 if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No){
                     loop {
                         debugger.update_window(&debug_data);
-                        //mem.print_ram(self);
+                        mem.print_ram(self);
 
                         // if the left control is pressed, resume the emulator
                         if debugger.window.is_key_pressed(Key::LeftCtrl, KeyRepeat::No) {
@@ -159,7 +159,7 @@ impl CPU {
 
             // update the debugger, memory map and render the PPU VRAM
             debugger.update_window(&debug_data);
-            //mem.print_ram(self);
+            mem.print_ram(self);
             ppu.render();
             cycle = 0;
 

@@ -88,7 +88,7 @@ impl CPU {
         let mut opcode : Opcode = Opcode::new();
         let mut debugger : Debugger = Debugger::new();
         let mut debug_data : DebugData = DebugData::new();
-        let  mem : MemoryMap = MemoryMap::new();
+        let mut mem : MemoryMap = MemoryMap::new();
         let mut ppu : PPU = PPU::new();
         let mut timer : Timer = Timer::new();
         let mut joypad : Joypad = Joypad::new();

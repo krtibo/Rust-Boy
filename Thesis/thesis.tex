@@ -26,6 +26,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{subfig}
+\usepackage{url}
 
 % Minted package and its dependencies
 \usepackage[outputdir=Output]{minted}
@@ -184,7 +185,7 @@ A dolgozat zárásaként bemutatásra kerül az emulátor használata, illetve a fejles
 \input{./1st_chapter.tex} % Az emulátorok és a Nindendo Game Boy
 \input{./2nd_chapter.tex} % Az emulátor fejlesztési folyamata
 \input{./3rd_chapter.tex} % A processzor és a memória implementációja
-
+\input{./appendix.tex}    % Függelék
 \chapter*{Nyilatkozat}
 %Egy üres sort adunk a tartalomjegyzékhez:
 \addtocontents{toc}{\ }
@@ -241,27 +242,16 @@ Szeged, \today\
 
 %Elso szerzok vezetekneve alapjan ábécérendben rendezve.
 
+\bibitem{Tanenbaum}
+Andrew S. Tanenbaum,
+\emph{Számítógép-architektúrák},
+Panem Könyvkiadó Kft., Budapest, 2006.
 
-%folyóirat cikk: szerzok(k), a folyóirat neve kiemelve,
-%az evfolyam felkoveren, zarojelben az evszam, vegul az oldalszamok es pont.
-\bibitem{Gischer}
-J. L. Gischer,
-The equational theory of pomsets.
-\emph{Theoret. Comput. Sci.}, \textbf{61}(1988), 199--224.
-
-%könyv (szerzo(k), a könyv neve kiemelve, utana a kiado, a kiado szekhelye, az evszam es pont.)
-\bibitem{Pin}
-J.-E. Pin,
-\emph{Varieties of Formal Languages},
-Plenum Publishing Corp., New York, 1986.
-
-
-
-
+\bibitem{WikiGB}
+Wikipedia,
+\emph{Game Boy},
+\url{https://hu.wikipedia.org/wiki/Game_Boy}.
 
 \end{thebibliography}
-
-
-
 
 \end{document}

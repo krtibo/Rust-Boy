@@ -9,7 +9,7 @@ Az elsõ teendõ mindenképpen a lehetõ legtöbb tudásanyag összeszedése ilyen-olyan
 
 \section{A fõ ciklus}
 
-A fõ ciklus a Game Boy utasítás-végrehajtását emulálja, aminek egy leegyszerûsített modellje bármilyen Neumann-elvû számítógép processzorára illeszkedni fog. Ezt a fõ ciklust elterjedtebb nevén \textbf{betöltõ-dekódoló-végrehajtó} ciklusnak is nevezik. Lépései a következõk:
+A fõ ciklus a Game Boy utasítás-végrehajtását emulálja, aminek egy leegyszerûsített modellje bármilyen Neumann-elvû számítógép processzorára illeszkedni fog. Ezt a fõ ciklust elterjedtebb nevén \textbf{betöltõ-dekódoló-végrehajtó} ciklusnak is nevezik. Lépései a következõk\cite{Tanenbaum}:
 
 \begin{enumerate}
   \item A soron következõ utasítás betöltése a memóriából az utasításregiszterbe.
@@ -61,7 +61,7 @@ window : Window::new("RUST BOY",           // name
                      }).unwrap()
 }
 \end{minted}
-Amint látható, négy kötelezõen megadandó paramétere van a \texttt{Window} struktúrának, me\-lyek rendre:
+Amint látható, négy kötelezõen megadandó paramétere van a \texttt{Window} struktúra konst\-ruk\-to\-rá\-nak, me\-lyek rendre:
 
 \begin{itemize}
   \item \texttt{name}: az ablak címsorában szereplõ szöveg,

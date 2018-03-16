@@ -10,6 +10,33 @@
 A korábban írtaknak megfelelõen az implementációt a processzorral és a me\-mó\-ri\-á\-val kezdjük -- a megfelelõ tudásanyag birtokában a processzor felépítésének modellezése az elsõ feladat. Fontos már a korai tervezési folyamatoktól kezdve szem elõtt tartani a belsõ felépítés modelljét, és ennek tudatában úgy alakítani az implementálást, hogy egyrészt az eredeti hardverrel nagyrészt megegyezõ módon mûködjön (és épüljön fel), másrészt a további modulok, egységek és funkciók jól illeszkedjenek ehhez a fõ komponenshez. Ehhez nyújt nagy segítséget a Nintendo által bejegyzett Game Boy szabadalomban ábrázolt felépítés, amit a \ref{fig:patentcpu}-es ábrán figyelhetünk meg. Jól látszik a processzor és a memória kapcsolata, illetve ez elõbbi felépítésébe is nyújt némi betekintést, utóbbinak egyes részeit pedig már ezen az ábrán is láthatjuk, a késõbbiekben ezt jobban meg is vizsgáljuk. Az elõzõ fejezetben ismertetett betöltõ-dekódoló-végrehajtó ciklust alkotó elemek közül is megfigyelhetjük az utolsó kettõt. A hardver teljes felépítésérõl tágabb képet kaphatunk, ha megfigyeljük a 4. fejezetbeli függelék \ref{fig:architecture}-es ábráját, amely szintén a Nintendo által benyújtott szabadalom része. Ez az ábra késõbb nagy se\-gít\-sé\-günk\-re lesz a modulok felépítésének, és a rendszer struktúrájának implementálása során, hiszen elég részletesen mutatja be az egyes elemek közti kapcsolatokat, kommunikációt.
 
 \section{CPU}
+Ahogy az elsõ fejezetben már említésre került, a Game Boy-ban egy \textit{Zilog Z80} alapú, \textit{Sharp LR35902} típusú 8 bites processzor dolgozik. A \textit{Z80}-hoz képest annyi változás történt, hogy a regiszterek elrendezését a \textit{Sharp} mérnökei az \textit{Intel 8080}-as processzortól vették kölcsön, illetve több utasítást is kivettek, helyükre sajátokat téve. \\
+A \ref{fig:patentcpu}-es ábrán látható, hogy a processzor nyolc darab 8 bites, és két darab 16 bites regiszterrel rendelkezik. A 8 bitesek név szerint: \texttt{A}, \texttt{F}, \texttt{B}, \texttt{C}, \texttt{D}, \texttt{E}, \texttt{H}, \texttt{L}, míg a 16 bitesek a \texttt{PC} és az \texttt{SP}. A 8 bites regiszterek felsorolásának sorrendje nem véletlen: a CPU egyik igen hasznos funkciója az, hogy regisztereket tud összevonni, két 8 bitesbõl 16 biteseket varázsolva -- így ezekben a nagyobb regiszterekben el lehet tárolni memóriacímeket, vagy egyéb 16 bites adatokat. Az összevont regiszterek rendre: \texttt{AF}, \texttt{BC}, \texttt{DE}, \texttt{HL}. \\
+Az \texttt{A} regiszter hagyományosan az akkumulátorregiszter\footnote{Olyan regiszter, amiben az aritmetikai-logikai egység által végzett mûveletek operandusai, illetve az eredmény átmenetileg tárolódik.}, míg az \texttt{F} tárolja a \textit{flageket}.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+   \hline
+   \rowcolor{lightgray} 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\ 
+   \hline
+   Z & S & H & C & 0 & 0 & 0 & 0 \\ 
+   \hline
+  \end{tabular}
+  \caption{\textit{Az} \texttt{F} \textit{Flag regiszter bitjei}}
+  \label{table:1}
+\end{table}
+
+\noindent A \ref{table:1}-es táblázatról leolvashatók az \texttt{F} regiszter \textit{flagjeinek} helyzete. A rövidítések je\-len\-té\-se\-i a kö\-vet\-ke\-zõk:
+
+\begin{itemize}
+  \item \textit{Z}: \textit{Zero Flag}, értéke akkor 1, ha valamilyen logikai vagy aritmetikai mûvelet e\-red\-mé\-nye 0.
+  \item \textit{S}: \textit{Subtract Flag}, értéke akkor 1, ha valamilyen kivonás mûveletet végzett a pro\-cesszor.
+  \item \textit{H}: \textit{Half Carry Flag}, értéke akkor 1, ha valamilyen logikai vagy aritmetikai mûvelet során az akkumulátorregiszter alsó 4 bitjén túlcsordulás vagy alulcsordulás ke\-let\-ke\-zett.
+  \item \textit{C}: \textit{Carry Flag}, értéke akkor 1, ha valamilyen logikai vagy aritmetikai mûvelet során az akkumulátorregiszteren túlcsordulás vagy alulcsordulás ke\-let\-ke\-zett. Nem összekeverendõ a \textit{Half Carry Flaggel}.
+\end{itemize}
+Az alsó 4 bit használaton kívüli, mindig 0. Ezeket a \textit{flageket} a processzor utasításai vezérlik a mûvelet kimenetelétõl függõen. Az emulátor fejlesztése szempontjából ez egy kritikus pont -- a \textit{flagek} pontos emulációján nagyon sok múlik, elképesztõ mennyiségû hibakeresést spórolhatunk meg magunknak azzal ha odafigyelünk az implementációkor.
+
 \section{Utasításkészlet}
 \section{RAM}
 \section{Idõzítõk, interrupt kezelés}

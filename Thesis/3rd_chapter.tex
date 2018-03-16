@@ -1,10 +1,13 @@
 \chapter{A processzor és a memória implementációja}
+
 \begin{wrapfigure}{l!}{\textwidth/2}
     \centering
-    \includegraphics[width=\textwidth/2, trim={0 0 0 0},clip]{./Resources/cpu.eps}
+    \includegraphics[width=\textwidth/2-0.5cm, trim={2cm 2.5cm 2cm 5.5cm},clip]{./Resources/cpu.eps}
     \caption{\textit{A Game Boy szabadalmában ábrázolt processzor felépítés}}
     \label{fig:patentcpu}
 \end{wrapfigure}
+
+A korábban írtaknak megfelelõen az implementációt a processzorral és a me\-mó\-ri\-á\-val kezdjük -- a megfelelõ tudásanyag birtokában a processzor felépítésének modellezése az elsõ feladat. Fontos már a korai tervezési folyamatoktól kezdve szem elõtt tartani a belsõ felépítés modelljét, és ennek tudatában úgy alakítani az implementálást, hogy egyrészt az eredeti hardverrel nagyrészt megegyezõ módon mûködjön (és épüljön fel), másrészt a további modulok, egységek és funkciók jól illeszkedjenek ehhez a fõ komponenshez. Ehhez nyújt nagy segítséget a Nintendo által bejegyzett Game Boy szabadalomban ábrázolt felépítés, amit a \ref{fig:patentcpu}-es ábrán figyelhetünk meg. Jól látszik a processzor és a memória kapcsolata, illetve ez elõbbi felépítésébe is nyújt némi betekintést, utóbbinak egyes részeit pedig már ezen az ábrán is láthatjuk, a késõbbiekben ezt jobban meg is vizsgáljuk. Az elõzõ fejezetben ismertetett betöltõ-dekódoló-végrehajtó ciklust alkotó elemek közül is megfigyelhetjük az utolsó kettõt. A hardver teljes felépítésérõl tágabb képet kaphatunk, ha megfigyeljük a 4. fejezetbeli függelék \ref{fig:architecture}-es ábráját, amely szintén a Nintendo által benyújtott szabadalom része. Ez az ábra késõbb nagy se\-gít\-sé\-günk\-re lesz a modulok felépítésének, és a rendszer struktúrájának implementálása során, hiszen elég részletesen mutatja be az egyes elemek közti kapcsolatokat, kommunikációt.
 
 \section{CPU}
 \section{Utasításkészlet}

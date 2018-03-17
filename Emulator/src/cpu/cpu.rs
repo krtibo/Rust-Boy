@@ -23,7 +23,6 @@
 
 use std::io::prelude::*;
 use std::fs::File;
-use std::collections::LinkedList;
 use opcode::Opcode;
 use cpu::debugger::Debugger;
 use cpu::debugger::DebugData;
@@ -50,7 +49,6 @@ pub struct CPU {
     pub PC : u16,
     pub IR : bool,
     pub RAM : [u8; 65536],
-    pub STACK : LinkedList<u8>,
     freq_change : bool,
     boot_rom : bool,
     pub boot_rom_path : String,
@@ -74,7 +72,6 @@ impl CPU {
             PC : 0x00,
             IR : false,
             RAM : [0; 65536],
-            STACK : LinkedList::new(),
             freq_change : false,
             boot_rom : false,
             boot_rom_path : path_b,
@@ -284,7 +281,6 @@ impl CPU {
        format!("0x{:02X}", self.SP),
        format!("0x{:02X}", self.PC),
        format!("0b{:04b}", self.F >> 4),
-       format!("{}", self.STACK.len()),
        ];
 
        // if there is no operand

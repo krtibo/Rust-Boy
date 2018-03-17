@@ -10,6 +10,7 @@
 A korábban írtaknak megfelelõen az implementációt a processzorral és a me\-mó\-ri\-á\-val kezdjük -- a megfelelõ tudásanyag birtokában a processzor felépítésének modellezése az elsõ feladat. Fontos már a korai tervezési folyamatoktól kezdve szem elõtt tartani a belsõ felépítés modelljét, és ennek tudatában úgy alakítani az implementálást, hogy egyrészt az eredeti hardverrel nagyrészt megegyezõ módon mûködjön (és épüljön fel), másrészt a további modulok, egységek és funkciók jól illeszkedjenek ehhez a fõ komponenshez. Ehhez nyújt nagy segítséget a Nintendo által bejegyzett Game Boy szabadalomban ábrázolt felépítés, amit a \ref{fig:patentcpu}-es ábrán figyelhetünk meg. Jól látszik a processzor és a memória kapcsolata, illetve ez elõbbi felépítésébe is nyújt némi betekintést, utóbbinak egyes részeit pedig már ezen az ábrán is láthatjuk, a késõbbiekben ezt jobban meg is vizsgáljuk. Az elõzõ fejezetben ismertetett betöltõ-dekódoló-végrehajtó ciklust alkotó elemek közül is megfigyelhetjük az utolsó kettõt. A hardver teljes felépítésérõl tágabb képet kaphatunk, ha megfigyeljük a 4. fejezetbeli függelék \ref{fig:architecture}-es ábráját, amely szintén a Nintendo által benyújtott szabadalom része. Ez az ábra késõbb nagy se\-gít\-sé\-günk\-re lesz a modulok felépítésének, és a rendszer struktúrájának implementálása során, hiszen elég részletesen mutatja be az egyes elemek közti kapcsolatokat, kommunikációt.
 
 \section{CPU}
+\subsection{Regiszterkészlet}
 Ahogy az elsõ fejezetben már említésre került, a Game Boy-ban egy \textit{Zilog Z80} alapú, \textit{Sharp LR35902} típusú 8 bites processzor dolgozik. A \textit{Z80}-hoz képest annyi változás történt, hogy a regiszterek elrendezését a \textit{Sharp} mérnökei az \textit{Intel 8080}-as processzortól vették kölcsön, illetve több utasítást is kivettek, helyükre sajátokat téve. \\
 A \ref{fig:patentcpu}-es ábrán látható, hogy a processzor nyolc darab 8 bites, és két darab 16 bites regiszterrel rendelkezik. A 8 bitesek név szerint: \texttt{A}, \texttt{F}, \texttt{B}, \texttt{C}, \texttt{D}, \texttt{E}, \texttt{H}, \texttt{L}, míg a 16 bitesek a \texttt{PC} és az \texttt{SP}. A 8 bites regiszterek felsorolásának sorrendje nem véletlen: a CPU egyik igen hasznos funkciója az, hogy regisztereket tud összevonni, két 8 bitesbõl 16 biteseket varázsolva -- így ezekben a nagyobb regiszterekben el lehet tárolni memóriacímeket, vagy egyéb 16 bites adatokat. Az összevont regiszterek rendre: \texttt{AF}, \texttt{BC}, \texttt{DE}, \texttt{HL}. \\
 Az \texttt{A} regiszter hagyományosan az akkumulátorregiszter\footnote{Olyan regiszter, amiben az aritmetikai-logikai egység által végzett mûveletek operandusai, illetve az eredmény átmenetileg tárolódik.}, míg az \texttt{F} tárolja a \textit{flageket}.
@@ -18,7 +19,7 @@ Az \texttt{A} regiszter hagyományosan az akkumulátorregiszter\footnote{Olyan reg
   \centering
   \begin{tabular}{ |c|c|c|c|c|c|c|c| } 
    \hline
-   \rowcolor{lightgray} 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\ 
+   \rowcolor{GameBoyBlue} 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0  \\ 
    \hline
    Z & S & H & C & 0 & 0 & 0 & 0 \\ 
    \hline
@@ -35,7 +36,67 @@ Az \texttt{A} regiszter hagyományosan az akkumulátorregiszter\footnote{Olyan reg
   \item \textit{H}: \textit{Half Carry Flag}, értéke akkor 1, ha valamilyen logikai vagy aritmetikai mûvelet során az akkumulátorregiszter alsó 4 bitjén túlcsordulás vagy alulcsordulás ke\-let\-ke\-zett.
   \item \textit{C}: \textit{Carry Flag}, értéke akkor 1, ha valamilyen logikai vagy aritmetikai mûvelet során az akkumulátorregiszteren túlcsordulás vagy alulcsordulás ke\-let\-ke\-zett. Nem összekeverendõ a \textit{Half Carry Flaggel}.
 \end{itemize}
-Az alsó 4 bit használaton kívüli, mindig 0. Ezeket a \textit{flageket} a processzor utasításai vezérlik a mûvelet kimenetelétõl függõen. Az emulátor fejlesztése szempontjából ez egy kritikus pont -- a \textit{flagek} pontos emulációján nagyon sok múlik, elképesztõ mennyiségû hibakeresést spórolhatunk meg magunknak azzal ha odafigyelünk az implementációkor.
+Az alsó 4 bit használaton kívüli, mindig 0. Ezeket a \textit{flageket} a processzor utasításai vezérlik a mûvelet kimenetelétõl függõen. Az emulátor fejlesztése szempontjából ez egy kritikus pont -- a \textit{flagek} pontos emulációján nagyon sok múlik, elképesztõ mennyiségû hibakeresést spórolhatunk meg magunknak azzal ha odafigyelünk az implementációkor. \\
+A két 16 bites regiszter szerepe megegyezik ehhez hasonló architektúrákban ta\-pasz\-tal\-tak\-hoz: a \texttt{PC}, azaz \textit{Program Counter} azt mutatja, hogy a processzor hol tart az utasítási sorban (a memóriában), míg az \texttt{SP}, vagy \textit{Stack Pointer} mutatja a hívási verem (\textit{Call Stack}) aktuális címét, azaz hogy éppen hol helyezkedik el a memóriában a verem legfelsõ eleme. Érdemes megjegyezni, hogy a verembe pakoláskor -- azaz a \texttt{PUSH} mûvelet hívásakor -- a verem új, legfelsõ elemét a memóriában lefelé haladva szúrjuk be, azaz a legkisebb memória címû verembeli elem képzi a verem tetejét. \\
+Ami az implementációt illeti, a 8 bites regisztereket 8 bites \textit{Unsigned Integerként}, azaz \texttt{u8}-ként, a 16 biteseket pedig \texttt{u16}-ként deklaráltam, hiszen negatív értéket nem fog felvenni egyik regiszter sem. A processzort modellezõ struktúra tehát ilyen módon fog kinézni: \\
+\begin{minted}{rust}
+pub struct CPU {
+    pub A : u8,
+    pub B : u8,
+    pub C : u8,
+    pub D : u8,
+    pub E : u8,
+    pub F : u8,
+    pub H : u8,
+    pub L : u8,
+    pub SP : u16,
+    pub PC : u16,
+    pub RAM : [u8; 65536],
+}
+\end{minted}
+
+\subsection{Ciklusok, frekvenciák}
+A Nintendo Game Boy processzorának frekvenciája 4.194304 MHz. Azonban az egész rendszer a memóriához kötött, tulajdonképpen a memória elérésének sebessége meg\-ha\-tá\-roz\-za az összes egység sebességét is. Jelen esetben a memória az architektúra szûk keresztmetszete, ugyanis \url{~}1 MHz sebességgel mûködik. A hardver egyes kom\-po\-nen\-se\-i\-nek sebessége az alábbiak szerint alakul:
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|c| } 
+   \hline
+   CPU \; & \; 4,194,304 Hz\; = \;\url{~}4 MHz \; \\ \hline
+   RAM \; & \; 1,048,576 Hz\; = \;\url{~}1 MHz \; \\ \hline
+   PPU \; & \; 4,194,304 Hz\; = \;\url{~}4 MHz \; \\ \hline
+   VRAM \; & \; 2,097,152 Hz\; = \;\url{~}2 MHz \; \\ \hline
+  \end{tabular}
+  \caption{\textit{A Game Boy fõ elemeinek sebessége}}
+  \label{table:2}
+\end{table}
+
+\noindent A fenti \ref{table:2}-es táblázaton látható, hogy az alkotóelemek sebességei nem egységesek, vi\-szont hiába gyors a processzor, ha a memória visszafogja a rendszert. Így praktikussági okokból kétféle ciklust különböztetünk meg: 
+
+\begin{itemize}
+  \item az \textit{órajel ciklust}, ami a specifikációban írt 4,194,304 Hz (azaz 4 MHz)-nek felel meg,
+  \item és az \textit{gépi ciklust}, ami megegyezik a RAM frekvenciájával, így 1,048,576 Hz (azaz 1 MHz) lesz.
+\end{itemize}
+
+\noindent Ettõl a ponttól kezdve az utasítások idõzítését gépi ciklus szerint tekintjük, és a ciklus kifejezés alatt a gépi ciklust értjük. Az oka ennek az, hogy az 1 MHz-es gépi ciklus minden komponens sebességére visszavezethetõ, egyfajta közös nevezõnek tekinthetõ.
+
+\subsection{Betöltés - dekódolás - végrehajtás}
+
+A betöltés-dekódolás-végrehajtás ciklus függvényeit az \texttt{Opcode} struktúra tartalmazza. A betöltést a \texttt{fetch} függvény valósítja meg, amely visszatér a CPU RAM-ot reprezentáló tömbjének \texttt{PC} regiszter értékével megegyezõ indexû elemével (amely \texttt{u8} típusú). A de\-kó\-do\-lás és a végrehajtás mûveletek az \texttt{execute} függvényben történnek. A \texttt{fetch} által visszatért bájt dekódolása úgy történik, hogy az \texttt{Opcode} struktúra rendelkezik egy \texttt{opc} és egy \texttt{cb\_opc} tömbbel, a processzor mûveletet azonosító bájtot átadjuk az \texttt{opc} tömb számára, mint tömbindex. Az \texttt{opc} és a \texttt{cb\_opc} tömbök rendre 256 elemûek, és függ\-vé\-nyek\-re mutató pointereket tartalmaznak, így a bájt tömbindexként való használatával meghívható az adott opkódhoz tartozó utasítást megvalósító függvény. \\
+Amennyiben \texttt{CB} prefixû opkód az aktuális utasítás, úgy elõször az \texttt{opc[0xCB]} által mutatott függvény hívódik meg, amely meghívja a \texttt{fetch} függvényt, hogy az betöltse a \texttt{CB} prefixû táblán értelmezett mûvelet opkódját. Ugyaninnen hívódik meg a konkrét mûveletet megvalósító függvény a \texttt{cb\_opc} függvény pointer tömb használatával. \\
+A processzor mûveleteit megvalósító függvények visszatérési értéke egy \texttt{u8} szám, amely azt mutatja, hogy a konkrét mûvelet teljes végrehajtása hány processzor ciklus alatt tör\-té\-nik meg. Az \texttt{Opcode} struktúra \texttt{execute} függvénye ezt az értéket szintén visszatértési értékként fûzi tovább. \\
+A processzor a fenti mûveleteket hívja meg a ciklus minden egyes iterációjában, majd a mûveletek által visszaadott mûveleti ciklus értékeket összeadva szinkronizálja össze a mûvelet végrehajtást a \textit{rendereléssel}. A 60 FPS\footnote{\textit{Frames Per Second}, azaz képkocka per másodperc -- a \textit{renderelés} frissítési gyakoriságát megadó mértékegység.} renderelési sebességet céloztam meg, amely az eredeti konzol képernyõfrissítési értékével is nagyságrendileg megegyezik. A \textit{renderelés} ideje így a következõ számítás alapján megkapható:
+$$ 4194304/60 = 69905,$$
+ahol a 4194304-es érték a processzor órajel ciklusa, a 60 jelzi az FPS értéket, a végeredmény pedig megmutatja, hogy mekkora összegig kell folytatni a processzor mûveleteinek végrehajtását. A fõ ciklus sémája kiegészítve a szinkronizált PPU \textit{rendereléssel} tehát így alakul:
+
+\begin{minted}{rust}
+loop {  // endless loop
+  while cycle <= 69905 {
+    cycle += opcode.execute();
+  }
+  ppu.render();
+}
+\end{minted}
 
 \section{Utasításkészlet}
 \section{RAM}

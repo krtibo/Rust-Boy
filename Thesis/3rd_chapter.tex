@@ -98,6 +98,39 @@ loop {  // endless loop
 }
 \end{minted}
 
+\section{Interrupt kezelés}
+Az utasításkészlet részletes bemutatása elõtt fontos szót ejteni a Game Boy \textit{interrupt} kezelésérõl -- több utasítás kapcsán is elõ fog jönni ez a téma. \\
+Adott események bekövetkezése (ez hardverenként eltér) \textit{interruptot}, vagy \textbf{megszakítást} vált ki, ezzel kényszeríti a CPU-t, hogy az éppen futó programot azonnal felfüggessze, és egy speciális eljárást, a \textbf{megszakításkezelõt} végrehajtsa, amely a hibaellenõrzést és egyéb speciális teendõket elvégezve értesíti a vezérlõt, hogy a megszakítás befejezõdött.\cite{Tanenbaum} \\
+A Nintendo Game Boy architektúrájában kétféle megszakítást különböztetünk meg: létezik szoftveres, és hardveres megszakítás is. Ami a szoftveres megszakításokat illeti, ezeket a hardver programozói használhatták, az egyes \texttt{RST} (a \texttt{RESET} rövidítése) mûveletekkel lehet elõre definiált memóriacímekre ugrani. A hardveres megszakítások témaköre már kicsit bonyolultabb. \\
+Alapvetõen 5 féle hardveres megszakítást különböztetünk meg:
+\begin{itemize}
+  \item \textit{V-Blank}: A képernyõ frissítése során periodikusan elõidézett megszakítás, a ké\-sõb\-bi\-ek\-ben -- a PPU-t taglaló fejezetben -- részletesebben is szó lesz róla. 
+  \item \textit{LCD STAT}: Többféle esemény is elõidézheti ezt a típusú megszakítást, az egyik leggyakoribb ezek közül az, amikor a hardver egy adott sor újrarajzolásánál tart az LCD kijelzõn.
+  \item \textit{Timer}: Akkor következik be ez a megszakítás, amikor a \texttt{TIMA} idõzítõ regiszter túlcsordul. A késõbbiekben erre is kitérek.
+  \item \textit{Serial}: A hardveren található soros port mûködése közben következik be a \textit{Serial} megszakítás, ha egy konkrét adatátvitel befejezõdött. Ezen emulátor esetében ezt a megszakítást nem implementáltam.
+  \item \textit{Joypad}: Ez a megszakítás bármelyik hardveres gomb lenyomásakor aktiválódik.
+\end{itemize}
+
+\noindent A megszakításokhoz a CPU kapcsán három dolog köthetõ a fentieken kívül. Egy fõ interrupt kapcsoló, az \textit{Interrupt Master Enable Flag}, amivel le lehet tiltani, vagy éppen engedélyezni lehet a megszakításokat \textit{en bloc}, egy ún. \textit{Interrupt Enable} regiszter, ahol külön-külön lehet engedélyezni vagy letiltani az egyes megszakításokat, illetve egy \textit{Interrupt Flag} regiszter, amiben a megszakítási sorban várakozó, még (a CPU által) teljesítetlen megszakítások szerepelnek.
+
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{
+  |>{\columncolor{GameBoyBlue}} l | l
+  ||>{\columncolor{GameBoyBlue}} l | l |}
+  \hline
+    \textbf{\texttt{0xFFFF}} & \cellcolor{GameBoyBlue}Interrupt Enable & \textbf{\texttt{0xFF0F}} & \cellcolor{GameBoyBlue}Interrupt Flag \\ \hline
+    4 & \textit{Joypad} & 4 & \textit{Joypad} \\ \hline
+    3 & \textit{Serial} & 3 & \textit{Serial} \\ \hline
+    2 & \textit{Timer} & 2 & \textit{Timer} \\ \hline
+    1 & \textit{LCD STAT} & 1 & \textit{LCD STAT} \\ \hline
+    0 & \textit{V-Blank} & 0 & \textit{V-Blank} \\ \hline
+  \end{tabular}
+  \caption{\textit{Az Interrupt Enable és az Interrupt Flag regiszterek megszakítások szerinti bit kiosztása}}
+  \label{table:3}
+\end{table}
+
 \section{Utasításkészlet}
 \section{RAM}
-\section{Idõzítõk, interrupt kezelés}
+\section{Idõzítõk}

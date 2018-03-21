@@ -118,18 +118,22 @@ Alapvetõen 5 féle hardveres megszakítást különböztetünk meg:
   \centering
   \begin{tabular}{
   |>{\columncolor{GameBoyBlue}} l | l
-  ||>{\columncolor{GameBoyBlue}} l | l |}
+  |>{\columncolor{GameBoyDarkBlue}} c
+  |>{\columncolor{GameBoyBlue}} l | l |}
   \hline
-    \textbf{\texttt{0xFFFF}} & \cellcolor{GameBoyBlue}Interrupt Enable & \textbf{\texttt{0xFF0F}} & \cellcolor{GameBoyBlue}Interrupt Flag \\ \hline
-    4 & \textit{Joypad} & 4 & \textit{Joypad} \\ \hline
-    3 & \textit{Serial} & 3 & \textit{Serial} \\ \hline
-    2 & \textit{Timer} & 2 & \textit{Timer} \\ \hline
-    1 & \textit{LCD STAT} & 1 & \textit{LCD STAT} \\ \hline
-    0 & \textit{V-Blank} & 0 & \textit{V-Blank} \\ \hline
+    \textbf{\texttt{0xFFFF}} & \cellcolor{GameBoyBlue}Interrupt Enable & \textcolor{white}{Jump Location} & \textbf{\texttt{0xFF0F}} & \cellcolor{GameBoyBlue}Interrupt Flag \\ \hline
+    4 & \textit{Joypad} & \textcolor{white}{\texttt{0x60}} & 4 & \textit{Joypad} \\ \hline
+    3 & \textit{Serial} & \textcolor{white}{\texttt{0x58}} & 3 & \textit{Serial} \\ \hline
+    2 & \textit{Timer} & \textcolor{white}{\texttt{0x50}} & 2 & \textit{Timer} \\ \hline
+    1 & \textit{LCD STAT} & \textcolor{white}{\texttt{0x48}} & 1 & \textit{LCD STAT} \\ \hline
+    0 & \textit{V-Blank} & \textcolor{white}{\texttt{0x40}} & 0 & \textit{V-Blank} \\ \hline
   \end{tabular}
-  \caption{\textit{Az Interrupt Enable és az Interrupt Flag regiszterek megszakítások szerinti bit kiosztása}}
+  \caption{\textit{Az Interrupt Enable és az Interrupt Flag regiszterek megszakítások szerinti bit kiosztása, és a hozzájuk tartozó memóriacímek}}
   \label{table:3}
 \end{table}
+
+\noindent Elõfordulhat, hogy egyszerre több megszakítás érkezik. Ebben az esetben a prioritási sorrend az \textit{Interrupt Flag} regiszterben elfoglalt helyek alapján alakul: a \textit{V-Blank interrupt} a legfontosabb, míg a \textit{Joypad} megszakítás marad utoljára. Miután a prioritás alapján a megszakításvezérlõ kiválasztotta, hogy melyik megszakítás következzen, a \ref{table:3}-as táblázaton szereplõ adatoknak megfelelõen az adott megszakításhoz tartozó memóriacímre ugrik a vezérlés. \\
+Ami az implementálást illeti, a megszakítás vezérlõ feladatait az \texttt{Interrupt} struktúra, és annak függvényei látják el. Az \texttt{IRQ} függvény segítségével tudnak az egyes modulok (PPU, idõzítõ, stb.) megszakítást kérni, melyet aztán a \texttt{handler} függvény dolgoz fel. A feldolgozás oly módon történik, hogy minden CPU mûvelet után a fõ ciklusban meghívódik az \texttt{interrupt\_checker} függvény, amely folyamatosan ellenõrzi, hogy érkezett-e új megszakítás, és hogy az engedélyezve van-e az \textit{Interrupt Enable} regiszterben  -- ha igen, akkor a megszakítás azonosítóját paraméterként átadva meghívja a \texttt{handler} függvényt, amely a megszakításhoz tartozó memóriacímre ugrasztja a CPU-t.
 
 \section{Utasításkészlet}
 \section{RAM}

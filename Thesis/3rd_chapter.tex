@@ -87,7 +87,7 @@ Amennyiben \texttt{CB} prefixû opkód az aktuális utasítás, úgy elõször az \textt
 A processzor mûveleteit megvalósító függvények visszatérési értéke egy \texttt{u8} szám, amely azt mutatja, hogy a konkrét mûvelet teljes végrehajtása hány processzor ciklus alatt tör\-té\-nik meg. Az \texttt{Opcode} struktúra \texttt{execute} függvénye ezt az értéket szintén visszatértési értékként fûzi tovább. \\
 A processzor a fenti mûveleteket hívja meg a ciklus minden egyes iterációjában, majd a mûveletek által visszaadott mûveleti ciklus értékeket összeadva szinkronizálja össze a mûvelet végrehajtást a \textit{rendereléssel}. A 60 FPS\footnote{\textit{Frames Per Second}, azaz képkocka per másodperc -- a \textit{renderelés} frissítési gyakoriságát megadó mértékegység.} renderelési sebességet céloztam meg, amely az eredeti konzol képernyõfrissítési értékével is nagyságrendileg megegyezik. A \textit{renderelés} ideje így a következõ számítás alapján megkapható:
 $$ 4194304/60 = 69905,$$
-ahol a 4194304-es érték a processzor órajel ciklusa, a 60 jelzi az FPS értéket, a végeredmény pedig megmutatja, hogy mekkora összegig kell folytatni a processzor mûveleteinek végrehajtását. A fõ ciklus sémája kiegészítve a szinkronizált PPU \textit{rendereléssel} tehát így alakul:
+ahol a 4194304-es érték a processzor órajel ciklusa, a 60 jelzi az FPS értéket, a vég\-e\-red\-mény pedig megmutatja, hogy mekkora összegig kell folytatni a processzor mûveleteinek vég\-re\-haj\-tá\-sát. A fõ ciklus sémája kiegészítve a szinkronizált PPU \textit{rendereléssel} tehát így alakul:
 
 \begin{minted}{rust}
 loop {  // endless loop
@@ -133,8 +133,67 @@ Alapvetõen 5 féle hardveres megszakítást különböztetünk meg:
 \end{table}
 
 \noindent Elõfordulhat, hogy egyszerre több megszakítás érkezik. Ebben az esetben a prioritási sorrend az \textit{Interrupt Flag} regiszterben elfoglalt helyek alapján alakul: a \textit{V-Blank interrupt} a legfontosabb, míg a \textit{Joypad} megszakítás marad utoljára. Miután a prioritás alapján a megszakításvezérlõ kiválasztotta, hogy melyik megszakítás következzen, a \ref{table:3}-as táblázaton szereplõ adatoknak megfelelõen az adott megszakításhoz tartozó memóriacímre ugrik a vezérlés. \\
-Ami az implementálást illeti, a megszakítás vezérlõ feladatait az \texttt{Interrupt} struktúra, és annak függvényei látják el. Az \texttt{IRQ} függvény segítségével tudnak az egyes modulok (PPU, idõzítõ, stb.) megszakítást kérni, melyet aztán a \texttt{handler} függvény dolgoz fel. A feldolgozás oly módon történik, hogy minden CPU mûvelet után a fõ ciklusban meghívódik az \texttt{interrupt\_checker} függvény, amely folyamatosan ellenõrzi, hogy érkezett-e új megszakítás, és hogy az engedélyezve van-e az \textit{Interrupt Enable} regiszterben  -- ha igen, akkor a megszakítás azonosítóját paraméterként átadva meghívja a \texttt{handler} függvényt, amely a megszakításhoz tartozó memóriacímre ugrasztja a CPU-t.
+Ami az implementálást illeti, a megszakítás vezérlõ feladatait az \texttt{Interrupt} struktúra, és annak függvényei látják el. Az \texttt{IRQ} függvény segítségével tudnak az egyes modulok (PPU, idõzítõ, stb.) megszakítást kérni, melyet aztán a \texttt{handler} függvény dolgoz fel. A feldolgozás oly módon történik, hogy minden CPU mûvelet után a fõ ciklusban meghívódik az \texttt{interrupt\_checker} függvény, amely folyamatosan ellenõrzi, hogy érkezett-e új megszakítás, és hogy az engedélyezve van-e az \textit{Interrupt Enable} regiszterben 
+ -- ha igen, akkor a megszakítás azonosítóját paraméterként átadva meghívja a \texttt{handler} függvényt, amely a megszakításhoz tartozó memóriacímre ugrasztja a CPU-t.
 
 \section{Utasításkészlet}
+
+Ahogy azt már az elõzõ alfejezetben ismertettem, az \texttt{Opcode} struktúrában implementált processzor mûveletek visszatérési értéke egy \mintinline{rust}{u8} típusú egész szám, amely a mûvelet végrehajtási idejével lesz egyenlõ. Azt azonban még nem ismertettem, hogy hogyan néz ki egy utasítás sematikusan.
+
+\begin{minted}{rust}
+fn opcode_name_ff(&mut self, cpu : &mut CPU) -> u8 {
+        //...
+        4
+}
+\end{minted}
+
+\noindent A fenti kódrészleten látható, hogy az egyes utasítások függvényeinek neve tartalmazza az utasítás nevét -- \textit{mnemonik} vagy bõvebb alakban --, illetve az \textit{opkódját}. A paraméterlistában szerepel a \mintinline{rust}{&mut self} paraméter, amely a Rust nyelvben azt jelenti, hogy az adott függvény egy osztályfüggvény, és hogy módosíthatja az osztályt reprezentáló objektumot. A második paraméter (\mintinline{rust}{&mut CPU}) pedig a fõ \mintinline{rust}{CPU} struktúrára mutató \textit{mutable} referencia, azaz olyan \mintinline{rust}{cpu} objektumot kapunk, amely módosítható -- Rust nyelven \textit{borrow}-oltuk, azaz kölcsön kaptuk az objektumot. \\
+Sok esetben elõfordul, hogy egy mûvelet egy vagy két operandussal rendelkezik, melyeket külön be kell tölteni a memóriából. Ezt a mûvelet függvényén belül tesszük meg a \mintinline{rust}{fetch} metódus meghívásával.
+
+\subsection{\textit{Load} utasítások - \texttt{LD}}
+
+A \textit{Load}, azaz betöltõ mûveletek legnagyobb része nagyon egyszerûen mûködik: adott két regiszter -- a példánkban legyen ez most \texttt{X} és \texttt{Y} --, ekkor a mûvelet így alakul:
+
+\begin{minted}{asm}
+                          LD X,Y
+\end{minted}
+
+\noindent Ez triviálisan az \texttt{Y} regiszter értékét tölti be az \texttt{X} regiszterbe - ennek megvalósítása tu\-laj\-don\-kép\-pen egy egyszerû kifejezés. Fontos hozzátenni, hogy az \texttt{Y} helyén állhat egy bájt is. Egyik \textit{Load} mûvelet sem befolyásolja a \textit{flagek} állapotát. \\
+A továbbiakban ismertetésre kerülnek a fenti alapesettõl eltérõ betöltõ utasítások.
+
+\subsubsection{Beltöltés memóriacímrõl, vagy memóriacímre}
+A \textit{Load} mûveletek másik típusa esetén az \texttt{X} vagy \texttt{Y} regiszter helyett állhat memóriacím is. A cím értéke átadható \texttt{(HL)} összevont regiszter formában: \mintinline{asm}{LD A,(HL)}, vagy két külön betöltött bájt összevonásaként: \mintinline{asm}{LD A,(0x2f44)}.
+
+\subsubsection{A \textit{Stack Pointer} betöltõje}
+A \textit{Stack Pointer} betöltése a \texttt{HL} regiszterpárba az elõzõhekhez képest bonyolultabb mûvelet. Egyetlen paraméterébeb várja azt a \textit{signed}, tehát elõjeles(!) értéket, amely a betöltendõ memóriahely címének távolságát mutatja az \texttt{SP} regiszterhez képest. A \texttt{fetch} függvénnyel betöltött bájtot elõször \textit{castolni} kell \mintinline{rust}{i8} típusúra, majd az elõjel vizsgálatát követõen betölteni az adatot a \texttt{HL}-be a megfelelõ helyrõl. A mûvelet az alábbiak szerint néz ki:
+\begin{minted}{asm}
+                        LDHL SP,0x42
+\end{minted}
+
+\subsubsection{Egyéb speciális betöltõk}
+Több speciális betöltõ mûvelet is elérhetõ, ezeket a fentiekhez való hasonlóságuk miatt csak felsorolásszerûen fogom ismertetni:
+
+\begin{itemize}
+  \item \mintinline{asm}{LD A,(C)}: ezzel a mûvelettel a \textit{High RAM} részre tudunk írni -- a \texttt{C} regiszter értékéhez hozzáadódik még a \texttt{0xFF00} cím, ezzel megkapva a pontos címet. Fordított operandusokkal is mûködik.
+
+  \item \mintinline{asm}{LDH A,(0x42)}: az elõzõhöz hasonló mûvelet, annyi különbséggel, hogy itt a \texttt{C} regiszter helyett paraméterben megadható az \texttt{0xFF00}-hez mért eltolás értéke. Fordított operandusokkal is mûködik.
+
+  \item \mintinline{asm}{LD A,(HL}\texttt{+)}: a \texttt{HL} értékének megfelelõ memóriahely \texttt{A} regiszterbe töltése után inkrementálja a \texttt{HL} értékét eggyel. Fordított operandusokkal is mûködik.
+
+  \item \mintinline{asm}{LD A,(HL}\texttt{-)}: az elõzõvel megegyezõ módon mûködik, inkrementálás helyett dekrementálással.
+\end{itemize}
+
+\subsection{Aritmetikus utasítások - \texttt{ADD, ADC, SUB, SBC, INC, DEC}}
+
+\subsection{Logikai utasítások - \texttt{AND, XOR, OR, CP}}
+
+\subsection{Eljárás utasítások - \texttt{JP, CALL, RET}}
+
+\subsection{Verem utasítások - \texttt{PUSH, POP}}
+
+\subsection{Bitmûveleti utasítások - \texttt{RLC, RRC, RL, RR, SLA, SRA, SWAP, SRL, BIT, RES, SET}}
+
+\subsection{Egyéb, speciális utasítások}
+
 \section{RAM}
 \section{Idõzítõk}

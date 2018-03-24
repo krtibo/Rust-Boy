@@ -36,7 +36,7 @@ Az \texttt{A} regiszter hagyományosan az akkumulátorregiszter\footnote{Olyan reg
   \item \textit{H}: \textit{Half Carry Flag}, értéke akkor 1, ha valamilyen logikai vagy aritmetikai mûvelet során az akkumulátorregiszter alsó 4 bitjén túlcsordulás vagy alulcsordulás ke\-let\-ke\-zett.
   \item \textit{C}: \textit{Carry Flag}, értéke akkor 1, ha valamilyen logikai vagy aritmetikai mûvelet során az akkumulátorregiszteren túlcsordulás vagy alulcsordulás ke\-let\-ke\-zett. Nem összekeverendõ a \textit{Half Carry Flaggel}.
 \end{itemize}
-Az alsó 4 bit használaton kívüli, mindig 0. Ezeket a \textit{flageket} a processzor utasításai vezérlik a mûvelet kimenetelétõl függõen. Az emulátor fejlesztése szempontjából ez egy kritikus pont -- a \textit{flagek} pontos emulációján nagyon sok múlik, elképesztõ mennyiségû hibakeresést spórolhatunk meg magunknak azzal ha odafigyelünk az implementációkor. \\
+Az alsó 4 bit használaton kívüli, mindig 0. Ezeket a \textit{flageket} a processzor utasításai vezérlik a mûvelet kimenetelétõl függõen. Az emulátor fejlesztése szempontjából ez egy kritikus pont -- a \textit{flagek} pontos emulációján nagyon sok múlik, elképesztõ mennyiségû hibakeresést spórolhatunk meg magunknak azzal ha odafigyelünk az implementációkor. Érdemes készíteni a \texttt{CPU} struktúrába \textit{flag} beállító és lekérdezõ függvényeket is az u\-ta\-sí\-tá\-sok implementálásához. \\
 A két 16 bites regiszter szerepe megegyezik ehhez hasonló architektúrákban ta\-pasz\-tal\-tak\-hoz: a \texttt{PC}, azaz \textit{Program Counter} azt mutatja, hogy a processzor hol tart az utasítási sorban (a memóriában), míg az \texttt{SP}, vagy \textit{Stack Pointer} mutatja a hívási verem (\textit{Call Stack}) aktuális címét, azaz hogy éppen hol helyezkedik el a memóriában a verem legfelsõ eleme. Érdemes megjegyezni, hogy a verembe pakoláskor -- azaz a \texttt{PUSH} mûvelet hívásakor -- a verem új, legfelsõ elemét a memóriában lefelé haladva szúrjuk be, azaz a legkisebb memória címû verembeli elem képzi a verem tetejét. \\
 Ami az implementációt illeti, a 8 bites regisztereket 8 bites \textit{Unsigned Integerként}, azaz \texttt{u8}-ként, a 16 biteseket pedig \texttt{u16}-ként deklaráltam, hiszen negatív értéket nem fog felvenni egyik regiszter sem. A processzort modellezõ struktúra tehát ilyen módon fog kinézni: \\
 \begin{minted}{rust}
@@ -183,17 +183,80 @@ Több speciális betöltõ mûvelet is elérhetõ, ezeket a fentiekhez való hasonlóságu
   \item \mintinline{asm}{LD A,(HL}\texttt{-)}: az elõzõvel megegyezõ módon mûködik, inkrementálás helyett dekrementálással.
 \end{itemize}
 
-\subsection{Aritmetikus utasítások - \texttt{ADD, ADC, SUB, SBC, INC, DEC}}
+\subsection{Aritmetikai utasítások - \texttt{ADD, ADC, SUB, SBC, INC, DEC}}
+
+Az aritmetikai utasítások alatt ezen az architektúrán az összeadás, kivonás, inkrementálás és dekrementálás mûveleteket értjük. Ezek lényegi mûködése persze triviális, viszont a mûveletek hatása a \textit{flag} regiszterre fontos tényezõ, így ezt célszerû részletesebben meg\-vizs\-gál\-ni. Külalakukban megegyeznek, példaként szerepeljen az összeadás szintaxisa:
+\begin{minted}{asm}
+                           ADD A,B
+\end{minted}
+amely értelemszerûen az \texttt{A} regiszter értékét teszi egyenlõvé az \texttt{A} és \texttt{B} regiszterek értékeinek összegével.
+
+\subsubsection{Összeadás}
+Két típusú összeadást megvalósító mûvelet áll a programozók rendelkezésére: az \mintinline{asm}{ADD}, és az \mintinline{asm}{ADC}. Ezen utasítások esetében közös probléma a túlcsordulás -- hogyan kezeljük ha az összeg nagyobb, mint 255, azaz nem fér bele az \mintinline{rust}{u8} adattípusba? Szerencsére a Rust nyelv biztosít erre egy olyan megoldást, amely a hardver viselkedésével megegyezik. A két \mintinline{rust}{u8} típusú operandust nem a hagyományos módon (\mintinline{rust}{u8} + \mintinline{rust}{u8}) adjuk össze, hanem a \mintinline{rust}{wrapping_add} függvény segítségével a következõ módon:
+\begin{minted}{rust}
+  let a : u8 = 5;
+  let b : u8 = 6;
+  println!("{}", a.wrapping_add(b)); // Output: 11
+\end{minted}
+
+\noindent A fenti függvény abban az esetben, ha az összeg nagyobb lenne, mint 255, körbe \textit{wrappeli} az eredményt, azaz elvégez egy$\mod 256$ mûveletet az összegen. Így a túlcsordulás problémáját sikerült kiküszöbölni, az összeadás bármely értékekkel elvégezhetõ úgy, hogy biztosan nem lépünk ki az adattípus méretébõl. \\
+Ami a \textit{flageket} illeti, az összeadások esetében mindegyikük érintett: 
+\begin{itemize}
+  \item \texttt{Z}: állítsuk be 1-re, ha az összeg értéke 0, egyébként legyen az új értéke 0,
+  \item \texttt{N}: mivel nem kivonásról van szó, az értékét állítsuk 0-ra,
+  \item \texttt{H}: ha \textit{half-carry} történik, állítsuk 1-re, egyébként 0-ra,
+  \item \texttt{C}: ha túlcsordulás történik, állítsuk 1-re, egyébként 0-ra.
+\end{itemize}
+A \textit{half-carry} avagy fél-túlcsordulás detektálása a következõ képpen történik:
+\begin{minted}{rust}
+  if (a & 0xF) + (b & 0xF) > 0xF {
+      cpu.set_flag("H");
+  } else {
+      cpu.reset_flag("H");
+  }
+\end{minted}
+Látható, hogy az elágazás logikai kifejezésének bal oldalán a két operandus értékének vesszük külön-külön az alsó 4 bitjét (\mintinline{rust}{a & 0xF},\;  \mintinline{rust}{b & 0xF}), majd ha azok összege nagyobb, mint 15 (binárisan \texttt{00001111}), akkor fél-túlcsordulás következett be. Ekkor állítsuk a \texttt{H} \textit{flaget} 1-re, egyébként pedig 0-ra. \\
+A \texttt{C}-vel jelölt túlcsordulás ellenõrzése triviális. \\
+A különbség az \mintinline{asm}{ADD}, és az \mintinline{asm}{ADC} mûveletek között az, hogy -- mint az a \textit{mnemonikból} is kikövetkeztethetõ -- az \mintinline{asm}{ADC} az egyszerû összeadás mellett az összeghez hozzáadja a \texttt{C} \textit{flag} értékét is (\textit{ADD with Carry}). A \textit{flag} értékének hozzádását szintén a \mintinline{rust}{wrapping_add} függvénnyel tesszük.
+
+\subsubsection{Kivonás}
+
+A \mintinline{asm}{SUB}, és az \mintinline{asm}{SBC} kivonás mûveletek nagyon hasonlóak a fentebb részletezett összeadás mûveletekhez, természetesen kivonásos formában. \texttt{wrapping\_add} függvény helyett \texttt{wrapping\_sub} függvényt használunk, amely negatív különbség esetén a másik irányba \textit{wrappeli} át a végeredményt, szintén a$\mod 256$ számítást alkalmazva. \\
+A \textit{flagek} az összeadás mûveletekhez képest a következõképpen alakulnak:
+\begin{itemize}
+  \item \texttt{Z}: megegyezik az összeadásnál ismertetettel,
+  \item \texttt{N}: ebben az esetben kivonásról van szó, így az értéke legyen 1,
+  \item \texttt{H}: megegyezik az összeadásnál ismertetettel,
+  \item \texttt{C}: ha alulcsordulás történik, állítsuk 1-re, egyébként 0-ra.
+\end{itemize}
+A \textit{half-carry flag} beállítása megegyezik ugyan az összeadásnál tapasztalttal, viszont a detektálása más módon történik:
+\begin{minted}{rust}
+  if (a & 0x0F) < (b & 0x0F) {
+      cpu.set_flag("H");
+  } else {
+      cpu.reset_flag("H");
+  }
+\end{minted}
+Az elágazás feltételes logikai kifejezésében láthatjuk, hogy a két operandus alsó 4 bitjeit hasonlítjuk össze egymással. Ha a kivonandó ilyen módon nagyobb mint a kisebbítendõ, akkor fél-alulcsordulás történik -- ekkor állítjuk 1-re a megfelelõ bitet, egyébként pedig 0-ra.\\
+Alulcsordulás akkor történik, ha a különbség kisebb, mint 0. \\
+Az \mintinline{asm}{SBC} mûvelet ebben az esetben is annyiban különbözik a hagyományos kivonástól, hogy a \texttt{C} \textit{carry flaget} is kivonja a kisebbítendõbõl.
+
+\subsubsection{Inkrementálás, dekrementálás}
+Az inkrementálást (\mintinline{asm}{INC}) és a dekrementálást (\mintinline{asm}{DEC}) megvalósító mûveletek gyakorlatilag rendre megegyeznek az összeadás, illetve kivonás mûveletekkel, annyi különbséggel, hogy a második operandust mindkét esetben 1-nek tekintjük.  
 
 \subsection{Logikai utasítások - \texttt{AND, XOR, OR, CP}}
+Az \textit{és} (\mintinline{asm}{AND}), \textit{kizáró vagy} (\mintinline{asm}{XOR}), \textit{vagy} (\mintinline{asm}{OR}), és összehasonlító (\mintinline{asm}{CP}, \textit{compare}) mûveletek is legalább olyan alapvetõek, és fontosak mint az elõzõekben tárgyalt aritmetikai mûveletek. Közülük az elsõ hármat nagyon egyszerû megvalósítani, hiszen a legtöbb programozási nyelv képes ezen mûveletek elvégzésének reprezentálására az \& (\textit{és}), \^{} (\textit{kizáró vagy}), és a | (\textit{vagy}) operátorok segítségével. \\
+Az fent említett elsõ három mûvelet implementálása tehát könnyû feladat, a \textit{flagek} be\-ál\-lí\-tá\-sa pedig szintén egyszerû. A \mintinline{asm}{XOR} és \mintinline{asm}{OR} \textit{flag} kezelése megegyezik: ha a végeredmény 0, akkor a \texttt{Z} flag legyen 1 (egyébként 0), az összes többi \textit{flaget} pedig állítsuk 0-ra. Az \mintinline{asm}{AND} esetén is hasonló a helyzet, annyi különbséggel, hogy a \texttt{H} flaget minden esetben 1-ra kell állítani. \\
+A \mintinline{asm}{CP} mûvelet kicsit különbözik a többitõl -- maga a mûvelet összehasonlít két értéket, és ha az értékük megegyezik, a \texttt{Z} \textit{flaget} 1-re állítja. Ennek mûködése tulajdonképpen megegyezik a kivonás mûveletével, csak a különbséget nem tároljuk sehol, a \textit{flagek} be\-ál\-lí\-tá\-sa a fontos -- ebben a tekintetben teljesen ekvivalens az összehasonlítás a kivonással.
 
 \subsection{Eljárás utasítások - \texttt{JP, CALL, RET}}
+Ahhoz, hogy a programozók eljárásokat tudjanak írni a programok írása során, különféle utasításokra van szükségük. Ezek az utasítások a Game Boy architektúrájában az ugrás (\mintinline{asm}{JP}), az eljáráshívás (\mintinline{asm}{CALL}) és a visszatérés (\mintinline{asm}{RET}).
 
+\newpage
 \subsection{Verem utasítások - \texttt{PUSH, POP}}
-
-\subsection{Bitmûveleti utasítások - \texttt{RLC, RRC, RL, RR, SLA, SRA, SWAP, SRL, BIT, RES, SET}}
-
+\subsection{\textit{Rotate} és \textit{Shift} - \texttt{RLC, RRC, RL, RR, SLA, SRA, SRL}}
+\subsection{Bitmanipulációs utasítások - \texttt{BIT, RES, SET}}
 \subsection{Egyéb, speciális utasítások}
-
+Swap
 \section{RAM}
 \section{Idõzítõk}

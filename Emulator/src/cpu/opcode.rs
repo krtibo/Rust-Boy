@@ -4728,8 +4728,7 @@ impl Opcode {
         } else {
             cpu.reset_flag("Z");
         }
-
-        if (a & 0x0F) < (b & 0x0F) {
+ if (a & 0x0F) < (b & 0x0F) {
             cpu.set_flag("H");
         } else {
             cpu.reset_flag("H");

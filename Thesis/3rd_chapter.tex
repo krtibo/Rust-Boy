@@ -249,11 +249,24 @@ Az \textit{és} (\mintinline{asm}{AND}), \textit{kizáró vagy} (\mintinline{asm}{X
 Az fent említett elsõ három mûvelet implementálása tehát könnyû feladat, a \textit{flagek} be\-ál\-lí\-tá\-sa pedig szintén egyszerû. A \mintinline{asm}{XOR} és \mintinline{asm}{OR} \textit{flag} kezelése megegyezik: ha a végeredmény 0, akkor a \texttt{Z} flag legyen 1 (egyébként 0), az összes többi \textit{flaget} pedig állítsuk 0-ra. Az \mintinline{asm}{AND} esetén is hasonló a helyzet, annyi különbséggel, hogy a \texttt{H} flaget minden esetben 1-ra kell állítani. \\
 A \mintinline{asm}{CP} mûvelet kicsit különbözik a többitõl -- maga a mûvelet összehasonlít két értéket, és ha az értékük megegyezik, a \texttt{Z} \textit{flaget} 1-re állítja. Ennek mûködése tulajdonképpen megegyezik a kivonás mûveletével, csak a különbséget nem tároljuk sehol, a \textit{flagek} be\-ál\-lí\-tá\-sa a fontos -- ebben a tekintetben teljesen ekvivalens az összehasonlítás a kivonással.
 
-\subsection{Eljárás utasítások - \texttt{JP, CALL, RET}}
-Ahhoz, hogy a programozók eljárásokat tudjanak írni a programok írása során, különféle utasításokra van szükségük. Ezek az utasítások a Game Boy architektúrájában az ugrás (\mintinline{asm}{JP}), az eljáráshívás (\mintinline{asm}{CALL}) és a visszatérés (\mintinline{asm}{RET}).
-
-\newpage
 \subsection{Verem utasítások - \texttt{PUSH, POP}}
+Lehetõség van regiszterpárok eltárolására a veremben -- ezt a funkciót a \mintinline{asm}{PUSH} és a \mintinline{asm}{POP} utasítások valósítják meg. A \mintinline{asm}{PUSH} az \texttt{AF, BC, DE, HL} (konkrét mûveletben szereplõ) regiszterpárokat teszi bele a verembe (az \texttt{SP} által mutatott memóriacímre), a második regiszter taggal kezdve. A \mintinline{asm}{POP} mûvelet pedig fordított sorrendben veszi ki az értékeket a verembõl, majd állítja be velük a megfelelõ regiszterek értékeit.
+
+\subsection{Eljárás utasítások - \texttt{JP, CALL, RET}}
+Ahhoz, hogy a programozók eljárásokat tudjanak írni a programok fejlesztése során, különféle utasításokra van szükségük. Ezek az utasítások a Game Boy architektúrájában az ugrás (\mintinline{asm}{JP}), az eljáráshívás (\mintinline{asm}{CALL}) és a visszatérés (\mintinline{asm}{RET}). \\
+A \mintinline{asm}{JP} utasítás mûködése nagyon egyszerû: a CPU \texttt{PC} regiszterét állítja a paraméterben megadott memóriacímre, így a processzor ott fogja folytatni a futását. Több típusú \mintinline{asm}{JP} mûvelet is szerepel a CPU utasításai között:
+\begin{itemize}
+  \item \mintinline{asm}{JP (HL)}: a \texttt{HL} regiszterpárban tárolt címre ugrik,
+  \item \mintinline{asm}{JP 0x4a2a}: a paraméterben megadott 16 bites címre ugrik,
+  \item \mintinline{asm}{JP NZ 0x4a2a}: akkor ugrik a paraméterben megadott 16 bites címre, ha a \texttt{Z} \textit{flag} értéke 0, 
+  \item \mintinline{asm}{JP NC 0x4a2a}: akkor ugrik a paraméterben megadott 16 bites címre, ha a \texttt{C} \textit{flag} értéke 0, 
+  \item \mintinline{asm}{JP Z 0x4a2a}: akkor ugrik a paraméterben megadott 16 bites címre, ha a \texttt{Z} \textit{flag} értéke 1,
+  \item \mintinline{asm}{JP C 0x4a2a}: akkor ugrik a paraméterben megadott 16 bites címre, ha a \texttt{C} \textit{flag} értéke 1. 
+\end{itemize}
+
+\noindent A \mintinline{asm}{CALL} mûvelet annyiban hasonlít az elõzõ \mintinline{asm}{JP} mûvelethez, hogy szintén a paraméterben megadott címre fog ugrani a \texttt{PC} regiszter átállításával, elõtte azonban az aktuális \texttt{PC} értékét beleteszi a verembe, elmentve azt. A \mintinline{asm}{JP} mûvelethez hasonlóan szintén vannak feltételes eljárás hívás utasítások, melyek a \texttt{Z} és a \texttt{C} \textit{flagek} aktuális állapota szerint mû\-köd\-nek. \\
+A \mintinline{asm}{RET} utasítás az elõzõ (\mintinline{asm}{CALL}) utasítással kéz a kézben jár: kiveszi a verembõl a két legfelsõ értéket -- amelyek együtt egy memóriacímet alkotnak --, majd a \texttt{PC} regisztert erre az értékre állítja be, így tulajdonképpen az eljárás hívás végeztével a CPU visszatér arra a címre, ahol az eljárás hívása elõtt tartott. Szintén vannak a \texttt{Z} és \texttt{C} \textit{flagekhez} kötött \mintinline{asm}{RET} utasítások, illetve létezik még egy \mintinline{asm}{RETI} opkódú utasítás is, amely a visszatérés után engedélyezi az \textit{Interrupt Enable} regiszterben az összes \textit{interruptot}.
+
 \subsection{\textit{Rotate} és \textit{Shift} - \texttt{RLC, RRC, RL, RR, SLA, SRA, SRL}}
 \subsection{Bitmanipulációs utasítások - \texttt{BIT, RES, SET}}
 \subsection{Egyéb, speciális utasítások}

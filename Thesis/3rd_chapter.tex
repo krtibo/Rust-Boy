@@ -267,9 +267,21 @@ A \mintinline{asm}{JP} utasítás mûködése nagyon egyszerû: a CPU \texttt{PC} regi
 \noindent A \mintinline{asm}{CALL} mûvelet annyiban hasonlít az elõzõ \mintinline{asm}{JP} mûvelethez, hogy szintén a paraméterben megadott címre fog ugrani a \texttt{PC} regiszter átállításával, elõtte azonban az aktuális \texttt{PC} értékét beleteszi a verembe, elmentve azt. A \mintinline{asm}{JP} mûvelethez hasonlóan szintén vannak feltételes eljárás hívás utasítások, melyek a \texttt{Z} és a \texttt{C} \textit{flagek} aktuális állapota szerint mû\-köd\-nek. \\
 A \mintinline{asm}{RET} utasítás az elõzõ (\mintinline{asm}{CALL}) utasítással kéz a kézben jár: kiveszi a verembõl a két legfelsõ értéket -- amelyek együtt egy memóriacímet alkotnak --, majd a \texttt{PC} regisztert erre az értékre állítja be, így tulajdonképpen az eljárás hívás végeztével a CPU visszatér arra a címre, ahol az eljárás hívása elõtt tartott. Szintén vannak a \texttt{Z} és \texttt{C} \textit{flagekhez} kötött \mintinline{asm}{RET} utasítások, illetve létezik még egy \mintinline{asm}{RETI} opkódú utasítás is, amely a visszatérés után engedélyezi az \textit{Interrupt Enable} regiszterben az összes \textit{interruptot}.
 
+\subsection{Bitmanipulációs utasítások - \texttt{BIT, RES, SET, SWAP}}
+Rendelkezésre állnak bitmanipulációs utasítások, amelyekkel regiszterek, vagy a me\-mó\-ri\-á\-ban lévõ bájtok bitjeivel végezhetünk mûveleteket: változtathatjuk (\mintinline{asm}{RES}, \mintinline{asm}{SET}, \mintinline{asm}{SWAP}), vagy lekérhetjük (\mintinline{asm}{BIT}) õket. Ezek természetesen fontos mûveletek, így a többi CPU utasításhoz hasonlóan törekedni kell a pontos emulációjukra. \\
+A \mintinline{asm}{RES} és \mintinline{asm}{SET} esetében rendre 0 (\textit{reset}) vagy 1 (\textit{set}) értéket adhatunk az utasítás pa\-ra\-mé\-te\-re\-i\-ben\footnote{Paraméter alatt jelen esetben nem külön beolvasott bájtokat tekintünk, hanem a konkrét mûvelethez (a processzor architektúrájának részeként) specifikált paramétereket.} megadott bitnek. Az \textit{elsõ pa\-ra\-mé\-ter} a módosítandó bit indexe az adott bájtban, a \textit{második paraméter} pedig maga a mondosítandó bitet tartalmazó regiszter vagy \texttt{(HL)} regiszterpárral megadott memóriacím. Ezek az utasítások nincsenek hatással az \texttt{F} \textit{flag} regiszterre. Az implementációt tekintve egy egyszerû bitmaszkolással, majd \textit{vagy}, ill. \textit{és} mûveletekkel lehet elérni egy-egy bit módosítását egy \mintinline{rust}{u8} változó esetén.\\
+A \mintinline{asm}{BIT} mûvelettel lehet lekérni egy konkrét bit értékét -- az utasítás az eredményét a \texttt{Z} \textit{flag} segítségével tudjuk kiolvasni: amennyiben az eredmény 0 volt, a \texttt{Z} 1-gyel lesz egyenlõ, egyébként pedig 0-val. Ami a további \textit{flageket} illeti, az \texttt{N} \textit{flaget} mindig \textit{reseteli}, a \texttt{H}-t pedig mindig beállítja az utasítás. Implementációban bitmaszkolással tudjuk megkapni egy adott bit értékét. \\
+A \mintinline{asm}{SWAP} utasítás esetében egy paraméter adott: a módosítani kívánt regiszter. Maga a mûvelet nagyon egyszerû: fel kell cserélni a regiszterrel vagy memóriacímmel megadott bájt felsõ és alsó 4 bitjét egymással, így tehát például a $\texttt{11110000}_2$ bájtból a \mintinline{asm}{SWAP} elvégzése után $\texttt{00001111}_2$ lesz. Ha a végeredmény nullával egyenlõ, akkor az utasítás beállítja a \texttt{Z} \textit{flaget} 1-re, egyébként pedig nullára. A maradék három \textit{flag} minden esetben \textit{resetelésre} kerül.
+
 \subsection{\textit{Rotate} és \textit{Shift} - \texttt{RLC, RRC, RL, RR, SLA, SRA, SRL}}
-\subsection{Bitmanipulációs utasítások - \texttt{BIT, RES, SET}}
+\subsubsection{\textit{Rotate} mûveletek} 
+A Game Boy processzorának architektúrájában több bitforgató utasítás is van: \mintinline{asm}{RLC}, \mintinline{asm}{RRC}, \mintinline{asm}{RLCA}, \mintinline{asm}{RRCA}, \mintinline{asm}{RL}, \mintinline{asm}{RR}, \mintinline{asm}{RLA}, és \mintinline{asm}{RRA}. Ezek többé-kevésbé ugyan olyan módon mûködnek. Vegyük példának a legegyszerûbb, balra forgató utasítást, az \mintinline{asm}{RLC}-t. Egy $\texttt{11110000}_2$ bájt esetén a balra forgatás eredménye a következõ lesz: $\texttt{11100001}_2$. Ez az érték úgy született, hogy minden bitet eggyel balra tolunk, a 7. bit pedig \textit{körbefordul} -- belõle lesz a 0. bit. A forgató mûveleteket ez a körbefordulás különbözteti meg az eltoló mûveletektõl, ott ilyenrõl nincs szó.
+
+\subsubsection{\textit{Shift} mûveletek}
+
 \subsection{Egyéb, speciális utasítások}
-Swap
+NOP, STOP, DAA, SCF, CPL, CCF, HALT, RST, EI, DI
+
+\newpage
 \section{RAM}
 \section{Idõzítõk}

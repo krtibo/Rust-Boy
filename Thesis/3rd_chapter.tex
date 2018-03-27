@@ -275,12 +275,37 @@ A \mintinline{asm}{SWAP} utasítás esetében egy paraméter adott: a módosítani kív
 
 \subsection{\textit{Rotate} és \textit{Shift} - \texttt{RLC, RRC, RL, RR, SLA, SRA, SRL}}
 \subsubsection{\textit{Rotate} mûveletek} 
-A Game Boy processzorának architektúrájában több bitforgató utasítás is van: \mintinline{asm}{RLC}, \mintinline{asm}{RRC}, \mintinline{asm}{RLCA}, \mintinline{asm}{RRCA}, \mintinline{asm}{RL}, \mintinline{asm}{RR}, \mintinline{asm}{RLA}, és \mintinline{asm}{RRA}. Ezek többé-kevésbé ugyan olyan módon mûködnek. Vegyük példának a legegyszerûbb, balra forgató utasítást, az \mintinline{asm}{RLC}-t. Egy $\texttt{11110000}_2$ bájt esetén a balra forgatás eredménye a következõ lesz: $\texttt{11100001}_2$. Ez az érték úgy született, hogy minden bitet eggyel balra tolunk, a 7. bit pedig \textit{körbefordul} -- belõle lesz a 0. bit. A forgató mûveleteket ez a körbefordulás különbözteti meg az eltoló mûveletektõl, ott ilyenrõl nincs szó.
+A Game Boy processzorának architektúrájában több bitforgató utasítás is van: \mintinline{asm}{RLC}, \mintinline{asm}{RRC}, \mintinline{asm}{RLCA}, \mintinline{asm}{RRCA}, \mintinline{asm}{RL}, \mintinline{asm}{RR}, \mintinline{asm}{RLA}, és \mintinline{asm}{RRA}. Ezek többé-kevésbé ugyan olyan módon mûködnek. Vegyük példának a legegyszerûbb, balra forgató utasítást, az \mintinline{asm}{RLC}-t. Egy $\texttt{11110000}_2$ bájt esetén a balra forgatás eredménye a következõ lesz: $\texttt{11100001}_2$. Ez az érték úgy született, hogy minden bitet eggyel balra tolunk, a 7. bit pedig \textit{körbefordul} -- belõle lesz a 0. bit. A forgató mûveleteket ez a körbefordulás különbözteti meg az eltoló mûveletektõl, ott ilyenrõl nincs szó. Ha az eredeti érték 7. bitje 1-es értékû volt, akkor be kell állítani a \texttt{C} \textit{flaget} is 1-re (egyébként 0-ra). Ami a többi \textit{flaget} illeti, a \texttt{Z}-t akkor állítjuk 1-re ha a végeredmény 0 lett (egyébként 0-ra), a többi \textit{flaget} pedig \textit{reseteljük}. Az \mintinline{asm}{RL} utasítás pontosan ugyanígy mûködik azzal a kivétellel, hogy nem az eredeti bájt 7. bitjébõl lesz az új bájt 0. bitje, hanem a \texttt{C} \textit{flagbõl}. \\
+Az \mintinline{asm}{RRC} és az \mintinline{asm}{RR} is a fentiek szerint alakul, csak nem balra forgat az utasítás, hanem jobbra -- az eredeti bájt 0. bitjébõl lesz az új bájt 7. bitje. Ebbõl adódóan az eredeti bájt 0. bitje szerint módosítjuk a \texttt{C} \textit{flaget}. \\
+Az \mintinline{asm}{RLCA}, \mintinline{asm}{RRCA}, \mintinline{asm}{RLA}, és \mintinline{asm}{RRA} utasítások esetén a különbség az elõzõekhez képest csupán annyi, hogy mindegyikük esetében 0-ra állítjuk a \texttt{Z} \textit{flaget}, valamint az összes utasítás az \texttt{A} regiszterrel dolgozik.
 
 \subsubsection{\textit{Shift} mûveletek}
+Mint ahogy a fenti bekezdésben említésre került, a \textit{shift} -- azaz eltoló -- utasítások esetén nincsen körbeforduló bit: az \mintinline{asm}{SLA} (\textit{Shift Left}) és \mintinline{asm}{SRL} (\textit{Shift Right}) esetén rendre balra, illetve jobbra tolódnak el a bitek, az újonnan bejövõek pedig mindig a 0 értéket veszik fel. A \textit{flagek} beállításai is megegyeznek a forgató mûveletekével. \\
+Az \mintinline{asm}{SRA} utasítás kivételt képez, ugyanis ebben az esetben az eredeti bájt 7. bitje helyére nem 0, hanem az eredeti 7. bittel megegyezõ értékû bit érkezik.
 
 \subsection{Egyéb, speciális utasítások}
-NOP, STOP, DAA, SCF, CPL, CCF, HALT, RST, EI, DI
+Azok az utasítások kerültek ebbe a csoportba, amelyek egytõl egyik speciálisak, nem lehet õket nagyobb kategóriához sorolni.
+
+\subsubsection{Üres mûveletek - \texttt{NOP}, \texttt{STOP}, \texttt{HALT}}
+A \mintinline{asm}{NOP}, \mintinline{asm}{STOP} és \mintinline{asm}{HALT} mûveletek hasonlítanak egymásra abban a tekintetben, hogy mindegyikük végrehajtása alatt a CPU tulajdonképpen nem csinál semmit. A \mintinline{asm}{NOP} esetében egy elõre eltervezett üres mûveletrõl van szó, amelyet várakozások esetén használnak, a \mintinline{asm}{STOP} utasítás addig leállítja a processzort és a kijelzõt amíg gombnyomás nem történik, a \mintinline{asm}{HALT} pedig addig kikapsolva tartja a CPU-t amíg egy megszakítási kérés nem érkezik. \\
+Az utolsó két utasítás tipikusan olyan amit egy emulátor kapcsán nem szükséges implementálni, a hardver energiafogyasztásának optimalizálásában van szerepe.
+
+\subsubsection{\textit{Carry flag} mûveletek - \texttt{SCF}, \texttt{CCF}}
+Két, konkrétan a \textit{flageket} állító utasítás az \mintinline{asm}{SCF} és a \mintinline{asm}{CCF}. Az \mintinline{asm}{SCF}-fel be tudjuk állítani a \textit{Carry flaget}, a \mintinline{asm}{CCF}-fel pedig komplementálni tudjuk az értékét. Az \texttt{N} és \texttt{H} \textit{flageket} mindkét utasítás \textit{reseteli}.  
+
+\subsubsection{Komplementer, binárisan kódolt decimális mûveletek - \texttt{CPL}, \texttt{DAA}}
+Az \texttt{A} regisztert módosító utasítások közé sorolható a \mintinline{asm}{CPL} és a \mintinline{asm}{DAA} mûvelet. \\
+A \mintinline{asm}{CPL} utasítás -- a nevébõl is adódóan -- az \texttt{A} regisztert fogja komplementálni (minden bitjét az ellentétére állítja), és az \texttt{N} és \texttt{H} \textit{flageket} beállítani. A Rust nyelvben a komplementálás egy egyszerû felkiáltójel operátorral érhetõ el, így az \texttt{A} regiszter komplementere az \texttt{!A} lesz. \\
+A \mintinline{asm}{DAA} mûvelet az \texttt{A} regiszter értékét binárisan kódolt decimális formájúra hozza, amely azt jelenti, hogy sorra veszi a decimálisan ábrázolt \texttt{A} regiszter számjegyeit, majd azokat binárisan ábrázolja helyiértékük szerint csökkenõ sorrendben. Ha a végeredmény 0 lesz, beállítja a \texttt{Z} \textit{flaget} (egyébként \textit{reseteli}), a \texttt{H}-t minden esetben \textit{reseteli}, a \texttt{C}-t pedig a mûvelettõl függõen állítja be vagy \textit{reseteli}.
+
+\subsubsection{\textit{Restart} mûveletek - RST}
+A \mintinline{asm}{RST} mûveletekkel a programozók szoftveres megszakításokat tudtak elõidézni, melyek -- \mintinline{asm}{RST} utasítástól függõen -- az alábbi memóriacímekre állítják a \texttt{PC} regisztert az aktuális cím verembe helyezése után:
+\begin{center}
+  \texttt{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38}.
+\end{center}
+
+\subsubsection{\textit{Interrupt} mûveletek - EI, DI}
+A megszakítások letiltására és engedélyezésére a \mintinline{asm}{DI} és \mintinline{asm}{EI} utasítások valók, melyekkel szabályozni lehet a korábban már említett \textit{Interrupt Master Enable Flaget}. Ez a \textit{flag} egy, a CPU struktúrájában létehozott \mintinline{rust}{bool} típusú változó értékét módosítja.
 
 \newpage
 \section{RAM}

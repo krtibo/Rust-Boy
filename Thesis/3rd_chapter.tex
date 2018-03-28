@@ -307,6 +307,27 @@ A \mintinline{asm}{RST} mûveletekkel a programozók szoftveres megszakításokat tu
 \subsubsection{\textit{Interrupt} mûveletek - EI, DI}
 A megszakítások letiltására és engedélyezésére a \mintinline{asm}{DI} és \mintinline{asm}{EI} utasítások valók, melyekkel szabályozni lehet a korábban már említett \textit{Interrupt Master Enable Flaget}. Ez a \textit{flag} egy, a CPU struktúrájában létehozott \mintinline{rust}{bool} típusú változó értékét módosítja.
 
-\newpage
-\section{RAM}
+\section{Memória}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{./Resources/mmu-map.eps}
+    \caption{\textit{A memória térkép}}
+    \label{fig:mmumap}
+\end{figure}
+
+\noindent A Game Boy memóriájának térképe a fenti, \ref{fig:mmumap}-es ábrán figyelhetõ meg. Jól látható, hogy több nagyobb részre van osztva, melyek mûködésükben igencsak elkülönülnek egymástól. Az emulátor implementációját nagyban megkönnyíti, hogy annak ellenére, hogy több modul is használja valamilyen módon a beépített memóriát, annak csak egy címtartománya van, amelyet a következõ intervallumbeli bájtok alkotnak: \texttt{0x0000} - \texttt{0xFFFF}. Az alaplapra forrasztott memória tehát 64 kB, amelynek rögtön az elsõ felét a játék ROM-ja teszi ki. \\
+A konzol elindítását követõen a hardver elsõ feladata a Boot ROM futtatása. Ez a szoftver a \textit{bootolási} folyamat alatt a \texttt{0x0000} - \texttt{0x0100} területet foglalja el, amely a folyamat végeztével kikerül a memóriából (\textit{átmappelõdik}), helyére pedig a betöltött játék elsõ 256 bájtja kerül. Ez azt is jelenti, hogy az \textit{átmappelés} után a Boot ROM bájtjai többé nem elérhetõk. \\
+A játék ROM-jának 32 kB-ja után, a 8 kB méretû \texttt{0x8000} - \texttt{0x9FFF} tartományon helyezkedik el a \textit{Video Memória} (vagy \textit{Grafikus Memória}, \textit{VRAM}). Itt vannak eltárolva \textit{tile}-ok (csempék), a játékokat felépítõ grafikus építõelemek, illetve azok az adatok, melyek leírják, hogy melyik \textit{tile} hol helyezkedik el a képernyõn. A csempék helyét leíró adatok segítségével tudja a Game Boy PPU-ja felépíteni a játék háttereként szolgáló grafikai elemeket. Ezekrõl bõvebben a késõbbi, PPU-t részletezõ fejezetben lesz szó. \\
+A sorban következõ 8 kB méretû blokk az \texttt{0x8000} - \texttt{0x9FFF} intervallumon található, a neve pedig \textit{External RAM} vagy \textit{xRAM}. Ez a rész fizikailag a játék kazettáján helyezkedett el, többnyire a játék mentéseket tárolták itt. \\
+A hagyományos értelemben vett RAM a \texttt{0xC000} - \texttt{0xDFFF} területet foglalta el -- a programozók ezen a részen tároltak el tetszõleges adatokat. \textit{Work RAM}-nek is hívták emiatt. Ez a terület szorosan összefügg az \texttt{0xE000} - \texttt{0xFFFF} memória résszel: a második, ún. \textit{Shadow RAM} (Árnyék RAM) terület a \textit{Work RAM} bitre pontos másolata. Érdekesség, hogy a Nintendo a hivatalos programozóknak szánt dokumentációjában megtiltja, hogy a \textit{Shadow RAM} területére írás történjen, ha ezt mégis megtesszük, akkor a \textit{Work RAM} azonos bájtja is átíródik ugyanarra a bájtra, amit a \textit{Shadow RAM}-ba írtunk. Szintén érdekes, hogy ha megnézzük, a két RAM területe nem egyezik meg, a \textit{Shadow RAM} 128 bájttal "rövidebb", mint a \textit{Work RAM}. Ennek az az oka, hogy a RAM legfelsõ 128 bájtja a leggyorsabban írható és olvasható \textit{High RAM} számára van fenntartva. \\
+Az utolsó egység tehát a memóriában a \textit{High RAM}, amely az \texttt{0xFE00} - \texttt{0xFFFF} területet foglalja el. Itt található nagyon sok fontos adat, regiszter és \textit{flag}. Az \texttt{0xFE00} - \texttt{0xFE9F} területen az OAM, vagy \textit{Sprite Attribute Table} található. A Game Boy képernyõjén megjelenõ mozgó objektumok az itt eltárolt \textit{sprite}-okból épülnek fel. \\
+A kijelzõ, hanggenerátor, soros port, \textit{joypad}, és az idõzítõk fontos attribútumait és mûködési elemeit tartalmazza az \texttt{0xFF00} - \texttt{0xFF7F} szakasz. A diplomamunka további részében a megfelelõ helyeken ezekrõl bõvebben lesz szó. \\
+Az \texttt{0xFF80} - \texttt{0xFFFE} részt a \textit{High RAM} programozók által saját célra használható (gyors elérésû) része foglalja el. \\
+A \texttt{0xFFFF} címen lévõ bájt a korábban már említett \textit{Interrupt Enable} regiszter.
+
+
+\subsection{Memory Bank Controller}
+
+
 \section{Idõzítõk}

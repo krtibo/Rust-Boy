@@ -326,6 +326,37 @@ A kijelzõ, hanggenerátor, soros port, \textit{joypad}, és az idõzítõk fontos att
 Az \texttt{0xFF80} - \texttt{0xFFFE} részt a \textit{High RAM} programozók által saját célra használható (gyors elérésû) része foglalja el. \\
 A \texttt{0xFFFF} címen lévõ bájt a korábban már említett \textit{Interrupt Enable} regiszter.
 
+\subsection{DMA}
+A DMA vagy \textit{Direct Memory Access} (Közvetlen Memóriaelérés) a Game Boy architektúrájának egy olyan eljárása, amely segítségével adatot lehet másolni a fentebb említett \textit{Sprite Attribute Table}-be. Egy játék akkor tudja alkalmazni a DMA eljárást, ha az \texttt{0xFF46}-es memóriacímre ír. Ahhoz, hogy ezt a mûködést emulálni tudjuk, készíteni kell egy csapdát a memória írást megvalósító függvénybe:
+\begin{minted}{rust}
+    pub fn write_ram(&mut self, address : u16, value : u8) {
+
+        // ...
+
+        // if writing address is 0xFF46 -> DMA
+        if address == 0xFF46 {
+            self.dma(value);
+        }
+
+        // ...
+    }
+\end{minted}
+A \texttt{0xFF46}-os címre kérelmezett írás esetén tehát maga az írás történik meg, hanem a vezérlés a fenti csapdába kerül. A DMA-t aktiváló memóriacímre írandó adat adódik át a DMA függvénynek. \\
+A \textit{Sprite Attribute Table} a \texttt{0xFE00} - \texttt{0xFE9F} memóriacímek között helyezkedik el, tehát 160 bájtot tárol. Ezt a 160 bájtot kell feltölteni az új adattal úgy, hogy a DMA függvény paraméterében átadott érték alapján kiszámoljuk a kezdõcímet, ahonnan a 160 darab bájt másolása fog megtörténni. Ennek a kezdõcímnek a kiszámolása könnyû feladat: el kell osztani 100-zal, vagy -- ha gyorsabb végrehajtást szeretnénk --, \textit{shifteljük} el balra 8-cal. A DMA függvény tehát a következõk szerint alakul:
+\newpage
+\begin{minted}{rust}
+    pub fn dma(&mut self, value : u8) {
+        // copiable data start address
+        let addr : u16 = (value as u16) << 8;
+
+        // start copying
+        for i in 0..0xA0 {
+            let n : u8 = self.RAM[(addr + i) as usize];
+            self.write_ram(0xFE00 + i, n);
+        }
+    }
+\end{minted}
+Ezzel a szükséges bájtok másolása megtörtént.
 
 \subsection{Memory Bank Controller}
 

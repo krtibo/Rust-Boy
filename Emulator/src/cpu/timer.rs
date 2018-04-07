@@ -42,20 +42,26 @@ impl Timer {
         let interrupt : Interrupt = Interrupt::new();
         self.div_reg(cpu, cycle);
 
+        // Is the clock enabled?
         if CPU::get_bit(2, cpu.RAM[self.TMC as usize]) {
+            // Is enough time passed to update the timer?
             if cycle as u32 > self.timer_counter  {
+                // Update the current frequency.
                 self.update_freq(cpu);
-
-                if cpu.RAM[self.TIMA as usize] == 255 {
+                // Check for the overflow.
+                if cpu.RAM[self.TIMA as usize] >= 255 {
+                    // If an overflow occurs, load TMA to TIMA,
                     let TMA = cpu.RAM[self.TMA as usize];
                     cpu.write_ram(self.TIMA, TMA);
+                    // and send an interrupt request.
                     self.interrupt.IRQ(cpu, 2);
                 } else {
+                    // If no overflow, increment the TIMA.
                     let TIMA = cpu.RAM[self.TIMA as usize];
-
                     cpu.write_ram(self.TIMA, TIMA + 1);
                 }
             } else {
+                // Sync the time with the CPU.
                 self.timer_counter -= cycle as u32;
             }
         }

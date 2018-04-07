@@ -346,7 +346,7 @@ A \textit{Sprite Attribute Table} a \texttt{0xFE00} - \texttt{0xFE9F} memóriacím
 \newpage
 \begin{minted}{rust}
     pub fn dma(&mut self, value : u8) {
-        // copiable data start address
+        // copyable data start address
         let addr : u16 = (value as u16) << 8;
 
         // start copying
@@ -360,5 +360,88 @@ Ezzel a szükséges bájtok másolása megtörtént.
 
 \subsection{Memory Bank Controller}
 
-
 \section{Idõzítõk}
+A Game Boy hardver architektúrájának elengedhetetlen részét képezik az idõzítõk. Ahhoz hogy a rendszer egyes elemei között meglegyen a tökéletes együttmûködés, szinkronizált végrehajtásra van szükség. Erre jelentenek megoldást a \textit{timerek} (idõzítõk), amelyek se\-gít\-sé\-gé\-vel meg lehet teremteni a modulok közti kohéziót. \\
+Két típusú \textit{timer} áll rendelkezésre az architektúrában: a \texttt{TIMA} (\textit{Timer Counter}), illetve a \texttt{DIV} (\textit{Divider Register}). Ezek alapjaikban ugyan megegyeznek, és így egymással össze\-ha\-son\-lít\-ha\-tók, viszont különbözõ feladatok ellátására szolgálnak, ebbõl kifolyólag pedig a mûködésük végsõ soron mégis eltérõ -- ezt a továbbiakban látni fogjuk. Ami az imp\-le\-men\-tá\-lást illeti, mindkét idõzítõ esetén a processzor minden mûveletet követõen leellenõrzi hogy szükséges-e léptetni az idõzítõt. A részletesebb bemutatást a \texttt{TIMA}-val kezdjük, majd pedig a \texttt{DIV} fog következni.
+
+\subsection{TIMA}
+A \textit{Timer Counterhez}, vagy \texttt{TIMA}-hoz három memóriacím, azaz három folyton változó adat kapcsolható. Ezeket a következõ táblázatban gyûjtöttem össze:
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|c| } 
+   \hline
+   \texttt{TIMA} \; & \; \texttt{0xFF05} \; \\ \hline
+   \texttt{TMA} \; & \; \texttt{0xFF06} \; \\ \hline
+   \texttt{TMC} \; & \; \texttt{0xFF07} \; \\ \hline
+  \end{tabular}
+  \caption{\textit{A \texttt{TIMA} idõzítõhöz köthetõ adatok memóriacímei}}
+  \label{table:3}
+\end{table}
+
+\noindent Ahogy a \ref{table:3}-es táblázatból kiolvasható, a három érték maga a \texttt{TIMA}, a \texttt{TMA} és a \texttt{TMC}. \\
+Az idõzítõ leegyszerûsített mûködése könnyen megérthetõ és implementálható. Ha elég idõ telt el ahhoz hogy léptessük az idõzítõt, akkor megtesszük ezt a léptetést. A léptetés során azonban figyelni kell arra, hogy túlcsordulás történik-e: ha az idõzítõ új értéke nagyobb mint 255 (egy byte) akkor 2-es számú megszakítási kérést kell küldeni a pro\-cesszor\-nak, és be kell olvasni az idõzítõ új, bázis értékét -- ez az az érték, ahonnan folytatódni fog a számlálás. Ha nincs túlcsordulás, akkor a léptetésen kívül nincs további teendõ. \\
+Persze felmerülhet több kérdés is. \textit{Honnan olvassuk ki az új bázis értéket? Honnan tudjuk hogy milyen gyakorisággal kell léptetni?} A fenti \ref{table:3}-es táblázatban szereplõ adatok fogják megadni ezekre a kérdésekre a válaszokat. \\
+A \texttt{TMA}, vagy \textit{Timer Modulo} az az érték, amelyet a fentebb taglalt idõzítõ eljárás során is használtunk: ebbõl olvassuk ki az idõzítõ túlcsordulás utáni új bázis értékét, melyet abba a \texttt{TIMA} regiszterbe töltünk, amely az idõzítõ aktuális állapotát tartalmazza, és amelyet folyton inkrementálunk. Azzal, hogy nem egyszerûen mindig 0-ról kezdjük újra a szá\-mo\-zást, modulálni lehet a Game Boy idõzítõjét. \\
+A másik kérdésre a \texttt{TMC}, azaz a \textit{Timer Control} fogja megadni a választ. Ez a byte tar\-tal\-maz\-za az idõzítõ frekvenciáját, illetve segítségével ki-be lehet kapcsolni a \textit{timer} mû\-kö\-dé\-sét. Ez utóbbi funkció 1 bittel (a \ref{table:4}-ös ábrán \textcolor{GameBoyRed}{\texttt{T}}), míg az aktuális frekvencia sebessége 2 bittel van ábrázolva (a \ref{table:4}-ös ábrán \textcolor{GameBoyDarkBlue}{\texttt{F}}) -- így a \texttt{TMC} egy három bites regiszter. A bitek kiosztása a következõk szerint alakul:
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |c|c|c|c|c|>{\columncolor{GameBoyBlue}}c|>{\columncolor{GameBoyBlue}}c|>{\columncolor{GameBoyBlue}}c| } 
+   \hline
+   \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \textcolor{GameBoyRed}{\texttt{T}} & \textcolor{GameBoyDarkBlue}{\texttt{F}} & \textcolor{GameBoyDarkBlue}{\texttt{F}} \\ \hline
+  \end{tabular}
+  \caption{\textit{A \texttt{TMC} regiszter bitjeinek kiosztása}}
+  \label{table:4}
+\end{table}
+
+\noindent A fenti táblázat szerinti 0. és 1. bitek tárolják el tehát az idõzítõ frekvenciáját. Az egyes frekvenciák a következõ táblázatban ábrázolt értékekkel vannak jelölve.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|c| } 
+   \hline
+   \textcolor{GameBoyDarkBlue}{\textbf{\texttt{FF}}} \; & \; \textbf{Frequency} \; \\ \hline
+   \texttt{00} \; & \; 4096 Hz \; \\ \hline
+   \texttt{01} \; & \; 262144 Hz \; \\ \hline
+   \texttt{10} \; & \; 65536 Hz \; \\ \hline
+   \texttt{11} \; & \; 16384 Hz \; \\ \hline
+  \end{tabular}
+  \caption{\textit{A választható frekvencia opciók és az ábrázolási értékeik}}
+  \label{table:5}
+\end{table}
+
+\noindent Tudjuk, hogy a CPU frekvenciája 4194304 Hz, így könnyen kiszámolható az, hogy hány processzor mûvelet után kell léptetni az idõzítõt az egyes idõzítõ frekvenciák esetében -- egyszerûen el kell osztani õket egymással. Ez az implementációt nagyban megkönnyíti, hiszen a fõ ciklus minden iterációja egy órajelciklussal ekvivalens. Az órajelciklusokra átszámolt frakvenciák tehát a fenti táblázat szerint rendre: 1024, 16, 64 és 256. Látható, hogy ezek igen kerek értékek. \\
+A \texttt{TIMA} idõzítõ implementálása tehát mindent összevetve így alakul:
+
+\begin{minted}{rust}
+  // Is the clock enabled?
+  if CPU::get_bit(2, cpu.RAM[self.TMC as usize]) {
+      // Is enough time passed to update the timer?
+      if cycle as u32 > self.timer_counter  {
+          // Update the current frequency.
+          self.update_freq(cpu);
+          // Check for the overflow.
+          if cpu.RAM[self.TIMA as usize] >= 255 {
+              // If an overflow occurs, load TMA to TIMA,
+              let TMA = cpu.RAM[self.TMA as usize];
+              cpu.write_ram(self.TIMA, TMA);
+              // and send an interrupt request.
+              self.interrupt.IRQ(cpu, 2);
+          } else {
+              // If no overflow, increment the TIMA.
+              let TIMA = cpu.RAM[self.TIMA as usize];
+              cpu.write_ram(self.TIMA, TIMA + 1);
+          }
+      } else {
+          // Sync the time with the CPU.
+          self.timer_counter -= cycle as u32;
+      }
+  }
+\end{minted}
+
+\noindent A fenti kódrészletet tartalmazó, \texttt{Timer} struktúra beli \texttt{Update} függvényt kell meghívni a fõ ciklus minden iterációjában.
+
+\subsection{DIV}
+
+A \texttt{DIV} idõzítõ, ahogy már említésre került, úgy mûködésben, mint viselkedésben eltér a \texttt{TIMA}-tól. A \texttt{DIV} minden tekintetben sokkal egyszerûbb, mint a társa: nem lehet változtatni a frekvenciáját, és modulálni sem lehet. \\
+A frekvencia fixen 16384 Hz, ami azt jelenti, hogy minden 256 CPU ciklus után kell inkrementálni az idõzítõ értékét. A moduláció hiánya pedig abból fakad, hogy túlcsordulás esetén nem egy másik memóriahelyrõl töltünk értéket a \texttt{DIV}-be, hanem alapértelmezés szerint 0-ról kezdjük ismételten a számlálást. A \texttt{TIMA}-tól eltérõen ennek az idõzítõnek nincsen egyéb adata, egyedül a \textit{counter} értéke adott.

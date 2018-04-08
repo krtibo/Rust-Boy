@@ -359,6 +359,41 @@ A \textit{Sprite Attribute Table} a \texttt{0xFE00} - \texttt{0xFE9F} memóriacím
 Ezzel a szükséges bájtok másolása megtörtént.
 
 \subsection{Memory Bank Controller}
+Az alfejezet elején bemutatott memória térkép modellje állandó, hiszen olyan hardverrõl beszélünk, amely esetében nincs lehetõség a memória, vagy egyéb modul bõvítésére. A tárgyalt modellben a játék ROM-ok tárolására 32 kB hely van fenntartva -- ezzel pedig szöges ellentmondásban van az a tény, hogy több játék mérete meghaladta ezt a korlátot: a Pokémon játék például megközelítõleg 2 MB méretû. Említeni sem kell, hogy itt már nagyságrendbeli eltérésrõl van szó, tehát felmerül a kérdés, hogy \textit{hogyan mûködnek a 32 kB-nál nagyobb méretû játékok a Game Boyon?} \\
+Mielõtt azonban a feltett kérdésre adott választ taglalnám, fontos bemutatni, hogy hogyan néz ki a \textit{Cartridge headerje} (fejléce). A ROM-ok ezen részében standardizált formában kapunk információkat az adott játék technikai, és általános jellemzõirõl. 
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|>{\columncolor{GameBoyBlue}}l|l|l|l|} 
+   \hline
+   \cellcolor{GameBoyBlue} Memóriacím & \cellcolor{GameBoyBlue} Adat & \cellcolor{GameBoyBlue} Méret & \cellcolor{GameBoyBlue}Részletek \\ \hline
+   \texttt{0x100 - 0x103} & Belépési pont & 4 Byte & Altalában: \texttt{NOP JP 0x150}. \\ \hline
+   \texttt{0x104 - 0x133} & Nintendo logó & 48 Byte & Másolásvédelmi célokra. \\ \hline
+   \texttt{0x134 - 0x143} & Cím & 16 Byte & Nagybetûkkel, 0-kal közölve. \\ \hline
+   \texttt{0x144 - 0x145} & Kiadó & 2 Byte & Az újabb játékoknál használatos. \\ \hline
+   \texttt{0x146} & SGB \textit{flag} & 1 Byte & SGB támogatás. \\ \hline 
+   \texttt{0x147} & Cartridge típusa & 1 Byte & MBC típusa és egyéb extrák. \\ \hline 
+   \texttt{0x148} & ROM méret & 1 Byte & Méret = \texttt{32 KB} \; \verb|<<| \texttt{[0x148]} \\ \hline
+   \texttt{0x149} & RAM méret & 1 Byte & A külsõ RAM mérete. \\ \hline
+   \texttt{0x14A} & Forgalmazás & 1 Byte & Japán piac: 0, egyébként 1. \\ \hline
+   \texttt{0x14B} & Kiadó & 1 Byte & A régebbi játékoknál használatos. \\ \hline
+   \texttt{0x14C} & ROM verzió & 1 Byte & A játék verziószáma, általában 0. \\ \hline
+   \texttt{0x14D} & Fejléc összeg & 1 Byte & A betöltés elõtt leellenõrizendõ. \\ \hline
+   \texttt{0x14E - 0x14F} & Globális összeg & 2 Byte & Egyszerû összegzés. \\ \hline
+   \texttt{0x150h} & \multicolumn{3}{c|}{A játék kódjának kezdete.} \\ \hline
+  \end{tabular}
+  \caption{\textit{A ROM-ok fejlécének adatai}}
+  \label{table:3}
+\end{table}
+
+\noindent A \ref{table:3}-es táblázatban szereplõ adatokból látható, hogy a \texttt{0x147}-es memóriacímen van eltárolva a \textit{Cartridge} típusa, amely tulajdonképpen a Memory Bank Controller típusára utal. A fenti kérdésre a választ közvetetten ez az adat adja meg. A Game Boy megjelenését követõen felmerültek olyan igények, amelyek a nagyobb RAM-ot, illetve nagyobb elérhetõ ROM tárhelyet helyezték elõtérbe. Ezekre a problémákra találták ki a Memory Bank Controller technológiát, amellyel az eredeti hardver módosítása nélkül lehetett bõvíteni az elõbb megnevezett tárhelyeket. \\
+A bõvítés egyszerû mechanizmuson alapul: a ROM adatait \textit{Bank}-okra osztjuk fel, majd ezeket rakjuk be, vagy vesszük ki a ROM-ba. Ugyan ezzel a módszerrel lehetséges a RAM területének bõvítése is. \\
+A Game Boy 32KB méretû ROM-jának elsõ 16 kB-ja le van fixálva: itt helyezkedik el a 0-s azonosítójú \textit{bank}. A ROM maradék 16 kB-jába lehet betölteni a kívánt \textit{bankot}. A \textit{bankok} számát az határozza meg, hogy az MBC ROM módban, vagy RAM módban van-e. ROM módban egyáltalán nem elérhetõek a RAM \textit{bankok}, cserébe viszont 2 MB-nyi ROM-unk lehet, ez 128 darab 16 kB-os \textit{bankot} jelent. Ami a RAM módot illeti, ebben az esetben 4 darab RAM, és 32 darab 16 kB-os ROM \textit{bankunk} lehet. \\
+A ROM és RAM \textit{bankok} ki-, illetve bekapcsolását, illetve betöltését és kivételét úgy oldották meg, hogy elõre meghatározott \textit{magic number}-öket kell írni elõre meghatározott memóriaterületekre -- így váltak elérhetõvé a kívánt \textit{bankok}. Az MBC mûködésének részletesebb taglalására nem fog sor kerülni, mert az implementált emulátor ezt nem tartalmazza -- az MBC nélküli alap rendszer is képes játékokat futtatni, így az idõ szûke miatt a Memory Bank Controller implementálására már nem maradt idõ. 
+
+
+
+
 
 \section{Idõzítõk}
 A Game Boy hardver architektúrájának elengedhetetlen részét képezik az idõzítõk. Ahhoz hogy a rendszer egyes elemei között meglegyen a tökéletes együttmûködés, szinkronizált végrehajtásra van szükség. Erre jelentenek megoldást a \textit{timerek} (idõzítõk), amelyek se\-gít\-sé\-gé\-vel meg lehet teremteni a modulok közti kohéziót. \\
@@ -375,14 +410,14 @@ A \textit{Timer Counterhez}, vagy \texttt{TIMA}-hoz három memóriacím, azaz három
    \texttt{TMC} \; & \; \texttt{0xFF07} \; \\ \hline
   \end{tabular}
   \caption{\textit{A \texttt{TIMA} idõzítõhöz köthetõ adatok memóriacímei}}
-  \label{table:3}
+  \label{table:4}
 \end{table}
 
-\noindent Ahogy a \ref{table:3}-es táblázatból kiolvasható, a három érték maga a \texttt{TIMA}, a \texttt{TMA} és a \texttt{TMC}. \\
+\noindent Ahogy a \ref{table:4}-ös táblázatból kiolvasható, a három érték maga a \texttt{TIMA}, a \texttt{TMA} és a \texttt{TMC}. \\
 Az idõzítõ leegyszerûsített mûködése könnyen megérthetõ és implementálható. Ha elég idõ telt el ahhoz hogy léptessük az idõzítõt, akkor megtesszük ezt a léptetést. A léptetés során azonban figyelni kell arra, hogy túlcsordulás történik-e: ha az idõzítõ új értéke nagyobb mint 255 (egy byte) akkor 2-es számú megszakítási kérést kell küldeni a pro\-cesszor\-nak, és be kell olvasni az idõzítõ új, bázis értékét -- ez az az érték, ahonnan folytatódni fog a számlálás. Ha nincs túlcsordulás, akkor a léptetésen kívül nincs további teendõ. \\
-Persze felmerülhet több kérdés is. \textit{Honnan olvassuk ki az új bázis értéket? Honnan tudjuk hogy milyen gyakorisággal kell léptetni?} A fenti \ref{table:3}-es táblázatban szereplõ adatok fogják megadni ezekre a kérdésekre a válaszokat. \\
+Persze felmerülhet több kérdés is. \textit{Honnan olvassuk ki az új bázis értéket? Honnan tudjuk hogy milyen gyakorisággal kell léptetni?} A fenti \ref{table:4}-ös táblázatban szereplõ adatok fogják megadni ezekre a kérdésekre a válaszokat. \\
 A \texttt{TMA}, vagy \textit{Timer Modulo} az az érték, amelyet a fentebb taglalt idõzítõ eljárás során is használtunk: ebbõl olvassuk ki az idõzítõ túlcsordulás utáni új bázis értékét, melyet abba a \texttt{TIMA} regiszterbe töltünk, amely az idõzítõ aktuális állapotát tartalmazza, és amelyet folyton inkrementálunk. Azzal, hogy nem egyszerûen mindig 0-ról kezdjük újra a szá\-mo\-zást, modulálni lehet a Game Boy idõzítõjét. \\
-A másik kérdésre a \texttt{TMC}, azaz a \textit{Timer Control} fogja megadni a választ. Ez a byte tar\-tal\-maz\-za az idõzítõ frekvenciáját, illetve segítségével ki-be lehet kapcsolni a \textit{timer} mû\-kö\-dé\-sét. Ez utóbbi funkció 1 bittel (a \ref{table:4}-ös ábrán \textcolor{GameBoyRed}{\texttt{T}}), míg az aktuális frekvencia sebessége 2 bittel van ábrázolva (a \ref{table:4}-ös ábrán \textcolor{GameBoyDarkBlue}{\texttt{F}}) -- így a \texttt{TMC} egy három bites regiszter. A bitek kiosztása a következõk szerint alakul:
+A másik kérdésre a \texttt{TMC}, azaz a \textit{Timer Control} fogja megadni a választ. Ez a byte tar\-tal\-maz\-za az idõzítõ frekvenciáját, illetve segítségével ki-be lehet kapcsolni a \textit{timer} mû\-kö\-dé\-sét. Ez utóbbi funkció 1 bittel (a \ref{table:5}-os ábrán \textcolor{GameBoyRed}{\texttt{T}}), míg az aktuális frekvencia sebessége 2 bittel van ábrázolva (a \ref{table:5}-os ábrán \textcolor{GameBoyDarkBlue}{\texttt{F}}) -- így a \texttt{TMC} egy három bites regiszter. A bitek kiosztása a következõk szerint alakul:
 
 \begin{table}[h!]
   \centering
@@ -391,7 +426,7 @@ A másik kérdésre a \texttt{TMC}, azaz a \textit{Timer Control} fogja megadni a v
    \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \textcolor{GameBoyRed}{\texttt{T}} & \textcolor{GameBoyDarkBlue}{\texttt{F}} & \textcolor{GameBoyDarkBlue}{\texttt{F}} \\ \hline
   \end{tabular}
   \caption{\textit{A \texttt{TMC} regiszter bitjeinek kiosztása}}
-  \label{table:4}
+  \label{table:5}
 \end{table}
 
 \noindent A fenti táblázat szerinti 0. és 1. bitek tárolják el tehát az idõzítõ frekvenciáját. Az egyes frekvenciák a következõ táblázatban ábrázolt értékekkel vannak jelölve.
@@ -407,7 +442,7 @@ A másik kérdésre a \texttt{TMC}, azaz a \textit{Timer Control} fogja megadni a v
    \texttt{11} \; & \; 16384 Hz \; \\ \hline
   \end{tabular}
   \caption{\textit{A választható frekvencia opciók és az ábrázolási értékeik}}
-  \label{table:5}
+  \label{table:6}
 \end{table}
 
 \noindent Tudjuk, hogy a CPU frekvenciája 4194304 Hz, így könnyen kiszámolható az, hogy hány processzor mûvelet után kell léptetni az idõzítõt az egyes idõzítõ frekvenciák esetében -- egyszerûen el kell osztani õket egymással. Ez az implementációt nagyban megkönnyíti, hiszen a fõ ciklus minden iterációja egy órajelciklussal ekvivalens. Az órajelciklusokra átszámolt frakvenciák tehát a fenti táblázat szerint rendre: 1024, 16, 64 és 256. Látható, hogy ezek igen kerek értékek. \\

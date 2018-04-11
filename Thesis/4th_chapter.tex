@@ -31,6 +31,37 @@ Ezek az üresjáratok nagyban meghatározzák a PPU emulációjának ritmusát, több dol
   \label{table:1}
 \end{table}
 
-\noindent Ez alapján tehát rekonstruálni tudjuk az LCD kijelzõ és a PPU idõzítéseinek mûködését, és azt, hogy egymással és a processzorral hogyan tudjuk szinkronban tartani õket. Ehhez szükség lesz egy, a CPU fõ ciklusában minden alkalommal meghívott valamilyen aktualizáló függvényre, ahol ellenõrzés alatt lehet tartani a CPU és PPU együttmûködését, szinkronizációját.
+\noindent Ez alapján tehát rekonstruálni tudjuk az LCD kijelzõ és a PPU idõzítéseinek mûködését, és azt, hogy egymással és a processzorral hogyan tudjuk szinkronban tartani õket. Ehhez szükség lesz egy, a CPU fõ ciklusában minden alkalommal meghívott valamilyen ak\-tu\-a\-li\-zá\-ló függvényre, ahol ellenõrzés alatt lehet tartani a CPU és PPU együttmûködését, szin\-kro\-ni\-zá\-ci\-ó\-ját. Ez a függvény az \texttt{update\_n\_sync} lesz, melynek tartalma a következõ:
+
+\begin{minted}{rust}
+  self.lcd_status_update(cpu);
+  self.scanline_count += cycle as u16;
+
+  if self.scanline_count >= 456 {
+      self.scanline_count = 0;
+
+      if cpu.RAM[0xFF44] < 144 { 
+      self.draw_line(cpu); 
+      }
+
+      if cpu.RAM[0xFF44] == 144 { 
+      self.interrupt.IRQ(cpu, 0); 
+      }
+
+      cpu.RAM[0xFF44] += 1;
+
+      if cpu.RAM[0xFF44] > 153 { 
+      cpu.RAM[0xFF44] = 0; 
+      }
+  }
+\end{minted}
+
+\noindent A fenti programrészlet tehát menedzseli a renderelést: a megfelelõ idõben meghívja a megfelelõ függvényeket, miközben frissíti a megfelelõ változókat. Kicsit bõvebben ez annyit tesz, hogy elõször is meghívja az \texttt{lcd\_status\_update} függvényt (késõbb bemutatásra kerül), majd hozzáadja az utolsó CPU operáció mûveletidejét egy szám\-lá\-ló\-hoz (\texttt{scanline\_count}), amellyel számon tudjuk tartani, hogy mennyi mûvelet elvégzése szükséges a következõ pixelsor kirendereléséig. Ha ez a számláló nagyobb egyenlõ, mint 456, akkor további ellenõrzéseket végzünk. \\
+Elõször is lenullázzuk a számláló változót, majd megnézzük, hogy a \texttt{0xFF44} me\-mó\-ri\-a\-cí\-men található érték elérte-e a 144-es értéket. Ha nem, akkor rajzoljuk ki a sort. Az elõbb említett \texttt{0xFF44}-es címen található érték azt mutatja, hogy a PPU éppen melyik sornál jár a kirajzolásban, ezért hasonlítjuk össze 144-gyel: pontosan ennyi sora van a kijelzõnek. \\
+Ha a \texttt{0xFF44}-es érték megegyezik 144-gyel, tehát az utolsó sor is ki lett rajzolva a képernyõre, 0-s azonosítójú megszakítási kérést kell küldeni a processzornak, ez lényegében a \textit{VBlank} mûvelet elvégzését takarja. Ezeket az elágazásokat követõen növelni kell a \texttt{0xFF44}-en található értéket (\textit{scanline}, letapogató) eggyel, hiszen a következõ sorra lépünk. \\
+A következõ, végsõ \texttt{if} elágazás igen érdekes: a \textit{scanline} értékét vizsgálja, azt nézi meg, hogy nagyobb-e mint 153. \textit{De miért pont 153?} Egész pontosan azért, mert a \ref{table:1}-es táb\-lá\-zat\-ban ismertetettek szerint a \textit{VBlank} mûvelet végrehatjási ideje pontosan 10-szerese az egy sor kirajzolásáénak. A képernyõn lévõ sorok számát 0-tól indexeljük, így lesz a 144-bõl 143, amihez ha hozzáadunk 10-et, amíg a \textit{VBlank} tart, megkapjuk a 153-as számot. Amint elértük a 153. sort (vagyis befejezõdött a \textit{VBlank} mûvelet), kezdhetjük a következõ képkocka renderelését a 0. sortól. 
+
+\subsection{Az LCD státuszok}
+A következõkben a fent említett \texttt{lcd\_status\_update} által elvégzett feladatokat, azaz az LCD kijelzõ státuszait és az azokra való reagálást fogom bemutatni.
 
 \section{PPU - Pixel Feldolgozó Egység}

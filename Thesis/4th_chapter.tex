@@ -1,0 +1,36 @@
+\chapter{A kijelzõ és a PPU implementációja}
+A processzor és memória modulok után következik a Game Boy emulátor legnehezebb moduljának, a PPU-nak a fejlesztése. Ennek bonyolultsága abban rejlik, hogy rendkívül sok attribútummal, és egyéb jellemzõkkel, mini-mechanizmusokkal rendelkezik, amelyek között meg kell teremteni az együttmûködést és kohéziót. Ezeket természetesen egyenként, pontosan kell megvalósítani annak érdekében, hogy az emuláció és ezzel együtt a meg\-je\-le\-ní\-tés is pontos legyen. Természetesen ez elvárható, hiszen ez azon kevés modulok közé tartozik, amelyek közvetlenül tartják a kapcsolatot a felhasználóval, így minden apró eltérés szembeötlõ lehet. \\
+A \textit{Pixel Feldolgozó Egység (Pixel Processing Unit)} implementációja elõtt azonban annak "keretrendszerét" kell megvalósítani, az LCD kijelzõ mûködését, állapotainak rep\-re\-zen\-tá\-ci\-ó\-ját. Ezek nélkül a PPU nem tudna mûködni, hiszen a kijelzõ státusz állapotainak megfelelõen történik a kirajzolás.
+
+\section{Az LCD kijelzõ}
+
+\begin{wrapfigure}{l!}{\textwidth/2}
+    \centering
+    \includegraphics[width=\textwidth/2]{./Resources/Blank.eps}
+    \caption{\textit{A letapogató és az üresjáratok}}
+    \label{fig:blank}
+\end{wrapfigure}
+
+A Game Boy kijelzõjérõl a hardver specifikáció ismertetése során már volt szó -- ahogy ott is megemlítésre került, a szóban forgó LCD kijelzõ 166 $\times$ 144 pixel felbontású, 4 árnyalat megjelenítésére képes. A képernyõre renderelt képpontokat a \texttt{minifb} könyvtárral fogjuk megjeleníteni, amelynek struktúráit, és alapvetõ funkcióit az 1.2.2.-es rész taglalja. Ahhoz azonban, hogy a renderelést megfelelõ módon eltudjuk végezni, oda kell figyelni az LCD kijelzõ állapotaira, megszakításokra, egyéb jellemzõkre. \\
+A konzol hardverének tervezése során a mérnökök több képernyõfrissítési módszert és megoldást a -- már akkor korosnak számító -- CRT technológiából vettek kölcsön. Mint az ismeretes, a katódsugárcsöves megjelenítõk esetében a képernyõt sorról sorra pásztázta végig egy elektronnyaláb, majd az utolsó sor végeztével a mûveletet újból a legelsõ sorral folytatta. Azonban -- ahogy a \ref{fig:blank}-es ábrán is megfigyelhetõ -- a CRT-nek több idõre van szüksége ahhoz, hogy kirajzolja a megfelelõ képpontokat a megfelelõ helyre, nem csak végigszalad rajtuk. Idõ kell tehát ahhoz, hogy az egyes sorok végérõl a sugárnyaláb átvándoroljon a következõ sor elejére, ahogy az is idõbe kerül, hogy a nyaláb a képernyõ utolsó pixelérõl (jobb alsó sarok) visszamenjen a legelsõhöz (bal felsõ sarok). Természetesen ez utóbbi sokkal tovább fog tartani mint az elõbbi -- ezeket egyébként \textit{horizontális üresjáratnak} (vagy \textit{HBlank}-nak) illetve \textit{vertikális üresjáratnak} (vagy \textit{VBlank}-nak) nevezzük. \\
+Ezek az üresjáratok nagyban meghatározzák a PPU emulációjának ritmusát, több dolgot is szûk intervallumon belül kell elvégezni. Az LCD kijelzõ által meghatározott intervallumokat, illetve pontos szinkronizációs idõpontokat az alábbi táblázat tartalmazza.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|>{\columncolor{GameBoyBlue}}l|c|c|} 
+   \hline
+  Esemény & \cellcolor{GameBoyBlue} PPU mód azonosító & \cellcolor{GameBoyBlue} Igénybevett idõ \\ \hline
+  \textit{Scanline} (OAM elérése) & 2 & 80 órajelciklus \\ \hline
+  \textit{Scanline} (VRAM elérése) & 3 & 172 órajelciklus \\ \hline
+  Horizontális üresjárat & 0 & 204 órajelciklus \\ \hline
+  Egy sor kirajzolása &  & \textbf{456 órajelciklus} \\ \hline
+  Vertikális üresjárat & 1 & 4560 órajelciklus \\ \hline
+  Képkocka (letapogatások és üresjáratok) &  & 70224 órajelciklus \\ \hline
+  \end{tabular}
+  \caption{\textit{A PPU idõzítése}}
+  \label{table:1}
+\end{table}
+
+\noindent Ez alapján tehát rekonstruálni tudjuk az LCD kijelzõ és a PPU idõzítéseinek mûködését, és azt, hogy egymással és a processzorral hogyan tudjuk szinkronban tartani õket. Ehhez szükség lesz egy, a CPU fõ ciklusában minden alkalommal meghívott valamilyen aktualizáló függvényre, ahol ellenõrzés alatt lehet tartani a CPU és PPU együttmûködését, szinkronizációját.
+
+\section{PPU - Pixel Feldolgozó Egység}

@@ -61,6 +61,7 @@ impl PPU {
         self.window_x = cpu.RAM[0xFF4B];
         self.window_y = cpu.RAM[0xFF4A];
 
+        //self.lcd_status_update(cpu);
         self.scanline_count += cycle as u16;
 
         if self.scanline_count >= 456 {

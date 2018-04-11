@@ -391,10 +391,6 @@ A bõvítés egyszerû mechanizmuson alapul: a ROM adatait \textit{Bank}-okra osztju
 A Game Boy 32KB méretû ROM-jának elsõ 16 kB-ja le van fixálva: itt helyezkedik el a 0-s azonosítójú \textit{bank}. A ROM maradék 16 kB-jába lehet betölteni a kívánt \textit{bankot}. A \textit{bankok} számát az határozza meg, hogy az MBC ROM módban, vagy RAM módban van-e. ROM módban egyáltalán nem elérhetõek a RAM \textit{bankok}, cserébe viszont 2 MB-nyi ROM-unk lehet, ez 128 darab 16 kB-os \textit{bankot} jelent. Ami a RAM módot illeti, ebben az esetben 4 darab RAM, és 32 darab 16 kB-os ROM \textit{bankunk} lehet. \\
 A ROM és RAM \textit{bankok} ki-, illetve bekapcsolását, illetve betöltését és kivételét úgy oldották meg, hogy elõre meghatározott \textit{magic number}-öket kell írni elõre meghatározott memóriaterületekre -- így váltak elérhetõvé a kívánt \textit{bankok}. Az MBC mûködésének részletesebb taglalására nem fog sor kerülni, mert az implementált emulátor ezt nem tartalmazza -- az MBC nélküli alap rendszer is képes játékokat futtatni, így az idõ szûke miatt a Memory Bank Controller implementálására már nem maradt idõ. 
 
-
-
-
-
 \section{Idõzítõk}
 A Game Boy hardver architektúrájának elengedhetetlen részét képezik az idõzítõk. Ahhoz hogy a rendszer egyes elemei között meglegyen a tökéletes együttmûködés, szinkronizált végrehajtásra van szükség. Erre jelentenek megoldást a \textit{timerek} (idõzítõk), amelyek se\-gít\-sé\-gé\-vel meg lehet teremteni a modulok közti kohéziót. \\
 Két típusú \textit{timer} áll rendelkezésre az architektúrában: a \texttt{TIMA} (\textit{Timer Counter}), illetve a \texttt{DIV} (\textit{Divider Register}). Ezek alapjaikban ugyan megegyeznek, és így egymással össze\-ha\-son\-lít\-ha\-tók, viszont különbözõ feladatok ellátására szolgálnak, ebbõl kifolyólag pedig a mûködésük végsõ soron mégis eltérõ -- ezt a továbbiakban látni fogjuk. Ami az imp\-le\-men\-tá\-lást illeti, mindkét idõzítõ esetén a processzor minden mûveletet követõen leellenõrzi hogy szükséges-e léptetni az idõzítõt. A részletesebb bemutatást a \texttt{TIMA}-val kezdjük, majd pedig a \texttt{DIV} fog következni.

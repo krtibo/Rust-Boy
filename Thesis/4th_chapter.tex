@@ -58,10 +58,33 @@ Ezek az üresjáratok nagyban meghatározzák a PPU emulációjának ritmusát, több dol
 
 \noindent A fenti programrészlet tehát menedzseli a renderelést: a megfelelõ idõben meghívja a megfelelõ függvényeket, miközben frissíti a megfelelõ változókat. Kicsit bõvebben ez annyit tesz, hogy elõször is meghívja az \texttt{lcd\_status\_update} függvényt (késõbb bemutatásra kerül), majd hozzáadja az utolsó CPU operáció mûveletidejét egy szám\-lá\-ló\-hoz (\texttt{scanline\_count}), amellyel számon tudjuk tartani, hogy mennyi mûvelet elvégzése szükséges a következõ pixelsor kirendereléséig. Ha ez a számláló nagyobb egyenlõ, mint 456, akkor további ellenõrzéseket végzünk. \\
 Elõször is lenullázzuk a számláló változót, majd megnézzük, hogy a \texttt{0xFF44} me\-mó\-ri\-a\-cí\-men található érték elérte-e a 144-es értéket. Ha nem, akkor rajzoljuk ki a sort. Az elõbb említett \texttt{0xFF44}-es címen található érték azt mutatja, hogy a PPU éppen melyik sornál jár a kirajzolásban, ezért hasonlítjuk össze 144-gyel: pontosan ennyi sora van a kijelzõnek. \\
-Ha a \texttt{0xFF44}-es érték megegyezik 144-gyel, tehát az utolsó sor is ki lett rajzolva a képernyõre, 0-s azonosítójú megszakítási kérést kell küldeni a processzornak, ez lényegében a \textit{VBlank} mûvelet elvégzését takarja. Ezeket az elágazásokat követõen növelni kell a \texttt{0xFF44}-en található értéket (\textit{scanline}, letapogató) eggyel, hiszen a következõ sorra lépünk. \\
+Ha a \texttt{0xFF44}-es érték megegyezik 144-gyel, tehát az utolsó sor is ki lett rajzolva a képernyõre, 0-s azonosítójú megszakítási kérést kell küldeni a processzornak, ez lé\-nye\-gé\-ben a \textit{VBlank} mûvelet elvégzését takarja. Ezeket az elágazásokat követõen növelni kell a \texttt{0xFF44}-en található értéket (\textit{scanline}, letapogató) eggyel, hiszen a következõ sorra lépünk. \\
 A következõ, végsõ \texttt{if} elágazás igen érdekes: a \textit{scanline} értékét vizsgálja, azt nézi meg, hogy nagyobb-e mint 153. \textit{De miért pont 153?} Egész pontosan azért, mert a \ref{table:1}-es táb\-lá\-zat\-ban ismertetettek szerint a \textit{VBlank} mûvelet végrehatjási ideje pontosan 10-szerese az egy sor kirajzolásáénak. A képernyõn lévõ sorok számát 0-tól indexeljük, így lesz a 144-bõl 143, amihez ha hozzáadunk 10-et, amíg a \textit{VBlank} tart, megkapjuk a 153-as számot. Amint elértük a 153. sort (vagyis befejezõdött a \textit{VBlank} mûvelet), kezdhetjük a következõ képkocka renderelését a 0. sortól. 
 
 \subsection{Az LCD státuszok}
-A következõkben a fent említett \texttt{lcd\_status\_update} által elvégzett feladatokat, azaz az LCD kijelzõ státuszait és az azokra való reagálást fogom bemutatni.
+A következõkben a fent említett \texttt{lcd\_status\_update} által elvégzett feladatokat, azaz az LCD kijelzõ státuszait és az azokra való reagálást fogom bemutatni. \\
+Az kijelzõ aktuális állapotát a \texttt{0xFF41} memóriacímen található LCD Státusz Regiszter tárolja a 0. és 1. biteken -- ebbõl következik hogy 4 ($2^2$) ilyen állapot létezik:
+
+\begin{itemize}
+  \item \texttt{00}: \textit{HBlank}
+  \item \texttt{01}: \textit{VBlank}
+  \item \texttt{10}: \textit{Sprite} adatok keresése a memóriában (OAM)
+  \item \texttt{11}: Adatok másolása a PPU számára a VRAM-ba
+\end{itemize}
+
+\noindent Mihelyst a \textit{scanline} újra kezdi a képkocka kirajzolását az elsõ sortól, a következõ mû\-ve\-le\-tek ciklusát hajtja végre újra és újra: elõször is \texttt{10}-ra állítódik az állapot, majd \texttt{11}-re, végül pedig \texttt{00}-ra. Amikor elér a \textit{VBlank} mûvelethez, a státusz \texttt{01} lesz egészen az üresjárat végéig. Ezt követõen ismét az \texttt{10} állapotot veszi fel, és folytatódik a ciklus a fentiek szerint. Az egyes állapotokhoz tartozó végrehajtási idõket tartalmazza a \ref{table:1}-es táblázat. 
+
+\subsection{Az LCD interruptjai és flagje}
+Abban a pillanatban, amikor az LCD kijelzõ állapota megváltozik, és a \texttt{00}, \texttt{01} vagy \texttt{10} módba kerül (a fent ismertetetteknek megfelelõen), interrupt hívás következhet be. Az LCD Státusz Regiszter 3., 4. és 5. bitjei felelnek az elõbb említett 3 mód megszakításainak engedélyezéséért vagy letiltásáért (a \texttt{0xFFFF}-en található \textit{Interrupt Enable} regiszterhez hasonlóan), viszont ezeket nem az emulátor, hanem a játék fejlesztõi állíthatták be az igényeknek megfelelõen. A megszakítások LCD módokra való megfeleltetése a következõk szerint alakul:
+
+\begin{itemize}
+  \item 3. bit: \texttt{00}-s LCD mód megszakításának engedélyezése, tiltása,
+  \item 4. bit: \texttt{01}-s LCD mód megszakításának engedélyezése, tiltása,
+  \item 5. bit: \texttt{10}-s LCD mód megszakításának engedélyezése, tiltása.
+\end{itemize}
+
+\noindent Fontos megjegyezni, hogy az LCD módok közül feltétlenük implementálni kell a kijelzõ kikapcsolásakor a \texttt{01}-es módra való váltást, mert ha ezt nem tesszük meg, több játék is meg fog akadni a megszakítás elvégzésének hiánya miatt. \\
+
+\noindent Ötletes megoldást tesz lehetõvé az LCD Státusz Regiszter 2. és 6. bitje. A második bitet \textit{Coincidence Flag}nek nevezzük, és akkor állítjuk 1-re, ha a \textit{scanline} aktuális sor értéke (\texttt{0xFF44}) megegyezik az \texttt{0xFF45}-ös memóriacímen található értékkel. A hatodik bit azt szabályozza, hogy ha a \textit{Coincidence Flag} be van állítva, akkor legyen-e megszakítás kérés. Ennek a megoldásnak a segítségével tudtak a játékfejlesztõk különféle speciális effekteket leprogramozni, hiszen a \textit{Coincidence Flag} segítségével lehetett vizsgálni és interruptot kérni egy konkrét sor esetén.
 
 \section{PPU - Pixel Feldolgozó Egység}

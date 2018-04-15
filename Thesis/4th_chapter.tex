@@ -88,3 +88,57 @@ Abban a pillanatban, amikor az LCD kijelzõ állapota megváltozik, és a \texttt{00
 \noindent Ötletes megoldást tesz lehetõvé az LCD Státusz Regiszter 2. és 6. bitje. A második bitet \textit{Coincidence Flag}nek nevezzük, és akkor állítjuk 1-re, ha a \textit{scanline} aktuális sor értéke (\texttt{0xFF44}) megegyezik az \texttt{0xFF45}-ös memóriacímen található értékkel. A hatodik bit azt szabályozza, hogy ha a \textit{Coincidence Flag} be van állítva, akkor legyen-e megszakítás kérés. Ennek a megoldásnak a segítségével tudtak a játékfejlesztõk különféle speciális effekteket leprogramozni, hiszen a \textit{Coincidence Flag} segítségével lehetett vizsgálni és interruptot kérni egy konkrét sor esetén.
 
 \section{PPU - Pixel Feldolgozó Egység}
+Az elõzõ alfejezetben ismertetésre került a Game Boy kijelzõjének viselkedése, az ehhez felhasznált eszközök, módszerek, és a keretrendszer ami emögött mûködik. Az idõzítés, megszakítások, módok és egyebek azonban önmagukban nem elegek ahhoz hogy az e\-mu\-lá\-tor kirenderelhesse a képet a \textit{framebuffer} ablakba, ehhez további vizsgálatok, és implementáció szükséges. A sorrend a következõ: elõször is a megjelenítéshez szükséges alapvetõ ismeretekrõl lesz szó, majd a \textit{tile}-ok, vagy csempék renderelésén keresztül fogom bemutatni azokat a módszereket amikre figyelni kell. A \textit{sprite} renderelést tartalmazó rész a \textit{tile} rendereléshez viszonyított különbségeket fogja tartalmazni.
+
+\subsection{Alapvetõ tudnivalók}
+A Game Boy a grafikák megjelenítéséhez \textit{tile}-okat és \textit{sprite}-okat használ, ezek segítségével állítja össze a kívánt mintát a rendereléshez. Itt mindjárt két definícióval is találkozunk, ezek a következõket jelentik: a \textit{tile}-ok a játék hátterét alkotó, leginkább ismétlõdõ mintákat ábrázoló csempék, amelyek statikusak, a játéknak a kontextust adják meg, míg a \textit{sprite}-ok a mozgó, folyton helyet változtató, villogó részek a képernyõn, illetve az irányítható karakterek. Mindkettejükrõl elmondható, hogy általában 8$\times$8 pixel méretûek, viszont elõfordulhatnak nagyobb, 8$\times$16 pixelesek is, melyek többnyire a játszható karaktereket ábrázolták (pl. Mario). \\
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=10cm]{./Resources/screenmap.eps}
+    \caption{\textit{A képernyõ scrollozásos megoldása -- az SCX az X koordinátát, az SCY pedig az Y koordinátát tartalmazó regiszter}}
+    \label{fig:screenmap}
+\end{figure}
+
+\noindent Az már többször is említésre került, hogy a hardver kijelzõjének felbontása 160$\times$144 pixel méretû, viszont \textit{virtuális} tekintetben 256$\times$256 pixel a rajzolható terület mérete, amely ekvivalens 32$\times$32 darab 8$\times$8 méretû csempével. Ebbõl a nagyobb, 1:1 arányú méretbõl aztán úgy lesz a már sokat emlegetett 160$\times$144, hogy egy pontosan ekkora méretû részt mozgatunk a 256$\times$256 méretû területen. A mozgatott "ablak" koordinátái külön el vannak tárolva egy regiszterben, ezt a jétékfejlesztõk szabadon használhatták. A fenti, \ref{fig:screenmap}-es ábra mutatja a fent ismertetett \textit{scroll} mechanizmust. \\
+Fontos még megemlíteni, hogy létezik egy harmadik típusú ábrázolási mód, ez pedig a \textit{window} (ablak). Ennek segítségével a megjelenített pixelek a háttér \textit{tile}-ok elõtt, viszont a \textit{sprite}-ok mögött foglalnak helyet. A programozók ezt a megjelenítési módot használhatták az alkalmazásaik felhasználói felületeinek HUD\footnote{\textit{Heads-Up Display}: más néven \textit{status bar}, általában a játékos állapotának, illetve a játékban elért pontszámának közlésére szolgáló felület, az UI szerves része.}-jaként, melyekre tetszõleges ábrákat, szöveget helyezhettek el.
+
+\subsection{Az LCD Control Register}
+Az elõzõ alfejezetben említett LCD Státusz Regiszterhez hasonló, szintén az LCD kijelzõ állapotait és a megjelenítést segítõ regiszter az \textit{LCD Control Register}, amelynek me\-mó\-ri\-a\-cí\-me a \texttt{0xFF40} és amely inkább a rendereléshez áll közelebb: számos, a PPU által aktívan használt paramétert tartalmaz. Ezek rendre a következõk:
+
+\begin{itemize}
+  \item \textbf{7. bit:} Ezzel a bittel lehet állítani, hogy az LCD kijelzõ ki-, vagy be legyen-e kapcsolva. Amennyiben nincs bekapcsolva (értéke 0), nem rajzolunk semmit sem. Ezt az elõzõ, LCD kijelzõ funkcióit implementáló kódrész kezeli le.
+
+  \item \textbf{6. bit:} Ez a bit azt mondja meg, hogy a játék a memória mely részében keresse a \textit{window} kirajzolásához szükséges \textit{tile}-ok bájtjait. Ezek a bájtok az adott csempék azonosítóit tárolják, minden csempéhez pontosan egy azonosító tartozik. A\-meny\-nyi\-ben az értéke 0, úgy az intervallum \texttt{0x9800 - 0x9BFF}, egyébként pedig \texttt{0x9C00 - 0x9FFF}.
+
+  \item \textbf{5. bit:} Ez a bit szolgál a megjelenített \textit{frame}-en belüli \textit{window}-k ki-, illetve be\-kap\-cso\-lá\-sá\-ra. 0 érték esetén nem rajzoljuk ki ezeket, egyébként igen.
+
+  \item \textbf{4. bit:} Ezzel a bittel lehet állítani, hogy a háttérként, illetve \textit{window}-ként kirajzolt \textit{tile}-ok bájtjai merre találhatóak. Ezek a bájtok a konkrét csempéket tárolják. 0 érték esetén a \textit{tile}-ok helye a memóriában \texttt{0x8800 - 0x97FF}, 1-es érték esetén pedig \texttt{0x9C00 - 0x9FFF}. Érdekesség, hogy amennyiben az 0-s érték által reprezentált módban vagyunk, úgy a 6-os bitnél említett azonosító bájtok elõjeles bájtok, ér\-ték\-kész\-le\-tük pedig ennek megfelelõen a $[ -128, 128 ]$-as intervallum.
+
+  \item \textbf{3. bit:} Ez a bit azt mondja meg, hogy a játék a memória mely részében keresse a háttér kirajzolásához szükséges \textit{tile}-ok bájtjait. Ezek a bájtok is az adott csempék azonosítóit tárolják, a 6-os bithez hasonló módon. Ha az értéke 0, akkor az in\-ter\-val\-lum \texttt{0x9800 - 0x9BFF}, egyébként pedig \texttt{0x9C00 - 0x9FFF}.
+
+  \item \textbf{2. bit:} Ezzel a bittel azt lehet megadni, hogy a kirajzolandó \textit{sprite}-ok mérete a már említettek szerint 8$\times$8-as legyen (0 értékû bit esetén), vagy pedig 8$\times$16-os (1-es értékû bit esetén).
+
+  \item \textbf{1. bit:} Ez a bit az 5-ös bithez hasonló módon azt tudja szabályozni, hogy kirajzoljuk-e a vonatkozó adatokat. A konkrét adatok itt természetesen nem a \textit{window}-hoz fognak tartozni, hanem a \textit{sprite}-okhoz: 0-s érték esetén ezek renderelését lehet letiltani, illetve 1-es érték esetén engedélyezni.
+
+  \item \textbf{0. bit:} Ez a bit elõzõhöz, és az 5-ös bithez hasonlóan a kirajzolandó adatokat korlátozza: ebben az esetben a hátteret alkotó \textit{tile}-ok renderelését lehet letiltani 0-s értékkel, vagy engedélyezni 1-essel.
+\end{itemize}
+
+\noindent Most, hogy ismerjük a fenti, LCD Control Register által tárolt beállításokat, és el lehet kezdeni implementálni a hátteret alkotó \textit{tile}-ok kirajzolását végzõ eljárás(oka)t. Elõtte azonban készíthetünk egy, az adott sort renderelõ, egyszerû függvényt:
+
+\begin{minted}{rust}
+    fn draw_line(&mut self, cpu : &mut CPU) {
+
+        // Check if the tile rendering 
+        // is whether on or off
+        if CPU::get_bit(0, cpu.RAM[0xFF40])  {
+            self.draw_tile(cpu);
+        }
+
+        // Check if the sprite rendering
+        //  is whether on or off
+        if CPU::get_bit(1, cpu.RAM[0xFF40])  {
+            self.draw_sprite(cpu);
+        }
+    }
+\end{minted}

@@ -124,7 +124,7 @@ Az elõzõ alfejezetben említett LCD Státusz Regiszterhez hasonló, szintén az LCD 
   \item \textbf{0. bit:} Ez a bit elõzõhöz, és az 5-ös bithez hasonlóan a kirajzolandó adatokat korlátozza: ebben az esetben a hátteret alkotó \textit{tile}-ok renderelését lehet letiltani 0-s értékkel, vagy engedélyezni 1-essel.
 \end{itemize}
 
-\noindent Most, hogy ismerjük a fenti, LCD Control Register által tárolt beállításokat, és el lehet kezdeni implementálni a hátteret alkotó \textit{tile}-ok kirajzolását végzõ eljárás(oka)t. Elõtte azonban készíthetünk egy, az adott sort renderelõ, egyszerû függvényt:
+\noindent Most, hogy ismerjük a fenti, LCD Control Register által tárolt beállításokat, és el lehet kezdeni implementálni a hátteret alkotó \textit{tile}-ok kirajzolását végzõ eljárás(oka)t. Elõtte azonban készíthetünk egy, az adott sor renderelését menedzselõ, egyszerû függvényt:
 
 \begin{minted}{rust}
     fn draw_line(&mut self, cpu : &mut CPU) {
@@ -142,3 +142,119 @@ Az elõzõ alfejezetben említett LCD Státusz Regiszterhez hasonló, szintén az LCD 
         }
     }
 \end{minted}
+
+\subsection{Tile rendering}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=12cm]{./Resources/tile.eps}
+    \caption{\textit{A tile-ok segítségével összeállított háttér}}
+    \label{fig:tile}
+\end{figure}
+
+\noindent Az elõzõek alapján már kaptunk némi ismeretet a PPU és az LCD mûködésérõl, a fontosabb regiszterekrõl és renderelési módokról, ideje tehát rátérni a konkrét \textit{tile renderingre}. \\
+Az elsõ fontos kérdés ami felmerülhet, hogy \textit{az említésre került 256$\times$256 méretû virtuális területnek pontosan melyik 160$\times$144 nagyságú részletét jelenítsük meg a képernyõn?} A korábbi, \ref{fig:screenmap}-es ábrán, és az ahhoz tartozó leírásban már volt erre vonatkozó utalás: a \textit{hasznos} területet a \textit{ScrollX} és \textit{ScrollY} regiszterek segítségével kaphatjuk meg. A rendre \texttt{0xFF42} és \texttt{0xFF43}-as címeken elérhetõ, X és Y koordinátákat tároló bájtok mutatják az ominózus 160$\times$144-es renderelendõ terület bal felsõ sarkának távolságát az origótól (a teljes, 256$\times$256 méretû terület bal felsõ sarka). Amennyiben \textit{window} renderelésére is szükség van, annak megjelenítési helyét hasonló módon, két regiszter segítségével (\textit{WindowX}: \texttt{0xFF4B}, \textit{WindowY}: \texttt{0xFF4A}) tehetjük meg, viszont itt a látható, 160$\times$144-es terület bal felsõ sarka a kiindulópont, origó.
+
+\subsubsection{A \textit{tile} adatainak meghatározása, algoritmus}
+Most, hogy megvannak a regiszterek, amelyek segítségével kiszámítható, hogy a virtuális terület mely része lesz konkrétan látható, következhet a renderelés következõ szakasza. Az LCD Control Registerbõl ki kell olvasni a fentebb említett, megfelelõ biteket, és ezek alapján be kell állítani a \textit{tile} azonosítók, és a konkrét \textit{tile} leírók memóriában elhelyezkedõ kezdõcímét. A biteket megvizsgálva ez egyszerû elágazásokkal megtehetõ. Ezt követõen meg kell határozni a virtuális, teljes felbontáson értelmezett pozíciót, és a \textit{tile} elhelyezkedését (sorát) a 32$\times$32-es csempetérképen a következõ módon:
+
+\begin{minted}{rust}
+    if !using_window {
+        y_pos = self.scroll_y.wrapping_add(cpu.RAM[0xFF44]);
+    } else {
+        y_pos = cpu.RAM[0xFF44] - self.window_y;
+    }
+
+    let tile_row : u16 = (y_pos as u16 / 8) * 32;
+\end{minted}
+
+\noindent Ezek az adatok a \textit{tile}-ok kirajzolásához szükségesek lesznek. A következõ lépés a nagy, 160 iterációval járó ciklus -- ez a szám nem véletlen, minden egyes kirenderelt sorra egy iteráció jut. Ennek a ciklusnak a lépéseit pszeudokód segítségével, rövidebb formában fogjuk végigkövetni, a bonyolultabb részek implementációjára fókuszálva, a triviálisakat kihagyva. A ciklus pszeudokódja:
+
+\begin{enumerate}
+  \item \texttt{i=1-tõl 160-ig egyesével:}
+  \begin{enumerate}
+  \item[1.1] \texttt{Számoljuk ki az X koordinátát.}
+  \item[1.2] \texttt{Számoljuk ki a tile oszlopát és határozzuk meg a ti\-le me\-mó\-ri\-a\-cí\-mét.}
+  \item[1.3] \texttt{A cím segítségével másoljuk ki a memóriából a tile a\-zo\-no\-sí\-tó\-ját.}
+  \item[1.4] \texttt{Az azonosító segítségével határozzuk meg a tile pon\-tos helyét a memóriában.}
+  \item[1.5] \texttt{A kurrens sor számának segítségével határozzuk meg a tile Y pozícióját.}
+  \item[1.6] \texttt{Az Y pozíció és memóriahely segítségével másoljuk ki a tile konkrét sorához tartozó két bájtot.}
+  \item[1.7] \texttt{Vegyük ki a két bájt által tárolt adatokból a kur\-rens pixel színének értékét.}
+  \item[1.8] \texttt{Határozzuk meg a színpaletta alapján hogy az adott \\
+  szín pontosan milyen.}
+  \item[1.9] \texttt{Írjuk a framebuffer megfelelõ helyére a megfelelõ szín értékét, majd GOTO 1.}
+\end{enumerate}
+\end{enumerate}
+
+\noindent Az X koordinátát egyszerûen a ciklusváltozót a \texttt{scroll\_x}-hez hozzáadva megkaphatjuk. Ennek segítségével pedig kiszámolható a \textit{tile} oszlopa: egyszerûen el kell osztani 8-cal (mert egy \textit{tile} mérete 8$\times$8). A memóriacím meghatározása úgy történik, hogy a kez\-dõ\-cím\-hez hozzáadjuk a már fent kiszámolt \texttt{tile\_row}-t és az imént kiszámolt \textit{tile} oszlopát \newline (\texttt{tile\_col}). \\
+A csempe pontos helyének meghatározása a következõk szerint történik:
+
+\begin{minted}{rust}
+  if unsigned_data {
+    tile_location += tile_num_u as u16 * 16;
+  } else {
+    tile_location += ((tile_num_i as i16 + 128)*16) as u16;
+  }
+\end{minted}
+
+\noindent Itt \texttt{tile\_num\_u} a csempe azonosítója \texttt{unsigned} formában, a \texttt{tile\_num\_i} pedig \texttt{signed}-ként. A 16-tal való szorzás azért történik, mert egy \textit{tile} 8 soros, és minden sorhoz tartozik két leíró bájt. Az elágazás \texttt{else} ága azt az esetet taglalja, mikor a kiolvasott azonosító elõjeles típusú. Ebben az esetben egy \textit{offset} értéket (128) kell adni az a\-zo\-no\-sí\-tó\-hoz, mielõtt felhasználnánk. \\
+Az aktuális sorhoz tartozó két bájtot immár ki tudjuk olvasni a memóriából a következõ módon:
+
+\begin{minted}{rust}
+  let mut line : u8 = y_pos % 8;
+  line *= 2;
+
+  let d1 : u8 = cpu.RAM[(tile_location 
+                + line as u16) as usize];
+  let d2 : u8 = cpu.RAM[(tile_location 
+                + line as u16 + 1) as usize];
+\end{minted}
+
+\noindent A \texttt{line} segítségével megkapjuk a 32$\times$32-es csempetérkép-beli sorszámot (ezért a 8-cal való osztás), majd ezt ket\-tõ\-vel felszorozzuk, mert -- ahogy már említésre került -- két bájt tartozik egy sorhoz. Ezt a változót hozzáadva az elõbb kiszámított memóriacímhez megkapjuk az elsõ bájt címét, ahhoz egyet adva pedig a másodikét. \\
+A következõ feladat a fentihez hasonló módon szintén egy modulo 8-as mûvelet -- de ez esetben az X koordinátán, hogy megtudjuk hogy a csempe aktuális során belül melyik pixelt keressük. Itt viszont egy apró trükkre van szükségünk: a csempe sorát leíró két bájt fordítva tárolja a szín értékeket, így "inverzet" kell vennünk (7-bõl 0 lesz, 6-ból 1, stb.). Amennyiben ezzel megvagyunk, már csak a leíró bájtok által meghatározott színt kell visszakeresni a palettának megfelelõen, majd pedig ezt az értéket a \texttt{framebuffer} memóriába (VRAM) kell írni. 
+
+\subsubsection{A színek és a paletta}
+
+A fentiekben említettek szerint tehát egy \textit{tile} minden sorához két bájtnyi leíró adat tartozik. Ezeknek valamilyen kombinációja szükséges ahhoz, hogy a sorban lévõ mind a 8 pixel színét el lehessen tárolni. A Game Boy kijelzõje 4 féle színt tud megjeleníteni, 4 féle állapotot pedig 2 bittel tudunk ábrázolni. Minden pixelhez tehát két bit kell hogy tar\-toz\-zon... és pont két bájtunk van! Az egyes pixelek színeit az alábbiak alapján tudjuk kiolvasni:
+
+\newpage
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|c|c|c|c|c|c|c|c| } 
+   \hline
+   \textbf{A tile sorának pixelei} &\texttt{0} & \texttt{1} & \texttt{2} & \texttt{3} & \texttt{4} & \texttt{5} & \texttt{6} & \texttt{7} \\ \hline
+   \textbf{2. byte} &\texttt{0} & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{0} \\ \hline
+   \textbf{1. byte} &\texttt{1} & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{1} & \texttt{0} & \texttt{0} & \texttt{1} \\ \hline \hline
+   \textbf{Színek} & \cellcolor{GBLG}\textcolor{white}{\texttt{01}} & \cellcolor{GBDDG}\textcolor{white}{\texttt{11}} & \cellcolor{GBDDG}\textcolor{white}{\texttt{11}} & \cellcolor{GBLLG}\textcolor{white}{\texttt{00}} & \cellcolor{GBLG}\textcolor{white}{\texttt{01}} & \cellcolor{GBLLG}\textcolor{white}{\texttt{00}} & \cellcolor{GBDG}\textcolor{white}{\texttt{10}} & \cellcolor{GBLG}\textcolor{white}{\texttt{01}} \\ \hline
+  \end{tabular}
+  \caption{\textit{A színek értékeinek meghatározása}}
+  \label{table:2}
+\end{table}
+
+\noindent A fenti \ref{table:2}-es táblázat alsó sorában szereplõ értékeket úgy lehet megkapni, hogy a felette lévõ két sor azonos oszlopaiban szereplõ értékeket egymás után összeolvassuk. Figyelni kell rá, hogy az elsõ bit a második bájtból jön, nem az elsõbõl, tehát fordított sorrendet alkalmaztak a tervezés során a Nintendo mérnökei. Ezek a kiolvasott értékek decinális számmá alakíthatók, ezek adják meg azt, hogy a palettából melyik színt kell használni. Az alapértelmezett paletta (illetve annak szürkeárnyalatos analógiája):
+
+\begin{itemize}
+  \item \texttt{00}: fehér
+  \item \texttt{01}: világosszürke
+  \item \texttt{10}: szürke
+  \item \texttt{11}: fekete
+\end{itemize}
+
+\noindent A programozók azonban megadhattak, és definiálhattak saját palettát, melyet az \texttt{0xFF47}-es címen lehetett elérni. A fenti, decimálissá alakított szín azonosítókkal lehetett elérni a definiált színeket: 0-s érték esetén a paletta 0. és 1. bitjén tárolt színt kell használni, 1-es érték esetén a 2., illetve 3. bitet, és így tovább. Ezeket a konverziókat és visszakereséseket az emulátorban a \texttt{PPU} struktúra \texttt{select\_colors} függvénye végzi el. A megfelelõ szín megkeresése után, annak értékét beírva a \texttt{framebuffer}-be, a ciklus végére jutottunk, sikerült kirajzolni egy pixelt. \\
+Az idáig ismertetett megoldások és modulok implementálásával az emulátor már le tudja futtatni a Boot ROM-ot, amely futása közben felülrõl lefelé beúszik a Nintendo logó, az alábbi módon:
+
+\begin{figure}[h!]%
+    \centering
+    \subfloat{\includegraphics[width=\textwidth/3-0.7cm]{./Resources/boot1.eps}}%
+    \qquad
+    \subfloat{\includegraphics[width=\textwidth/3-0.7cm]{./Resources/boot2.eps}}%
+    \qquad
+    \subfloat{\includegraphics[width=\textwidth/3-0.7cm]{./Resources/boot3.eps}}%
+    \caption{\textit{Beúszó Nintendo logó -- a Boot ROM futása közben}}%
+    \label{fig:bootscroll}%
+\end{figure}
+
+\subsection{Sprite rendering}
+
+Ahhoz, hogy ne csak a Boot ROM, illetve az egyszerûbb, csak \textit{tile renderinget} használó játékok fussanak megfelelõen, további renderelési módszerek implementálására van szük\-ség. A mozgó, villogó, interaktív elemek az elõzõekben már említett ún. \textit{sprite}-ok, melyek megjelenítésükben különböznek a \textit{tile}-októl.

@@ -257,4 +257,42 @@ Az idáig ismertetett megoldások és modulok implementálásával az emulátor már le 
 
 \subsection{Sprite rendering}
 
-Ahhoz, hogy ne csak a Boot ROM, illetve az egyszerûbb, csak \textit{tile renderinget} használó játékok fussanak megfelelõen, további renderelési módszerek implementálására van szük\-ség. A mozgó, villogó, interaktív elemek az elõzõekben már említett ún. \textit{sprite}-ok, melyek megjelenítésükben különböznek a \textit{tile}-októl.
+Ahhoz, hogy ne csak a Boot ROM, illetve az egyszerûbb, csak \textit{tile renderinget} használó játékok fussanak megfelelõen, további renderelési módszerek implementálására van szük\-ség. A mozgó, villogó, interaktív elemek az elõzõekben már említett ún. \textit{sprite}-ok, melyek megjelenítésükben különböznek a \textit{tile}-októl. A \textit{sprite}-ok adatai a RAM felosztását taglaló fejezetben már említettek szerint a \texttt{0x8000 - 0x8FFF} területen vannak eltárolva. Sze\-ren\-csé\-re esetükben csak elõjel nélküli, \texttt{unsigned} azonosítókról beszélhetünk, tehát az elõjeles esetek lekezelésével nem kell foglalkozni. A fenti memória területen 40 darab \textit{sprite} adata fér el, renderelés során ezeken kell végigmenni, és a megfelelõeket az \textit{att\-ri\-bú\-tu\-ma\-ik\-nak} megfelelõen kirajzolni. Ezek az attribúrumok a SAT-ban, vagyis a \textit{Sprite Attribute Table}-ben találhatók, a \texttt{0xFE00 - 0xFE9F} területen. Itt minden \textit{sprite}-hoz pontosan 4 bájtnyi attribútum van eltárolva. Ezek a következõk:
+
+\begin{itemize}
+  \item \textbf{A \textit{sprite} Y koordinátája}: a látható kijelzõn értelmezett Y koordináta mínusz 16 (a 8$\times$16-os \textit{sprite}-ok miatt).
+  \item \textbf{A \textit{sprite} X koordinátája}: a látható kijelzõn értelmezett X koordináta mínusz 8 (a 8$\times$16-os \textit{sprite}-ok miatt).
+  \item \textbf{\textit{Sprite} azonosító}: ezt az azonosítót használva tudjuk megtalálni a megfelelõ adatot a \texttt{0x8000 - 0x8FFF} területen.
+  \item \textbf{Attribútumok}: egyéb, a \textit{sprite}-ok kinézetét és renderelését szabályozó opciókat tároló regiszter.
+\end{itemize}
+
+\noindent A fentiek közül az elsõ három bájt triviális, hiszen a \textit{tile renderingnél} is voltak hasonló értékek, azonban az attribútum regiszter újdonság. Nézzük ennek a regiszternek a bitjeit:
+
+\begin{itemize}
+  \item \textbf{7. bit:} más néven Prioritás bit, vagy \textit{Priority Flag}, amennyiben ennek az értéke 1, akkor a \textit{sprite} a háttér és/vagy \textit{window} alá fog kerülni, és így nem lesz látható, azzal a kivétellel, ha az elõbbiek közül valamelyik színe fehér -- ebben az esetben látható lesz. Ha a bit értéke 0, akkor mindig a háttér és/vagy \textit{window} fölött fog megjelenni a \textit{sprite}.
+  \item \textbf{6. bit:} ez a bit az Y flip bit, ha az értéke 1, akkor az aktuális \textit{sprite} fejjel lefelé fog kirajzolódni (tükrözõdik az Y tengely mentén). 
+  \item \textbf{5. bit:} ez a bit az X flip bit, ha az értéke 1, akkor az aktuális \textit{sprite} X tengely menti tükörképe fog menjelenni a kijelzõn.
+  \item \textbf{4. bit:} ezzel a bittel az aktuális \textit{sprite} kirajzolásához szükséges palettát tudjuk megadni, 0 értéke esetén a \texttt{0xFF48} címen található bájt lesz a palette, egyébként pedig a \texttt{0xFF49}.
+  \item \textbf{3. - 0. bitek:} nincsenek használatban.
+\end{itemize}
+
+\noindent Az attribútumok ismertetésével minden információ a birtokunkban van ahhoz, hogy imp\-le\-men\-tál\-juk a \textit{sprite renderinget}. A renderelõ ciklus leegyszerûsített pszeudokódja a kö\-vet\-ke\-zõ:
+
+\begin{enumerate}
+  \item[0.] \texttt{Nézzük meg a sprite méretet.}
+  \item \texttt{i=0-tõl 40-ig egyesével:}
+  \begin{enumerate}
+  \item[1.1] \texttt{Számoljuk ki az sprite attribútumainak címét az i \\ se\-gít\-sé\-gé\-vel.}
+  \item[1.2] \texttt{Mentsük le a sprite X és Y pozícióit tartalmazó \\ re\-gisz\-terek értékeit.}
+  \item[1.3] \texttt{Mentsük le a sprite azonosítóját és az attribútumait.}
+  \item[1.4] \texttt{Ellenõrittük le, hogy az aktuális sprite rajta van-e az aktuális scanline-on. Ha nem: GOTO 1.}
+  \item[1.5] \texttt{Határozzuk meg a sprite jelenleg kirajzolandó sorát.}
+  \item[1.6] \texttt{Határozzuk meg a sprite jelenlegi sorának adatait \\ tar\-tal\-ma\-zó byte-ok kezdõcímét, és mentsük le õket.}
+  \item[1.7] \texttt{Vegyük ki a két bájt által tárolt adatokból a kur\-rens pixel színének értékét.}
+  \item[1.8] \texttt{Határozzuk meg a színpaletta alapján hogy az adott \\
+  szín pontosan milyen.}
+  \item[1.9] \texttt{Írjuk a framebuffer megfelelõ helyére a megfelelõ \\ szín értékét, majd GOTO 1.}
+\end{enumerate}
+\end{enumerate}
+
+\noindent A fenti algoritmus nagy része a \textit{tile rendering} ismertetése során adott megoldással össze\-ha\-son\-lít\-va triviális, a maradék pedig az attribútumok leírásából kikövetkeztethetõ. 

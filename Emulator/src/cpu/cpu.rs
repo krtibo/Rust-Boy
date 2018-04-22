@@ -86,7 +86,7 @@ impl CPU {
         let mut cycle : u32 = 0;
         let mut opcode : Opcode = Opcode::new();
         let mut debug_data : DebugData = DebugData::new();
-        let mut ppu : PPU = PPU::new();
+        let mut ppu : PPU = PPU::new(self.options);
         // let mut debugger : Debugger = Debugger::new();
         // let mut mem : MemoryMap = MemoryMap::new();
         let mut timer : Timer = Timer::new();
@@ -96,7 +96,6 @@ impl CPU {
 
         // main loop - this repeats forever
         loop {
-
             // cycle loop - one "lap" equals one CPU operation @60 FPS
             while cycle < CYCLES && self.PC <= 65534 {
 

@@ -39,8 +39,9 @@ fn main() {
         let path = args[1].clone();
 
         match args[2].as_ref() {
-            "-d" => rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 1),
-            "-r" => rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 2),
+            "-X1" => rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 1),
+            "-X2" => rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 2),
+            "-X4" => rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 4),
             _    => {
                 println!("* * * * * * * * * * * * * * * * * *");
                 println!("* Your argument is invalid: {:?}  *", args[2]);
@@ -52,22 +53,6 @@ fn main() {
         rust_boy.load_bootrom();
         rust_boy.load_rom();
         rust_boy.cycle();
-    }
-
-    if args.len() == 4 {
-        let path = args[1].clone();
-
-        if (args[2] == "-d" && args[3] == "-r") || (args[2] == "-r" && args[3] == "-d") {
-            rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 3);
-            rust_boy.load_bootrom();
-            rust_boy.load_rom();
-            rust_boy.cycle();
-        } else {
-            println!("* * * * * * * * * * * * * * * * * * * * *");
-            println!("* Your arguments are invalid: {:?} {:?} *", args[2], args[3]);
-            println!("* * * * * * * * * * * * * * * * * * * * *");
-            return
-        }
     }
 
 

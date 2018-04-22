@@ -4064,7 +4064,7 @@ impl Opcode {
 
     fn di_f3(&mut self, cpu : &mut CPU) -> u8 {
 
-        self.disable_int = true;
+        cpu.IR = false;
 
         self.last_instruction = "DI";
         self.operand_mode = 0;

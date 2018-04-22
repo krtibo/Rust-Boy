@@ -33,7 +33,15 @@ pub struct PPU {
 }
 
 impl PPU {
-    pub fn new() -> PPU {
+    pub fn new(scale : u8) -> PPU {
+        let mut s : Scale = Scale::X1;
+        match scale {
+            1 => s = Scale::X1,
+            2 => s = Scale::X2,
+            4 => s = Scale::X4,
+            _ => s = Scale::X1,
+        }
+
         PPU {
             scanline_count : 0,
             lcd_ctrl : 0,
@@ -46,7 +54,7 @@ impl PPU {
                          144,
                          WindowOptions {
                              resize: false,
-                             scale: Scale::X2,
+                             scale: s,
                              ..WindowOptions::default()})
                              .unwrap(),
             framebuffer : [0xFFCADC9F; 160*144],

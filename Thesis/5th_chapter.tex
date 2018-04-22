@@ -63,7 +63,10 @@ A PPU, azaz a Game Boy renderelésért felelõs grafikus alrendszere után itt az id
   LD ($FF00),A
   RET
 \end{minted}
-\caption{\textit{A Ms. Pacman játék gombnyomás kezelõ kódja}}
+\caption{\textit{
+\\ A Ms. Pacman játék 
+\\ gombnyomás kezelõ 
+\\ kódja}}
 \label{fig:pacman}
 \end{wrapfigure}
 
@@ -73,3 +76,41 @@ Most, hogy már tisztában vagyunk a megfelelõ regiszterrel, illetve azzal, hogy a
 
 \subsection{Gombnyomás detektálás}
 
+Ahhoz, hogy detektálni tudjuk egy gomb lenyomását, és egyúttal reagálni tudjunk rá, szükségünk van egy külsõ könyvtárra, amely megvalósítja ezt a fajta eseménykezelést. Az emulátor fejlesztésének kezdetén, mikor a \textit{framebuffert} megvalósító \textit{library} kiválasztására került a sor, figyelembe vettem, hogy késõbb szükség lesz majd a gombnyomások ke\-ze\-lé\-sé\-re is -- így esett a választás a 2.2.2-es szakaszban taglalt \texttt{minifb} könyvtárra. Ez a könyvtár nem csak a renderelést könnyíti meg, hanem képes arra amire most szükségünk van: a gombnyomások regisztrálására. \\
+A \texttt{minifb} \textit{crate} \texttt{Window} struktúrája valósítja meg a renderelésnél is használt ablak megjelenítését, frissítését, és egyéb funkciókat, például a billentyû lenyomásának ke\-ze\-lé\-sét. A billentyûzettel kapcsolatos függvények, és azok magyarázatai a következõk:
+
+\begin{itemize}
+  \item \mintinline{rust}{fn get_keys(&self)}: az aktuálisan lenyomott billentyûk azonosítóit adja visz\-sza egy \mintinline{rust}{Option<Vec<Key>>} értékként, ezeket iterátorral tudjuk bejárni.
+  \item \mintinline{rust}{fn get_keys_pressed(&self, repeat: KeyRepeat)}: az elõzõ függ\-vény\-hez hasonló módon a lenyomott billentyûket adja vissza egy tömbben, azonban a \mintinline{rust}{repeat} paraméterben meg lehet adni, hogy kiszûrje a folyamatosan nyomva tartott bil\-len\-tyû\-ket.
+  \item \mintinline{rust}{fn is_key_down(&self, key: Key)}: a \mintinline{rust}{key} paraméterben megadott bil\-len\-tyûazonosítóhoz tartozó billentyû lenyomását vizsgálja, egy \mintinline{rust}{bool} értékkel tér vissza. A visszatérési érték akkor lesz igaz, ha a billentyû éppen le van nyomva.
+  \item \mintinline{rust}{fn is_key_pressed(&self, key: Key, repeat: KeyRepeat)}: az elõzõ két függvény ötvözete: egy \mintinline{rust}{bool} értékkel tér vissza, amelynek értéke 1, ha a paraméterben megadott azonosítóhoz tartozó billentyû le van nyomva, illetve szintén paraméterben megadható a folyamatosan lenyomott billentyûk kiszûrése is.
+\end{itemize}
+
+\noindent Ezek közül a függvények közül végül a legegyszerûbb mûködésû \mintinline{rust}{is_key_down}-t vá\-lasz\-tot\-tam (annak ellenére, hogy az összes többivel megvalósítható a mûködés), amely segítségével az alábbi, \ref{table:1}-es táblázatban szereplõ megfeleltetések sze\-rint vizsgálom a lenyomott billentyûket:
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|c|c|c|c|c|c|c|c| } 
+   \hline
+   \textbf{A Game Boy gombjai} &\textit{Jobbra} & \textit{Balra} & \textit{Fel} & \textit{Le} & \textit{A} & \textit{B} & \textit{Select} & \textit{Start} \\ \hline
+   \textbf{Megfeleltetett gombok} &\textit{D} & \textit{A} & \textit{W} & \textit{S} & \textit{J} & \textit{K} & \textit{Space} & \textit{Right Shift} \\ \hline
+   \textbf{Azonosítók} & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline
+  \end{tabular}
+  \caption{\textit{A gombok kiosztása a billentyûzeten}}
+  \label{table:1}
+\end{table}
+
+\noindent Így például a \textit{jobbra} gombnak megfeleltetett \textit{D} gomb lenyomását az alábbiak szerint vizsgálom:
+
+\begin{minted}{rust}
+  if window.is_key_down(Key::D) {
+    self.pressed_button(0, cpu);
+  } else { 
+    self.released_button(0); 
+  }
+\end{minted}
+
+\noindent A fenti kódrészlet a gomblenyomás kezelését megvalósító \mintinline{rust}{Joypad} struktúrában szereplõ \mintinline{rust}{scan_window_button_pressed} függvény része. Minden lehetséges billentyûre (8 darab) meg van írva a megfelelõ \texttt{pressed} és \texttt{released} állapothoz tartozó függ\-vény\-hí\-vás. Ez a \mintinline{rust}{scan_window_button_pressed} függvény minden CPU ciklus elején meghívódik a fõ ciklusban. \\
+A \mintinline{rust}{released_button} egész egyszerûen veszi a felengedett billentyû azonosítóját, és a \textit{Joypad Registerben} 1-re állítja az értékét. \\
+A \mintinline{rust}{pressed_button} mûködése azonban kissé bonyolultabb. Ez a függvény elõször is megvizsgálja, hogy a paraméterben kapott gomb (billentyû) állapota változott-e a leg\-u\-tób\-bi\-hoz képest, majd ez alapján beállít egy \mintinline{rust}{bool} típusú változót. Ezt követõen megállapítja az azonosító alapján hogy a kapott gomb melyik csoportba tartozik, majd lementi az \texttt{0xFF00} aktuális állapotát egy változóba. A következõ lépés az, hogy az adott gomb csoporthoz tartozó, kijelölõ bit állapotát figyelembe véve megállapítja, hogy a játék kí\-ván\-csi-e az adott gomb lenyomására, és ha igen, (és az elsõ lépés szerint állapotváltozás is történt), akkor megszakítási kérelmet küld a processzornak. \\
+Az utolsó gomnyomással kapcsolatos függvény az \mintinline{rust}{update_state}, amely a fejezet bevezetõjében lévõ kód kapcsán ismertetett leírásnak megfelelõen megnézi, hogy a játék melyik gombcsoportra kíváncsi, majd aszerint frissíti az \texttt{0xFF00} címen lévõ \textit{Joypad Registert}. Ezt a függvényt is a \mintinline{rust}{scan_window_button_pressed}-hez hasonlóan meg kell hívni minden CPU ciklus elején, és visszatérési értékével frissíteni kell a \textit{Joypad Registert}.

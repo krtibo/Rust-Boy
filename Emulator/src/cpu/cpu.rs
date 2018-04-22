@@ -24,15 +24,15 @@
 use std::io::prelude::*;
 use std::fs::File;
 use opcode::Opcode;
-use cpu::debugger::Debugger;
+// use cpu::debugger::Debugger;
 use cpu::debugger::DebugData;
 use ppu::PPU;
 use timer::Timer;
 use joypad::Joypad;
 use interrupt::Interrupt;
-use memorymap::MemoryMap;
+// use memorymap::MemoryMap;
 extern crate minifb;
-use self::minifb::{Key, KeyRepeat};
+// use self::minifb::{Key, KeyRepeat};
 
 const CYCLES : u32 = 69905; // 4194304 (clock cycle) / 60
 
@@ -54,6 +54,7 @@ pub struct CPU {
     pub boot_rom_path : String,
     pub rom_path : String,
     pub options : u8,
+    pub title : String,
 }
 
 impl CPU {
@@ -77,16 +78,17 @@ impl CPU {
             boot_rom_path : path_b,
             rom_path : path_r,
             options : o,
+            title : String::from("RUST BOY"),
         }
     } // fn new
 
     pub fn cycle(&mut self) {
         let mut cycle : u32 = 0;
         let mut opcode : Opcode = Opcode::new();
-        let mut debugger : Debugger = Debugger::new();
         let mut debug_data : DebugData = DebugData::new();
-        let mut mem : MemoryMap = MemoryMap::new();
         let mut ppu : PPU = PPU::new();
+        // let mut debugger : Debugger = Debugger::new();
+        // let mut mem : MemoryMap = MemoryMap::new();
         let mut timer : Timer = Timer::new();
         let mut joypad : Joypad = Joypad::new();
         let mut interrupt : Interrupt = Interrupt::new();
@@ -102,6 +104,7 @@ impl CPU {
                 if self.PC == 0x100 && self.boot_rom == false {
                     self.boot_rom = true;
                     self.load_rom_header();
+                    ppu.window.set_title(&self.title);
                 }
 
                 // scan for any pressed button BEFORE any operation begins
@@ -127,20 +130,6 @@ impl CPU {
 
                 debug_data.parse_data_from_cpu(data);
 
-                // if the user stops the emulator with the space button,
-                // go in a loop and render the debugger window continuously
-                if debugger.window.is_key_pressed(Key::Space, KeyRepeat::No){
-                    loop {
-                        debugger.update_window(&debug_data);
-                        mem.print_ram(self);
-
-                        // if the left control is pressed, resume the emulator
-                        if debugger.window.is_key_pressed(Key::LeftCtrl, KeyRepeat::No) {
-                            break
-                        }
-                    }
-                }
-
                 // frequency change request handler
                 if self.freq_change {
                     timer.update_freq(self);
@@ -155,8 +144,8 @@ impl CPU {
             } // cycle loop
 
             // update the debugger, memory map and render the PPU VRAM
-            debugger.update_window(&debug_data);
-            mem.print_ram(self);
+            // debugger.update_window(&debug_data);
+            // mem.print_ram(self);
             ppu.render();
             cycle = 0;
 
@@ -201,6 +190,7 @@ impl CPU {
 
     pub fn load_rom_header(&mut self) {
         let mut rom_buffer : Vec<u8> = Vec::new();
+        let mut title_vec : Vec<u8> = Vec::new();
 
         //open the ROM
         let mut f = File::open(&self.rom_path)
@@ -214,6 +204,19 @@ impl CPU {
         for i in 0..0x100 {
             self.RAM[i] = rom_buffer[i];
         }
+
+        for i in 0x134..0x143 {
+            if self.RAM[i] > 0 {
+                title_vec.push(self.RAM[i]);   
+            }
+        }
+
+        //self.title = String::from_utf8_lossy(&title);
+        self.title.push_str(" - ");
+        let t : String = String::from_utf8_lossy(&title_vec).into_owned();
+        self.title.push_str(&t);
+        println!("{}", self.title);
+
     } // fn load_rom_header
 
     pub fn write_ram(&mut self, address : u16, value : u8) {

@@ -56,17 +56,17 @@ A Game Boy emulátorok tesztelésére többféle módszer létezik. Írhatunk saját magu
 \noindent A ROM-ok futásuk során minden sikertelen teszt esetet kiírnak, néhol több, de inkább kevesebb hiba információval szolgálva. Az természetesen vitén felül áll, hogy ezekkel a ROM-okkal párhuzamosan ajánlott fejleszteni az emulátort, hiszen megmentheti a prog\-ra\-mo\-zót a késõbbi fejfájásoktól, amit az egyes utasításokban rejlõ bugok okoznak. Sikeres esetben a \textit{Passed} felirat jelenik meg a képernyõn. Mint a fenti ábra alapján is látszik, 11 darab teszt ROM van, összesen több száz teszt esettel. Az általam fejlesztett emulátor az összes elérhetõ Blargg-féle teszt ROM-ot sikeres eredménnyel zárja, egyetlen kivétellel -- a megszakításokkal kapcsolatos \texttt{02-interrupts} nevû teszt 4. teszt esetét nem tudja sikeresen elvégezni. Az emellé kapott hibaüzenet nem sokat segít -- a "\textit{Timer doesn't work}" üzenet egyszerûen nem igaz, az idõzítõk mûködnek. Sok kutatás után arra a kö\-vet\-kez\-te\-tés\-re jutottam, hogy a megszakítások idõzítése valószínûleg nem tökéletes, sok emulátor megbukik ezen a teszten, szigorú feltételeknek kell eleget tenni. Mivel sem magamtól, sem pedig az interneten nem találtam megoldást erre, így nem sikerült ezt kijavítani. Az egyes teszt ROM-ok által tartalmazott utasításokat a következõ felsorolás foglalja össze:
 
 \begin{itemize}
-  \item \textbf{\texttt{01-special:}} 
-  \item \textbf{\texttt{02-interrupts:}} 
-  \item \textbf{\texttt{03-op sp,hl:}} 
-  \item \textbf{\texttt{04-op r,imm:}} 
-  \item \textbf{\texttt{05-op rp:}} 
-  \item \textbf{\texttt{06-ld r,r:}} 
-  \item \textbf{\texttt{07-jr,jp,csall,ret,rst:}} 
-  \item \textbf{\texttt{08-misc instrs:}} 
-  \item \textbf{\texttt{09-op r,r}} 
-  \item \textbf{\texttt{10-bit ops:}} 
-  \item \textbf{\texttt{11-op a,(hl):}} 
+  \item \textbf{\texttt{01-special:}} ez a teszt csomag a speciális ugrás és betöltõ mûveleteket, valamint a \mintinline{asm}{DAA} mûveletet ellenõrzi -- ez utóbbit az az \texttt{A} regiszter összes lehetséges állapotában és a \textit{flagek} minden lehetséges permutációjával. 
+  \item \textbf{\texttt{02-interrupts:}} ezek a tesztek az \mintinline{asm}{EI}, \mintinline{asm}{DI} megszakítás engedélyezõ, illetve tiltó mûveleteket, a \mintinline{asm}{HALT} mûveletet, és a megszakítások idõzítéseit vizsgálják.
+  \item \textbf{\texttt{03-op sp,hl:}} ez a teszt ROM olyan teszt eseteket tartalmaz, amelyek azon mûveleteket ellenõrzik, amelyek esetén vagy a \textit{Stack Pointer}, vagy a \textit{Stack Pointer} és a \texttt{HL} regiszter az operandus. Ezek lehetnek aritmatikai vagy betöltõ mûveletek is.
+  \item \textbf{\texttt{04-op r,imm:}} ez a teszt olyan mûveletek helyességét ellenõrzi, amelyek e\-se\-té\-ben a második operandus egy konkrét bájt (nem memóriacímként megadott hivatkozás).
+  \item \textbf{\texttt{05-op rp:}} ez a teszt csomag azokat a mûveleteket ellenõrzi, amelyek esetében 16 bites értékeken, azaz a \texttt{BC}, \texttt{DE}, \texttt{HL} regiszter párokon végzünk feladatokat. 
+  \item \textbf{\texttt{06-ld r,r:}} ezzel a teszttel az összes -- regiszterek közti -- \mintinline{asm}{LD} mûveletet tudjuk ellenõrizni.
+  \item \textbf{\texttt{07-jr,jp,call,ret,rst:}} ennek a teszthalmaznak a neve sokat elárul: eljárás utasításokat, vagyis ugrásokat, és feltételes ugrásokat, eljáráshívásokat, visszaté\-ré\-se\-ket, és a \textit{reset} mûveleteket ellenõrzi.
+  \item \textbf{\texttt{08-misc instrs:}} ez a teszt csomag azon mûveletek helyességét ellenõrzi, amelyek semelyik más kategóriába sem fértek be: a \mintinline{asm}{PUSH}-t és \mintinline{asm}{POP}-ot, valamint a speciális betöltõ utasításokat.
+  \item \textbf{\texttt{09-op r,r:}} ezzel a teszttel fõként az aritmetikai mûveleteket lehet el\-le\-nõ\-riz\-ni: az összes összeadás, kivonás, logikai mûvelet, forgatás, csere, eltolás variációra tartalmaz teszt esetet.
+  \item \textbf{\texttt{10-bit ops:}} ez a teszt az összes bitmûveletet ellenõrzi: a bit lekéréseket, \textit{resetet}, \textit{setet} egyaránt.
+  \item \textbf{\texttt{11-op a,(hl):}} ez a teszt ROM olyan teszt eseteket futtat le, amelyek azokat a processzor mûveleteket vizsgálják, ahol valamelyik operandus egy két bájtos (egy regiszterpárból kombinált) memóriacím, amely címen lévõ értékkel szeretnénk dolgozni.
 \end{itemize}
 
 \section{Az elért eredmények, összegzés}

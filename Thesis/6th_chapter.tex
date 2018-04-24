@@ -70,3 +70,38 @@ A Game Boy emulátorok tesztelésére többféle módszer létezik. Írhatunk saját magu
 \end{itemize}
 
 \section{Az elért eredmények, összegzés}
+
+Az emulátor fejlesztési projektúgy kezdõdött, hogy célként azt állítottam magam elé, hogy olyan emulátort fejlesztek, ami legalább a Boot ROM-ot tudja futtatni. Ezt jócskán sikerült túlszárnyalni. \\
+Kijelenthetõ, hogy az általam fejlesztett emulátor (a megszakítások idõzítését kivéve) processzor mûveletei órajel pontosságúak, ami azt jelenti, hogy azok idõzítése megegyezik az eredeti konzolban található processzoréval -- ezt a \textit{Blargg}-féle teszt ROM-ok tesztelik minden utasítás esetén. A mûveletek eredményei kifogástalanok, az eredeti processzor mûködésével teljesen megegyeznek. Továbbá az alább látható \ref{fig:drmario}-es ábrán is meg\-fi\-gyel\-he\-tõ, hogy az imp\-le\-men\-tált PPU által renderelt kép megegyezik az eredeti hardver által kirajzolttal -- a \textit{Dr. Mario} mellett a többi, általam tesztelt játék esetén is ezt tapasztaltam.
+
+\begin{figure}[h!]%
+    %\centering
+    \subfloat[\textit{Eredeti Nintendo Game Boy}]{\includegraphics[width=0.48\textwidth]{./Resources/drmario_dmg.eps}}
+    \quad
+    \subfloat[\textit{Az általam fejlesztett emulátor, a Rust Boy}]{\includegraphics[width=0.48\textwidth]{./Resources/drmario_emu1.eps}}
+    \caption{\textit{A Dr. Mario játék emulálásának összhasonlítása az eredetivel}}
+    \label{fig:drmario}
+\end{figure}
+
+\noindent A teszt ROM-ok segítségével lehetségessé válik az egyes emulátorok összhasonlítása pontossági szemszögbõl -- két emulátor között az tekinthetõ pontosabbnak, amelyik több \textit{Blargg} teszten megy át. A legjobb, és legnépszerûbb emulátorok teszt ROM-ok alapján való összehasonlítását a következõ táblázat mutatja:
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|l|} 
+   \hline
+   \textbf{Rust Boy} & \textbf{10/11 teszt sikeres, 2./4. teszt sikertelen} \\ \hline
+   BGB & 11/11 teszt sikeres \\ \hline
+   Gambatte & 11/11 teszt sikeres \\ \hline
+   KiGB & 9/11 teszt sikeres, 3./1. és 5./1. tesztek sikertelenek \\ \hline
+   MESS & 11/11 teszt sikeres \\ \hline
+   no\$gmb & 9/11 teszt sikeres, 3./1. és 5./1. tesztek sikertelenek \\ \hline
+   VBA & 11/11 teszt sikeres \\ \hline
+  \end{tabular}
+  \caption{\textit{Emulátorok pontossági összehasonlítása a tesztek alapján}}
+  \label{table:1}
+\end{table}
+
+\noindent A fentiek alapján tehát látható, hogy a diplomamunkaként fejlesztett \textit{Rust Boy} felveszi a versenyt a népszerû emulátorokkal, sõt, némelyiknél pontosabb emulálást is kínál. A sokak által használt emulátorok többsége azért a tesztek alapján hibátlan, viszont az egy sikertelen tesztnyi lemaradás nem tekinthetõ nagy különbségnek. \\
+Az emulátor sebessége a fejlesztés elõtt tervezett 60 FPS-nek megfelel, folyékony, a\-ka\-do\-zás\-men\-tes a kép, a billentyûleütésekre is azonnal reagál a program -- ezzel együtt a játékélmény az eredeti konzolnak megfelelõ. \\
+Ami a hiányosságokat illeti -- két dologról lehet említést tenni. Az elsõ, és kisebb elmaradás a különbözõ MBC technológiák és megoldások adaptálása, amelyek lehetõvé teszik a 32kB-nál nagyobb méretû játékok futtatását az emulátoron. Természetesen enélkül is játszhatóak játékok, viszont csak azok, amelyeknek mérete nem haladja meg az elõbb említett korlátot. Az MBC különféle verzióinak implementálása azért maradt el, mert egyrészt sok van belõlük (5 darab), és mindegyik máshogy mûködik, így érthetõ módon a fejlesztésük nagyon sokáig tartott volna. \\
+A másik hiányzó modul a hang. A \textit{sound processing} részt a fejlesztés elejétõl kezdve az implementáció legvégére hagytam, majd miután komolyabban utánanéztem annak, hogy a Game Boy-ban milyen bonyolult 4 csatornás, sztereo hanggenerálás van, úgy határoztam hogy ehelyett inkább a sokkal elemibb, alapvetõbb funkciók fejlesztésére szánom az erõforrásokat. A hangok emulációja nélkül is mûködik az emulátor, persze az élmény nem egyezik meg az eredeti hardverével, viszont a hangfeldolgozás témaköre nagyon bonyolult, szinte mégegy teljes diplomamunkát is kitenne, így a lehetõségekhez mérten próbáltam a fél évnyi fejlesztési idõt enélkül a modul nélkül végigvinni. A jövõben mindenképpen megpróbálom megvalósítani az emulátor számára ezt a modult, egyrészt a hangfeldolgozás területén való tapasztalatlanságom -- és ebbõl kifolyólag a tapasztalat\-gyûj\-tés -- és a teljesség igénye miatt.

@@ -3,15 +3,15 @@
 \begin{wrapfigure}{l!}{\textwidth/2}
     \centering
     \includegraphics[width=\textwidth/2-0.5cm, trim={2cm 2.5cm 2cm 5.5cm},clip]{./Resources/cpu.eps}
-    \caption{\textit{A Game Boy szabadalmában ábrázolt processzor felépítés}}
+    \caption{\textit{A Game Boy szabadalmában ábrázolt processzor felépítés} \cite{ninpat}}
     \label{fig:patentcpu}
 \end{wrapfigure}
 
-A korábban írtaknak megfelelõen az implementációt a processzorral és a me\-mó\-ri\-á\-val kezdjük -- a megfelelõ tudásanyag birtokában a processzor felépítésének modellezése az elsõ feladat. Fontos már a korai tervezési folyamatoktól kezdve szem elõtt tartani a belsõ felépítés modelljét, és ennek tudatában úgy alakítani az implementálást, hogy egyrészt az eredeti hardverrel nagyrészt megegyezõ módon mûködjön (és épüljön fel), másrészt a további modulok, egységek és funkciók jól illeszkedjenek ehhez a fõ komponenshez. Ehhez nyújt nagy segítséget a Nintendo által bejegyzett Game Boy szabadalomban ábrázolt felépítés, amit a \ref{fig:patentcpu}-es ábrán figyelhetünk meg. Jól látszik a processzor és a memória kapcsolata, illetve ez elõbbi felépítésébe is nyújt némi betekintést, utóbbinak egyes részeit pedig már ezen az ábrán is láthatjuk, a késõbbiekben ezt jobban meg is vizsgáljuk. Az elõzõ fejezetben ismertetett betöltõ-dekódoló-végrehajtó ciklust alkotó elemek közül is megfigyelhetjük az utolsó kettõt. A hardver teljes felépítésérõl tágabb képet kaphatunk, ha megfigyeljük a 4. fejezetbeli függelék \ref{fig:architecture}-es ábráját, amely szintén a Nintendo által benyújtott szabadalom része. Ez az ábra késõbb nagy se\-gít\-sé\-günk\-re lesz a modulok felépítésének, és a rendszer struktúrájának implementálása során, hiszen elég részletesen mutatja be az egyes elemek közti kapcsolatokat, kommunikációt.
+A korábban írtaknak megfelelõen az implementációt a processzorral és a me\-mó\-ri\-á\-val kezdjük -- a megfelelõ tudásanyag birtokában a processzor felépítésének modellezése az elsõ feladat. Fontos már a korai tervezési folyamatoktól kezdve szem elõtt tartani a belsõ felépítés modelljét, és ennek tudatában úgy alakítani az implementálást, hogy egyrészt az eredeti hardverrel nagyrészt megegyezõ módon mûködjön (és épüljön fel), másrészt a további modulok, egységek és funkciók jól illeszkedjenek ehhez a fõ komponenshez. Ehhez nyújt nagy segítséget a Nintendo által bejegyzett Game Boy szabadalomban ábrázolt felépítés, amit a \ref{fig:patentcpu}-es ábrán figyelhetünk meg. Jól látszik a processzor és a memória kapcsolata, illetve ez elõbbi felépítésébe is nyújt némi betekintést, utóbbinak egyes részeit pedig már ezen az ábrán is láthatjuk, a késõbbiekben ezt jobban meg is vizsgáljuk. Az elõzõ fejezetben ismertetett betöltõ-dekódoló-végrehajtó ciklust alkotó elemek közül is megfigyelhetjük az utolsó kettõt. A hardver teljes felépítésérõl tágabb képet kaphatunk, ha megfigyeljük a 4. fejezetbeli függelék \ref{fig:architecture}-es ábráját, amely szintén a Nintendo által benyújtott szabadalom része \cite{ninpat}. Ez az ábra késõbb nagy se\-gít\-sé\-günk\-re lesz a modulok felépítésének, és a rendszer struktúrájának implementálása során, hiszen elég részletesen mutatja be az egyes elemek közti kapcsolatokat, kommunikációt.
 
 \section{CPU}
 \subsection{Regiszterkészlet}
-Ahogy az elsõ fejezetben már említésre került, a Game Boy-ban egy \textit{Zilog Z80} alapú, \textit{Sharp LR35902} típusú 8 bites processzor dolgozik. A \textit{Z80}-hoz képest annyi változás történt, hogy a regiszterek elrendezését a \textit{Sharp} mérnökei az \textit{Intel 8080}-as processzortól vették kölcsön, illetve több utasítást is kivettek, helyükre sajátokat téve. \\
+Ahogy az elsõ fejezetben már említésre került, a Game Boy-ban egy \textit{Zilog Z80} alapú, \textit{Sharp LR35902} típusú 8 bites processzor dolgozik. A \textit{Z80}-hoz képest annyi változás történt, hogy a regiszterek elrendezését a \textit{Sharp} mérnökei az \textit{Intel 8080}-as processzortól vették kölcsön, illetve több utasítást is kivettek, helyükre sajátokat téve \cite{ninprog}. \\
 A \ref{fig:patentcpu}-es ábrán látható, hogy a processzor nyolc darab 8 bites, és két darab 16 bites regiszterrel rendelkezik. A 8 bitesek név szerint: \texttt{A}, \texttt{F}, \texttt{B}, \texttt{C}, \texttt{D}, \texttt{E}, \texttt{H}, \texttt{L}, míg a 16 bitesek a \texttt{PC} és az \texttt{SP}. A 8 bites regiszterek felsorolásának sorrendje nem véletlen: a CPU egyik igen hasznos funkciója az, hogy regisztereket tud összevonni, két 8 bitesbõl 16 biteseket varázsolva -- így ezekben a nagyobb regiszterekben el lehet tárolni memóriacímeket, vagy egyéb 16 bites adatokat. Az összevont regiszterek rendre: \texttt{AF}, \texttt{BC}, \texttt{DE}, \texttt{HL}. \\
 Az \texttt{A} regiszter hagyományosan az akkumulátorregiszter\footnote{Olyan regiszter, amiben az aritmetikai-logikai egység által végzett mûveletek operandusai, illetve az eredmény átmenetileg tárolódik.}, míg az \texttt{F} tárolja a \textit{flageket}.
 
@@ -57,7 +57,7 @@ pub struct CPU {
 \end{minted}
 
 \subsection{Ciklusok, frekvenciák}
-A Nintendo Game Boy processzorának frekvenciája 4.194304 MHz. Azonban az egész rendszer a memóriához kötött, tulajdonképpen a memória elérésének sebessége meg\-ha\-tá\-roz\-za az összes egység sebességét is. Jelen esetben a memória az architektúra szûk keresztmetszete, ugyanis \url{~}1 MHz sebességgel mûködik. A hardver egyes kom\-po\-nen\-se\-i\-nek sebessége az alábbiak szerint alakul:
+A Nintendo Game Boy processzorának frekvenciája 4.194304 MHz. Azonban az egész rendszer a memóriához kötött, tulajdonképpen a memória elérésének sebessége meg\-ha\-tá\-roz\-za az összes egység sebességét is. Jelen esetben a memória az architektúra szûk keresztmetszete, ugyanis \url{~}1 MHz sebességgel mûködik. A hardver egyes kom\-po\-nen\-se\-i\-nek sebessége az alábbiak szerint alakul \cite{ninprog}:
 
 \begin{table}[h!]
   \centering
@@ -104,7 +104,7 @@ loop {  // endless loop
 Az utasításkészlet részletes bemutatása elõtt fontos szót ejteni a Game Boy \textit{interrupt} kezelésérõl -- több utasítás kapcsán is elõ fog jönni ez a téma. \\
 Adott események bekövetkezése (ez hardverenként eltér) \textit{interruptot}, vagy \textbf{megszakítást} vált ki, ezzel kényszeríti a CPU-t, hogy az éppen futó programot azonnal felfüggessze, és egy speciális eljárást, a \textbf{megszakításkezelõt} végrehajtsa, amely a hibaellenõrzést és egyéb speciális teendõket elvégezve értesíti a vezérlõt, hogy a megszakítás befejezõdött.\cite{Tanenbaum} \\
 A Nintendo Game Boy architektúrájában kétféle megszakítást különböztetünk meg: lé\-te\-zik szoftveres, és hardveres megszakítás is. Ami a szoftveres megszakításokat illeti, ezeket a hardver programozói használhatták, az egyes \texttt{RST} (a \texttt{RESET} rövidítése) mû\-ve\-le\-tek\-kel lehet elõre definiált memóriacímekre ugrani. A hardveres megszakítások témaköre már kicsit bonyolultabb. \\
-Alapvetõen 5 féle hardveres megszakítást különböztetünk meg:
+Alapvetõen 5 féle hardveres megszakítást különböztetünk meg \cite{ninprog}:
 \begin{itemize}
   \item \textit{\textbf{V-Blank}}: A képernyõ frissítése során periodikusan elõidézett megszakítás, a ké\-sõb\-bi\-ek\-ben -- a PPU-t taglaló fejezetben -- részletesebben is szó lesz róla. 
   \item \textit{\textbf{LCD STAT}}: Többféle esemény is elõidézheti ezt a típusú megszakítást, az egyik leggyakoribb ezek közül az, amikor a hardver egy adott sor újrarajzolásánál tart az LCD kijelzõn.
@@ -131,7 +131,7 @@ Alapvetõen 5 féle hardveres megszakítást különböztetünk meg:
     1 & \textit{LCD STAT} & \textcolor{white}{\texttt{0x48}} & 1 & \textit{LCD STAT} \\ \hline
     0 & \textit{V-Blank} & \textcolor{white}{\texttt{0x40}} & 0 & \textit{V-Blank} \\ \hline
   \end{tabu}}
-  \caption{\textit{Az Interrupt Enable és az Interrupt Flag regiszterek megszakítások szerinti bit kiosztása, és a hozzájuk tartozó memóriacímek}}
+  \caption{\textit{Az Interrupt Enable és az Interrupt Flag regiszterek megszakítások szerinti bit kiosztása, és a hozzájuk tartozó memóriacímek} \cite{ninprog}}
   \label{table:3}
 \end{table}
 
@@ -315,11 +315,11 @@ A megszakítások letiltására és engedélyezésére a \mintinline{asm}{DI} és \mintin
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{./Resources/mmu-map.eps}
-    \caption{\textit{A memória térkép}}
+    \caption{\textit{A memória térkép} \cite{ninpat}}
     \label{fig:mmumap}
 \end{figure}
 
-\noindent A Game Boy memóriájának térképe a fenti, \ref{fig:mmumap}-es ábrán figyelhetõ meg. Jól látható, hogy több nagyobb részre van osztva, melyek mûködésükben igencsak elkülönülnek egymástól. Az emulátor implementációját nagyban megkönnyíti, hogy annak ellenére, hogy több modul is használja valamilyen módon a beépített memóriát, annak csak egy cím\-tar\-to\-má\-nya van, amelyet a következõ intervallumbeli bájtok alkotnak: \texttt{0x0000} - \texttt{0xFFFF}. Az a\-lap\-lap\-ra forrasztott memória tehát 64 kB, amelynek rögtön az elsõ felét a játék ROM-ja teszi ki. \\
+\noindent A Game Boy memóriájának térképe a fenti, \ref{fig:mmumap}-es ábrán figyelhetõ meg. Jól látható, hogy több nagyobb részre van osztva, melyek mûködésükben igencsak elkülönülnek egymástól. Az emulátor implementációját nagyban megkönnyíti, hogy annak ellenére, hogy több modul is használja valamilyen módon a beépített memóriát, annak csak egy cím\-tar\-to\-má\-nya van, amelyet a következõ intervallumbeli bájtok alkotnak: \texttt{0x0000} - \texttt{0xFFFF}. Az a\-lap\-lap\-ra forrasztott memória tehát 64 kB, amelynek rögtön az elsõ felét a játék ROM-ja teszi ki \cite{ninpat}. \\
 A konzol elindítását követõen a hardver elsõ feladata a Boot ROM futtatása. Ez a szoftver a \textit{bootolási} folyamat alatt a \texttt{0x0000} - \texttt{0x0100} területet foglalja el, amely a folyamat végeztével kikerül a memóriából (\textit{átmappelõdik}), helyére pedig a betöltött játék elsõ 256 bájtja kerül. Ez azt is jelenti, hogy az \textit{átmappelés} után a Boot ROM bájtjai többé nem elérhetõk. \\
 A játék ROM-jának 32 kB-ja után, a 8 kB méretû \texttt{0x8000} - \texttt{0x9FFF} tartományon helyezkedik el a \textit{Video Memória} (vagy \textit{Grafikus Memória}, \textit{VRAM}). Itt vannak eltárolva \textit{tile}-ok (csempék), a játékokat felépítõ grafikus építõelemek, illetve azok az adatok, melyek leírják, hogy melyik \textit{tile} hol helyezkedik el a képernyõn. A csempék helyét leíró adatok segítségével tudja a Game Boy PPU-ja felépíteni a játék háttereként szolgáló grafikai elemeket. Ezekrõl bõvebben a késõbbi, PPU-t részletezõ fejezetben lesz szó. \\
 A sorban következõ 8 kB méretû blokk az \texttt{0x8000} - \texttt{0x9FFF} intervallumon található, a neve pedig \textit{External RAM} vagy \textit{xRAM}. Ez a rész fizikailag a játék kazettáján helyezkedett el, többnyire a játék mentéseket tárolták itt. \\
@@ -344,7 +344,7 @@ A DMA vagy \textit{Direct Memory Access} (Közvetlen Memóriaelérés) a Game Boy ar
         // ...
     }
 \end{minted}
-A \texttt{0xFF46}-os címre kérelmezett írás esetén tehát maga az írás történik meg, hanem a vezérlés a fenti csapdába kerül. A DMA-t aktiváló memóriacímre írandó adat adódik át a DMA függvénynek. \\
+A \texttt{0xFF46}-os címre kérelmezett írás esetén tehát maga az írás történik meg, hanem a vezérlés a fenti csapdába kerül. A DMA-t aktiváló memóriacímre írandó adat adódik át a DMA függvénynek \cite{ninprog}. \\
 A \textit{Sprite Attribute Table} a \texttt{0xFE00} - \texttt{0xFE9F} memóriacímek között helyezkedik el, tehát 160 bájtot tárol. Ezt a 160 bájtot kell feltölteni az új adattal úgy, hogy a DMA függvény paraméterében átadott érték alapján kiszámoljuk a kezdõcímet, ahonnan a 160 darab bájt másolása fog megtörténni. Ennek a kezdõcímnek a kiszámolása könnyû feladat: el kell osztani 100-zal, vagy -- ha gyorsabb végrehajtást szeretnénk --, \textit{shifteljük} el balra 8-cal. A DMA függvény tehát a következõk szerint alakul:
 \newpage
 \begin{minted}{rust}
@@ -386,11 +386,11 @@ Mielõtt azonban a feltett kérdésre adott választ taglalnám, fontos bemutatni, ho
    \texttt{0x14E - 0x14F} & Globális összeg & 2 Byte & Egyszerû összegzés. \\ \hline
    \texttt{0x150h} & \multicolumn{3}{c|}{A játék kódjának kezdete.} \\ \hline
   \end{tabu}}
-  \caption{\textit{A ROM-ok fejlécének adatai}}
+  \caption{\textit{A ROM-ok fejlécének adatai} \cite{ninprog}}
   \label{table:3}
 \end{table}
 
-\noindent A \ref{table:3}-es táblázatban szereplõ adatokból látható, hogy a \texttt{0x147}-es memóriacímen van eltárolva a \textit{Cartridge} típusa, amely tulajdonképpen a Memory Bank Controller típusára utal. A fenti kérdésre a választ közvetetten ez az adat adja meg. A Game Boy megjelenését követõen felmerültek olyan igények, amelyek a nagyobb RAM-ot, illetve nagyobb elérhetõ ROM tárhelyet helyezték elõtérbe. Ezekre a problémákra találták ki a Memory Bank Controller technológiát, amellyel az eredeti hardver módosítása nélkül lehetett bõvíteni az elõbb megnevezett tárhelyeket. \\
+\noindent A \ref{table:3}-es táblázatban szereplõ adatokból látható, hogy a \texttt{0x147}-es memóriacímen van eltárolva a \textit{Cartridge} típusa, amely tulajdonképpen a Memory Bank Controller típusára utal. A fenti kérdésre a választ közvetetten ez az adat adja meg. A Game Boy megjelenését követõen felmerültek olyan igények, amelyek a nagyobb RAM-ot, illetve nagyobb elérhetõ ROM tárhelyet helyezték elõtérbe. Ezekre a problémákra találták ki a Memory Bank Controller technológiát, amellyel az eredeti hardver módosítása nélkül lehetett bõvíteni az elõbb megnevezett tárhelyeket \cite{ninprog}. \\
 A bõvítés egyszerû mechanizmuson alapul: a ROM adatait \textit{Bank}-okra osztjuk fel, majd ezeket rakjuk be, vagy vesszük ki a ROM-ba. Ugyan ezzel a módszerrel lehetséges a RAM területének bõvítése is. \\
 A Game Boy 32KB méretû ROM-jának elsõ 16 kB-ja le van fixálva: itt helyezkedik el a 0-s azonosítójú \textit{bank}. A ROM maradék 16 kB-jába lehet betölteni a kívánt \textit{bankot}. A \textit{bankok} számát az határozza meg, hogy az MBC ROM módban, vagy RAM módban van-e. ROM módban egyáltalán nem elérhetõek a RAM \textit{bankok}, cserébe viszont 2 MB-nyi ROM-unk lehet, ez 128 darab 16 kB-os \textit{bankot} jelent. Ami a RAM módot illeti, ebben az esetben 4 darab RAM, és 32 darab 16 kB-os ROM \textit{bankunk} lehet. \\
 A ROM és RAM \textit{bankok} ki-, illetve bekapcsolását, illetve betöltését és kivételét úgy oldották meg, hogy elõre meghatározott \textit{magic number}-öket kell írni elõre meghatározott memóriaterületekre -- így váltak elérhetõvé a kívánt \textit{bankok}. Az MBC mûködésének részletesebb taglalására nem fog sor kerülni, mert az implementált emulátor ezt nem tartalmazza -- az MBC nélküli alap rendszer is képes játékokat futtatni, így az idõ szûke miatt a Memory Bank Controller implementálására már nem maradt idõ. 
@@ -400,7 +400,7 @@ A Game Boy hardver architektúrájának elengedhetetlen részét képezik az idõzítõk.
 Két típusú \textit{timer} áll rendelkezésre az architektúrában: a \texttt{TIMA} (\textit{Timer Counter}), illetve a \texttt{DIV} (\textit{Divider Register}). Ezek alapjaikban ugyan megegyeznek, és így egymással össze\-ha\-son\-lít\-ha\-tók, viszont különbözõ feladatok ellátására szolgálnak, ebbõl kifolyólag pedig a mûködésük végsõ soron mégis eltérõ -- ezt a továbbiakban látni fogjuk. Ami az imp\-le\-men\-tá\-lást illeti, mindkét idõzítõ esetén a processzor minden mûveletet követõen leellenõrzi hogy szükséges-e léptetni az idõzítõt. A részletesebb bemutatást a \texttt{TIMA}-val kezdjük, majd pedig a \texttt{DIV} fog következni.
 
 \subsection{TIMA}
-A \textit{Timer Counterhez}, vagy \texttt{TIMA}-hoz három memóriacím, azaz három folyton változó adat kapcsolható. Ezeket a következõ táblázatban gyûjtöttem össze:
+A \textit{Timer Counterhez}, vagy \texttt{TIMA}-hoz három memóriacím, azaz három folyton változó adat kapcsolható. Ezeket a lenti táblázatban gyûjtöttem össze \cite{ninprog}.
 \begin{table}[h!]
   \centering
   {\renewcommand{\arraystretch}{1.3}
@@ -482,4 +482,4 @@ A \texttt{TIMA} idõzítõ implementálása tehát mindent összevetve így alakul:
 \subsection{DIV}
 
 A \texttt{DIV} idõzítõ, ahogy már említésre került, úgy mûködésben, mint viselkedésben eltér a \texttt{TIMA}-tól. A \texttt{DIV} minden tekintetben sokkal egyszerûbb, mint a társa: nem lehet vál\-toz\-ta\-tni a frekvenciáját, és modulálni sem lehet. \\
-A frekvencia fixen 16384 Hz, ami azt jelenti, hogy minden 256 CPU ciklus után kell inkrementálni az idõzítõ értékét. A moduláció hiánya pedig abból fakad, hogy túlcsordulás esetén nem egy másik memóriahelyrõl töltünk értéket a \texttt{DIV}-be, hanem alapértelmezés szerint 0-ról kezdjük ismételten a számlálást. A \texttt{TIMA}-tól eltérõen ennek az idõzítõnek nincsen egyéb adata, egyedül a \textit{counter} értéke adott.
+A frekvencia fixen 16384 Hz, ami azt jelenti, hogy minden 256 CPU ciklus után kell inkrementálni az idõzítõ értékét. A moduláció hiánya pedig abból fakad, hogy túlcsordulás esetén nem egy másik memóriahelyrõl töltünk értéket a \texttt{DIV}-be, hanem alapértelmezés szerint 0-ról kezdjük ismételten a számlálást. A \texttt{TIMA}-tól eltérõen ennek az idõzítõnek nincsen egyéb adata, egyedül a \textit{counter} értéke adott \cite{ninprog}.

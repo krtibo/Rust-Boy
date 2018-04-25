@@ -9,13 +9,13 @@ A PPU, azaz a Game Boy renderelésért felelõs grafikus alrendszere után itt az id
     \subfloat[]{\includegraphics[width=\textwidth/2-0.5cm]{./Resources/joypad_irl.eps}}%
     \qquad
     \subfloat[]{\includegraphics[width=\textwidth/2-0.5cm]{./Resources/joypad_sch.eps}}%
-    \caption{\textit{A joypad gombjai (a), és sematikus kapcsolási (logikai) rajza (b)}}%
+    \caption{\textit{A joypad gombjai (a), és sematikus kapcsolási (logikai) rajza (b)} \cite{ninpat}}%
     \label{fig:joypad}%
 \end{figure}
 
 \noindent Ahogy a \ref{fig:joypad}-es ábrán látható, a Game Boy konzolon 8 darab gomb található. Ezeket szokás két nagyobb csoportra is bontani. Az egyik csoport a bal oldalon látható ún. \textit{D-pad}, amely látszólag egy nagy, plusz jel alakú gomb, az igazság azonban az, hogy 4 gombot olvaszt eggyé. A plusz jel négy ágának végein találhatóak meg az egyes irányokhoz rendelt gombok -- innen jön a \textit{D-pad} megnevezés is: \textit{Direction pad}, azaz \textit{irányító gomb}. Ennek segítségével tudjuk a bal kéz hüvelykujjával irányítani a játékonként változó elemet -- legyen az játszható karakter, Tetris-elem, stb.
 \\ A másik, akciógombok csoportját a maradék gombok alkotják: \textit{A}, \textit{B}, \textit{Select} és \textit{Start}. Az elsõ kettõvel általában a játékon belüli akciókat, képességeket, funkciókat tudjuk aktiválni, míg az utóbbi kettõ a játék megszakítását, illetve a menükben való navigálást segíti.
-\\ Ami a fenti, \ref{fig:joypad}-es ábra \textit{(b)} részét illeti: ez a kép mutatja be a Game Boy gombjainak kapcsolási rajzát. A karikák mutatják az egyes gombokat, mellettük a nevükkel, a vonalak pedig az õket összekötõ vezetékeket jelölik. Elsõ pillantásra bonyolultnak tûnhet, és fel\-me\-rül\-het bennünk, hogy miért nem két vonal (azaz vezeték) csatlakozik minden gombhoz -- ezekre egyfajta kapcsolóként gondolva, amelyek nyomásra zárják az áramkört. Nos, a Nintendo japán mérnökei ott spóroltak és optimalizáltak ahol tudtak -- ezt a gombok összekötésének megtervezésekor is szem elõtt tartották. A hétköznapi számítógép bil\-len\-tyû\-ze\-tek\-hez hasonló módon, egyfajta mátrixos elrendezést találtak ki, ezzel sok kábelt megspórolva. Ennek megfelelõen van tehát két kábelcsoport, az egyik a \textit{P10}, \textit{P11}, \textit{P12}, \textit{P13}, amelyek rendre egy-egy gombhoz vannak kötve mindkét gombcsoportban, a másik pedig a \textit{P14} és \textit{P15}, amelyek azt jelölik ki, hogy melyik gombcsoportról van éppen szó. Ennek mintájára mûködik az \texttt{0xFF00} memóriacímen található \textit{Joypad Register}, amely a mérnökök op\-ti\-ma\-li\-zá\-ci\-ó\-já\-nak hála egy bájtban képes eltárolni az összes gomb aktuális állapotát. Ennek a bájtnak a bitjei a következõket jelentik:
+\\ Ami a fenti, \ref{fig:joypad}-es ábra \textit{(b)} részét illeti: ez a kép mutatja be a Game Boy gombjainak kapcsolási rajzát. A karikák mutatják az egyes gombokat, mellettük a nevükkel, a vonalak pedig az õket összekötõ vezetékeket jelölik. Elsõ pillantásra bonyolultnak tûnhet, és fel\-me\-rül\-het bennünk, hogy miért nem két vonal (azaz vezeték) csatlakozik minden gombhoz -- ezekre egyfajta kapcsolóként gondolva, amelyek nyomásra zárják az áramkört. Nos, a Nintendo japán mérnökei ott spóroltak és optimalizáltak ahol tudtak -- ezt a gombok összekötésének megtervezésekor is szem elõtt tartották. A hétköznapi számítógép bil\-len\-tyû\-ze\-tek\-hez hasonló módon, egyfajta mátrixos elrendezést találtak ki, ezzel sok kábelt megspórolva. Ennek megfelelõen van tehát két kábelcsoport, az egyik a \textit{P10}, \textit{P11}, \textit{P12}, \textit{P13}, amelyek rendre egy-egy gombhoz vannak kötve mindkét gombcsoportban, a másik pedig a \textit{P14} és \textit{P15}, amelyek azt jelölik ki, hogy melyik gombcsoportról van éppen szó. Ennek mintájára mûködik az \texttt{0xFF00} memóriacímen található \textit{Joypad Register}, amely a mérnökök op\-ti\-ma\-li\-zá\-ci\-ó\-já\-nak hála egy bájtban képes eltárolni az összes gomb aktuális állapotát. Ennek a bájtnak a bitjei a következõket jelentik \cite{ninprog}:
 
 \begin{itemize}
   \item \textbf{7. - 6. bitek:} nincsenek használatban.
@@ -66,7 +66,7 @@ A PPU, azaz a Game Boy renderelésért felelõs grafikus alrendszere után itt az id
 \caption{\textit{
 \\ A Ms. Pacman játék 
 \\ gombnyomás kezelõ 
-\\ kódja}}
+\\ kódja} \cite{pandoc}}
 \label{fig:pacman}
 \end{wrapfigure}
 

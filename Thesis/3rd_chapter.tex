@@ -17,13 +17,14 @@ Az \texttt{A} regiszter hagyományosan az akkumulátorregiszter\footnote{Olyan reg
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+  {\renewcommand{\arraystretch}{1.3}
+  \begin{tabu}{ |c|c|c|c|c|c|c|c| } 
    \hline
    \rowcolor{GameBoyBlue} 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0  \\ 
-   \hline
+   \tabucline[2pt]{-}
    Z & S & H & C & 0 & 0 & 0 & 0 \\ 
    \hline
-  \end{tabular}
+  \end{tabu}}
   \caption{\textit{Az} \texttt{F} \textit{Flag regiszter bitjei}}
   \label{table:1}
 \end{table}
@@ -60,13 +61,14 @@ A Nintendo Game Boy processzorának frekvenciája 4.194304 MHz. Azonban az egész r
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|c| } 
+  {\renewcommand{\arraystretch}{1.3}
+  \begin{tabu}{ |>{\columncolor{GameBoyBlue}}l|[2pt]c| } 
    \hline
-   CPU \; & \; 4,194,304 Hz\; = \;\url{~}4 MHz \; \\ \hline
-   RAM \; & \; 1,048,576 Hz\; = \;\url{~}1 MHz \; \\ \hline
-   PPU \; & \; 4,194,304 Hz\; = \;\url{~}4 MHz \; \\ \hline
-   VRAM \; & \; 2,097,152 Hz\; = \;\url{~}2 MHz \; \\ \hline
-  \end{tabular}
+   \textbf{CPU} \; & \; 4,194,304 Hz\; = \;\url{~}4 MHz \; \\ \hline
+   \textbf{RAM} \; & \; 1,048,576 Hz\; = \;\url{~}1 MHz \; \\ \hline
+   \textbf{PPU} \; & \; 4,194,304 Hz\; = \;\url{~}4 MHz \; \\ \hline
+   \textbf{VRAM} \; & \; 2,097,152 Hz\; = \;\url{~}2 MHz \; \\ \hline
+  \end{tabu}}
   \caption{\textit{A Game Boy fõ elemeinek sebessége}}
   \label{table:2}
 \end{table}
@@ -101,39 +103,40 @@ loop {  // endless loop
 \section{Interrupt kezelés}
 Az utasításkészlet részletes bemutatása elõtt fontos szót ejteni a Game Boy \textit{interrupt} kezelésérõl -- több utasítás kapcsán is elõ fog jönni ez a téma. \\
 Adott események bekövetkezése (ez hardverenként eltér) \textit{interruptot}, vagy \textbf{megszakítást} vált ki, ezzel kényszeríti a CPU-t, hogy az éppen futó programot azonnal felfüggessze, és egy speciális eljárást, a \textbf{megszakításkezelõt} végrehajtsa, amely a hibaellenõrzést és egyéb speciális teendõket elvégezve értesíti a vezérlõt, hogy a megszakítás befejezõdött.\cite{Tanenbaum} \\
-A Nintendo Game Boy architektúrájában kétféle megszakítást különböztetünk meg: létezik szoftveres, és hardveres megszakítás is. Ami a szoftveres megszakításokat illeti, ezeket a hardver programozói használhatták, az egyes \texttt{RST} (a \texttt{RESET} rövidítése) mûveletekkel lehet elõre definiált memóriacímekre ugrani. A hardveres megszakítások témaköre már kicsit bonyolultabb. \\
+A Nintendo Game Boy architektúrájában kétféle megszakítást különböztetünk meg: lé\-te\-zik szoftveres, és hardveres megszakítás is. Ami a szoftveres megszakításokat illeti, ezeket a hardver programozói használhatták, az egyes \texttt{RST} (a \texttt{RESET} rövidítése) mû\-ve\-le\-tek\-kel lehet elõre definiált memóriacímekre ugrani. A hardveres megszakítások témaköre már kicsit bonyolultabb. \\
 Alapvetõen 5 féle hardveres megszakítást különböztetünk meg:
 \begin{itemize}
-  \item \textit{V-Blank}: A képernyõ frissítése során periodikusan elõidézett megszakítás, a ké\-sõb\-bi\-ek\-ben -- a PPU-t taglaló fejezetben -- részletesebben is szó lesz róla. 
-  \item \textit{LCD STAT}: Többféle esemény is elõidézheti ezt a típusú megszakítást, az egyik leggyakoribb ezek közül az, amikor a hardver egy adott sor újrarajzolásánál tart az LCD kijelzõn.
-  \item \textit{Timer}: Akkor következik be ez a megszakítás, amikor a \texttt{TIMA} idõzítõ regiszter túlcsordul. A késõbbiekben erre is kitérek.
-  \item \textit{Serial}: A hardveren található soros port mûködése közben következik be a \textit{Serial} megszakítás, ha egy konkrét adatátvitel befejezõdött. Ezen emulátor esetében ezt a megszakítást nem implementáltam.
-  \item \textit{Joypad}: Ez a megszakítás bármelyik hardveres gomb lenyomásakor aktiválódik.
+  \item \textit{\textbf{V-Blank}}: A képernyõ frissítése során periodikusan elõidézett megszakítás, a ké\-sõb\-bi\-ek\-ben -- a PPU-t taglaló fejezetben -- részletesebben is szó lesz róla. 
+  \item \textit{\textbf{LCD STAT}}: Többféle esemény is elõidézheti ezt a típusú megszakítást, az egyik leggyakoribb ezek közül az, amikor a hardver egy adott sor újrarajzolásánál tart az LCD kijelzõn.
+  \item \textit{\textbf{Timer}}: Akkor következik be ez a megszakítás, amikor a \texttt{TIMA} idõzítõ regiszter túlcsordul. A késõbbiekben erre is kitérek.
+  \item \textit{\textbf{Serial}}: A hardveren található soros port mûködése közben következik be a \textit{Serial} megszakítás, ha egy konkrét adatátvitel befejezõdött. Ezen emulátor esetében ezt a megszakítást nem implementáltam.
+  \item \textit{\textbf{Joypad}}: Ez a megszakítás bármelyik hardveres gomb lenyomásakor aktiválódik.
 \end{itemize}
 
-\noindent A megszakításokhoz a CPU kapcsán három dolog köthetõ a fentieken kívül. Egy fõ interrupt kapcsoló, az \textit{Interrupt Master Enable Flag}, amivel le lehet tiltani, vagy éppen engedélyezni lehet a megszakításokat \textit{en bloc}, egy ún. \textit{Interrupt Enable} regiszter, ahol külön-külön lehet engedélyezni vagy letiltani az egyes megszakításokat, illetve egy \textit{Interrupt Flag} regiszter, amiben a megszakítási sorban várakozó, még (a CPU által) teljesítetlen megszakítások szerepelnek.
+\noindent A megszakításokhoz a CPU kapcsán három dolog köthetõ a fentieken kívül. Egy fõ interrupt kapcsoló, az \textit{Interrupt Master Enable Flag}, amivel le lehet tiltani, vagy éppen engedélyezni lehet a megszakításokat \textit{en bloc}, egy ún. \textit{Interrupt Enable} regiszter, ahol külön-külön lehet engedélyezni vagy letiltani az egyes megszakításokat, illetve egy \textit{In\-ter\-rupt Flag} regiszter, amiben a megszakítási sorban várakozó, még (a CPU által) teljesítetlen megszakítások szerepelnek.
 
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{
+  {\renewcommand{\arraystretch}{1.3}
+  \begin{tabu}{
   |>{\columncolor{GameBoyBlue}} l | l
   |>{\columncolor{GameBoyDarkBlue}} c
   |>{\columncolor{GameBoyBlue}} l | l |}
   \hline
-    \textbf{\texttt{0xFFFF}} & \cellcolor{GameBoyBlue}Interrupt Enable & \textcolor{white}{Jump Location} & \textbf{\texttt{0xFF0F}} & \cellcolor{GameBoyBlue}Interrupt Flag \\ \hline
+    \textbf{\texttt{0xFFFF}} & \cellcolor{GameBoyBlue}\textbf{Interrupt Enable} & \textbf{\textcolor{white}{Jump Location}} & \textbf{\texttt{0xFF0F}} & \cellcolor{GameBoyBlue} \textbf{Interrupt Flag} \\ \tabucline[2pt]{-}
     4 & \textit{Joypad} & \textcolor{white}{\texttt{0x60}} & 4 & \textit{Joypad} \\ \hline
     3 & \textit{Serial} & \textcolor{white}{\texttt{0x58}} & 3 & \textit{Serial} \\ \hline
     2 & \textit{Timer} & \textcolor{white}{\texttt{0x50}} & 2 & \textit{Timer} \\ \hline
     1 & \textit{LCD STAT} & \textcolor{white}{\texttt{0x48}} & 1 & \textit{LCD STAT} \\ \hline
     0 & \textit{V-Blank} & \textcolor{white}{\texttt{0x40}} & 0 & \textit{V-Blank} \\ \hline
-  \end{tabular}
+  \end{tabu}}
   \caption{\textit{Az Interrupt Enable és az Interrupt Flag regiszterek megszakítások szerinti bit kiosztása, és a hozzájuk tartozó memóriacímek}}
   \label{table:3}
 \end{table}
 
-\noindent Elõfordulhat, hogy egyszerre több megszakítás érkezik. Ebben az esetben a prioritási sorrend az \textit{Interrupt Flag} regiszterben elfoglalt helyek alapján alakul: a \textit{V-Blank interrupt} a legfontosabb, míg a \textit{Joypad} megszakítás marad utoljára. Miután a prioritás alapján a megszakításvezérlõ kiválasztotta, hogy melyik megszakítás következzen, a \ref{table:3}-as táblázaton szereplõ adatoknak megfelelõen az adott megszakításhoz tartozó memóriacímre ugrik a vezérlés. \\
-Ami az implementálást illeti, a megszakítás vezérlõ feladatait az \texttt{Interrupt} struktúra, és annak függvényei látják el. Az \texttt{IRQ} függvény segítségével tudnak az egyes modulok (PPU, idõzítõ, stb.) megszakítást kérni, melyet aztán a \texttt{handler} függvény dolgoz fel. A feldolgozás oly módon történik, hogy minden CPU mûvelet után a fõ ciklusban meghívódik az \texttt{interrupt\_checker} függvény, amely folyamatosan ellenõrzi, hogy érkezett-e új megszakítás, és hogy az engedélyezve van-e az \textit{Interrupt Enable} regiszterben 
+\noindent Elõfordulhat, hogy egyszerre több megszakítás érkezik. Ebben az esetben a prioritási sorrend az \textit{Interrupt Flag} regiszterben elfoglalt helyek alapján alakul: a \textit{V-Blank interrupt} a legfontosabb, míg a \textit{Joypad} megszakítás marad utoljára. Miután a prioritás alapján a megszakításvezérlõ kiválasztotta, hogy melyik megszakítás következzen, a \ref{table:3}-as táb\-lá\-za\-ton szereplõ adatoknak megfelelõen az adott megszakításhoz tartozó memóriacímre ugrik a vezérlés. \\
+Ami az implementálást illeti, a megszakítás vezérlõ feladatait az \texttt{Interrupt} struktúra, és annak függvényei látják el. Az \texttt{IRQ} függvény segítségével tudnak az egyes modulok (PPU, idõzítõ, stb.) megszakítást kérni, melyet aztán a \texttt{handler} függvény dolgoz fel. A feldolgozás oly módon történik, hogy minden CPU mûvelet után a fõ ciklusban meg\-hí\-vó\-dik az \texttt{interrupt\_checker} függvény, amely folyamatosan ellenõrzi, hogy érkezett-e új megszakítás, és hogy az engedélyezve van-e az \textit{Interrupt Enable} regiszterben 
  -- ha igen, akkor a megszakítás azonosítóját paraméterként átadva meghívja a \texttt{handler} függvényt, amely a megszakításhoz tartozó memóriacímre ugrasztja a CPU-t.
 
 \section{Utasításkészlet}
@@ -165,7 +168,7 @@ A továbbiakban ismertetésre kerülnek a fenti alapesettõl eltérõ betöltõ utasítás
 A \textit{Load} mûveletek másik típusa esetén az \texttt{X} vagy \texttt{Y} regiszter helyett állhat memóriacím is. A cím értéke átadható \texttt{(HL)} összevont regiszter formában: \mintinline{asm}{LD A,(HL)}, vagy két külön betöltött bájt összevonásaként: \mintinline{asm}{LD A,(0x2f44)}.
 
 \subsubsection{A \textit{Stack Pointer} betöltõje}
-A \textit{Stack Pointer} betöltése a \texttt{HL} regiszterpárba az elõzõhekhez képest bonyolultabb mûvelet. Egyetlen paraméterébeb várja azt a \textit{signed}, tehát elõjeles(!) értéket, amely a betöltendõ memóriahely címének távolságát mutatja az \texttt{SP} regiszterhez képest. A \texttt{fetch} függvénnyel betöltött bájtot elõször \textit{castolni} kell \mintinline{rust}{i8} típusúra, majd az elõjel vizsgálatát követõen betölteni az adatot a \texttt{HL}-be a megfelelõ helyrõl. A mûvelet az alábbiak szerint néz ki:
+A \textit{Stack Pointer} betöltése a \texttt{HL} regiszterpárba az elõzõhekhez képest bonyolultabb mûvelet. Egyetlen paraméterébeb várja azt a \textit{signed}, tehát elõjeles(!) értéket, amely a betöltendõ memóriahely címének távolságát mutatja az \texttt{SP} regiszterhez képest. A \texttt{fetch} függvény\-nyel betöltött bájtot elõször \textit{castolni} kell \mintinline{rust}{i8} típusúra, majd az elõjel vizsgálatát követõen betölteni az adatot a \texttt{HL}-be a megfelelõ helyrõl. A mûvelet az alábbiak szerint néz ki:
 \begin{minted}{asm}
                         LDHL SP,0x42
 \end{minted}
@@ -174,7 +177,7 @@ A \textit{Stack Pointer} betöltése a \texttt{HL} regiszterpárba az elõzõhekhez k
 Több speciális betöltõ mûvelet is elérhetõ, ezeket a fentiekhez való hasonlóságuk miatt csak felsorolásszerûen fogom ismertetni:
 
 \begin{itemize}
-  \item \mintinline{asm}{LD A,(C)}: ezzel a mûvelettel a \textit{High RAM} részre tudunk írni -- a \texttt{C} regiszter értékéhez hozzáadódik még a \texttt{0xFF00} cím, ezzel megkapva a pontos címet. Fordított operandusokkal is mûködik.
+  \item \mintinline{asm}{LD A,(C)}: ezzel a mûvelettel a \textit{High RAM} részre tudunk írni -- a \texttt{C} regiszter értékéhez hozzáadódik még a \texttt{0xFF00} cím, ezzel megkapva a pontos címet. For\-dí\-tott operandusokkal is mûködik.
 
   \item \mintinline{asm}{LDH A,(0x42)}: az elõzõhöz hasonló mûvelet, annyi különbséggel, hogy itt a \texttt{C} regiszter helyett paraméterben megadható az \texttt{0xFF00}-hez mért eltolás értéke. Fordított operandusokkal is mûködik.
 
@@ -189,7 +192,7 @@ Az aritmetikai utasítások alatt ezen az architektúrán az összeadás, kivonás, ink
 \begin{minted}{asm}
                            ADD A,B
 \end{minted}
-amely értelemszerûen az \texttt{A} regiszter értékét teszi egyenlõvé az \texttt{A} és \texttt{B} regiszterek értékeinek összegével.
+amely értelemszerûen az \texttt{A} regiszter értékét teszi egyenlõvé az \texttt{A} és \texttt{B} regiszterek ér\-té\-ke\-i\-nek összegével.
 
 \subsubsection{Összeadás}
 Két típusú összeadást megvalósító mûvelet áll a programozók rendelkezésére: az \mintinline{asm}{ADD}, és az \mintinline{asm}{ADC}. Ezen utasítások esetében közös probléma a túlcsordulás -- hogyan kezeljük ha az összeg nagyobb, mint 255, azaz nem fér bele az \mintinline{rust}{u8} adattípusba? Szerencsére a Rust nyelv biztosít erre egy olyan megoldást, amely a hardver viselkedésével megegyezik. A két \mintinline{rust}{u8} típusú operandust nem a hagyományos módon (\mintinline{rust}{u8} + \mintinline{rust}{u8}) adjuk össze, hanem a \mintinline{rust}{wrapping_add} függvény segítségével a következõ módon:
@@ -287,15 +290,15 @@ Az \mintinline{asm}{SRA} utasítás kivételt képez, ugyanis ebben az esetben az er
 Azok az utasítások kerültek ebbe a csoportba, amelyek egytõl egyik speciálisak, nem lehet õket nagyobb kategóriához sorolni.
 
 \subsubsection{Üres mûveletek - \texttt{NOP}, \texttt{STOP}, \texttt{HALT}}
-A \mintinline{asm}{NOP}, \mintinline{asm}{STOP} és \mintinline{asm}{HALT} mûveletek hasonlítanak egymásra abban a tekintetben, hogy mindegyikük végrehajtása alatt a CPU tulajdonképpen nem csinál semmit. A \mintinline{asm}{NOP} esetében egy elõre eltervezett üres mûveletrõl van szó, amelyet várakozások esetén használnak, a \mintinline{asm}{STOP} utasítás addig leállítja a processzort és a kijelzõt amíg gombnyomás nem történik, a \mintinline{asm}{HALT} pedig addig kikapsolva tartja a CPU-t amíg egy megszakítási kérés nem érkezik. \\
-Az utolsó két utasítás tipikusan olyan amit egy emulátor kapcsán nem szükséges implementálni, a hardver energiafogyasztásának optimalizálásában van szerepe.
+A \mintinline{asm}{NOP}, \mintinline{asm}{STOP} és \mintinline{asm}{HALT} mûveletek hasonlítanak egymásra abban a tekintetben, hogy mindegyikük végrehajtása alatt a CPU tulajdonképpen nem csinál semmit. A \mintinline{asm}{NOP} e\-se\-té\-ben egy elõre eltervezett üres mûveletrõl van szó, amelyet várakozások esetén használnak, a \mintinline{asm}{STOP} utasítás addig leállítja a processzort és a kijelzõt amíg gombnyomás nem történik, a \mintinline{asm}{HALT} pedig addig kikapsolva tartja a CPU-t amíg egy megszakítási kérés nem érkezik. \\
+Az utolsó két utasítás tipikusan olyan amit egy emulátor kapcsán nem szükséges imp\-le\-men\-tál\-ni, a hardver energiafogyasztásának optimalizálásában van szerepe.
 
 \subsubsection{\textit{Carry flag} mûveletek - \texttt{SCF}, \texttt{CCF}}
 Két, konkrétan a \textit{flageket} állító utasítás az \mintinline{asm}{SCF} és a \mintinline{asm}{CCF}. Az \mintinline{asm}{SCF}-fel be tudjuk állítani a \textit{Carry flaget}, a \mintinline{asm}{CCF}-fel pedig komplementálni tudjuk az értékét. Az \texttt{N} és \texttt{H} \textit{flageket} mindkét utasítás \textit{reseteli}.  
 
 \subsubsection{Komplementer, binárisan kódolt decimális mûveletek - \texttt{CPL}, \texttt{DAA}}
 Az \texttt{A} regisztert módosító utasítások közé sorolható a \mintinline{asm}{CPL} és a \mintinline{asm}{DAA} mûvelet. \\
-A \mintinline{asm}{CPL} utasítás -- a nevébõl is adódóan -- az \texttt{A} regisztert fogja komplementálni (minden bitjét az ellentétére állítja), és az \texttt{N} és \texttt{H} \textit{flageket} beállítani. A Rust nyelvben a komplementálás egy egyszerû felkiáltójel operátorral érhetõ el, így az \texttt{A} regiszter komplementere az \texttt{!A} lesz. \\
+A \mintinline{asm}{CPL} utasítás -- a nevébõl is adódóan -- az \texttt{A} regisztert fogja komplementálni (minden bitjét az ellentétére állítja), és az \texttt{N} és \texttt{H} \textit{flageket} beállítani. A Rust nyelvben a komp\-le\-men\-tá\-lás egy egyszerû felkiáltójel operátorral érhetõ el, így az \texttt{A} regiszter komplementere az \texttt{!A} lesz. \\
 A \mintinline{asm}{DAA} mûvelet az \texttt{A} regiszter értékét binárisan kódolt decimális formájúra hozza, amely azt jelenti, hogy sorra veszi a decimálisan ábrázolt \texttt{A} regiszter számjegyeit, majd azokat binárisan ábrázolja helyiértékük szerint csökkenõ sorrendben. Ha a végeredmény 0 lesz, beállítja a \texttt{Z} \textit{flaget} (egyébként \textit{reseteli}), a \texttt{H}-t minden esetben \textit{reseteli}, a \texttt{C}-t pedig a mûvelettõl függõen állítja be vagy \textit{reseteli}.
 
 \subsubsection{\textit{Restart} mûveletek - RST}
@@ -316,18 +319,18 @@ A megszakítások letiltására és engedélyezésére a \mintinline{asm}{DI} és \mintin
     \label{fig:mmumap}
 \end{figure}
 
-\noindent A Game Boy memóriájának térképe a fenti, \ref{fig:mmumap}-es ábrán figyelhetõ meg. Jól látható, hogy több nagyobb részre van osztva, melyek mûködésükben igencsak elkülönülnek egymástól. Az emulátor implementációját nagyban megkönnyíti, hogy annak ellenére, hogy több modul is használja valamilyen módon a beépített memóriát, annak csak egy címtartománya van, amelyet a következõ intervallumbeli bájtok alkotnak: \texttt{0x0000} - \texttt{0xFFFF}. Az alaplapra forrasztott memória tehát 64 kB, amelynek rögtön az elsõ felét a játék ROM-ja teszi ki. \\
+\noindent A Game Boy memóriájának térképe a fenti, \ref{fig:mmumap}-es ábrán figyelhetõ meg. Jól látható, hogy több nagyobb részre van osztva, melyek mûködésükben igencsak elkülönülnek egymástól. Az emulátor implementációját nagyban megkönnyíti, hogy annak ellenére, hogy több modul is használja valamilyen módon a beépített memóriát, annak csak egy cím\-tar\-to\-má\-nya van, amelyet a következõ intervallumbeli bájtok alkotnak: \texttt{0x0000} - \texttt{0xFFFF}. Az a\-lap\-lap\-ra forrasztott memória tehát 64 kB, amelynek rögtön az elsõ felét a játék ROM-ja teszi ki. \\
 A konzol elindítását követõen a hardver elsõ feladata a Boot ROM futtatása. Ez a szoftver a \textit{bootolási} folyamat alatt a \texttt{0x0000} - \texttt{0x0100} területet foglalja el, amely a folyamat végeztével kikerül a memóriából (\textit{átmappelõdik}), helyére pedig a betöltött játék elsõ 256 bájtja kerül. Ez azt is jelenti, hogy az \textit{átmappelés} után a Boot ROM bájtjai többé nem elérhetõk. \\
 A játék ROM-jának 32 kB-ja után, a 8 kB méretû \texttt{0x8000} - \texttt{0x9FFF} tartományon helyezkedik el a \textit{Video Memória} (vagy \textit{Grafikus Memória}, \textit{VRAM}). Itt vannak eltárolva \textit{tile}-ok (csempék), a játékokat felépítõ grafikus építõelemek, illetve azok az adatok, melyek leírják, hogy melyik \textit{tile} hol helyezkedik el a képernyõn. A csempék helyét leíró adatok segítségével tudja a Game Boy PPU-ja felépíteni a játék háttereként szolgáló grafikai elemeket. Ezekrõl bõvebben a késõbbi, PPU-t részletezõ fejezetben lesz szó. \\
 A sorban következõ 8 kB méretû blokk az \texttt{0x8000} - \texttt{0x9FFF} intervallumon található, a neve pedig \textit{External RAM} vagy \textit{xRAM}. Ez a rész fizikailag a játék kazettáján helyezkedett el, többnyire a játék mentéseket tárolták itt. \\
 A hagyományos értelemben vett RAM a \texttt{0xC000} - \texttt{0xDFFF} területet foglalta el -- a programozók ezen a részen tároltak el tetszõleges adatokat. \textit{Work RAM}-nek is hívták emiatt. Ez a terület szorosan összefügg az \texttt{0xE000} - \texttt{0xFFFF} memória résszel: a második, ún. \textit{Shadow RAM} (Árnyék RAM) terület a \textit{Work RAM} bitre pontos másolata. Érdekesség, hogy a Nintendo a hivatalos programozóknak szánt dokumentációjában megtiltja, hogy a \textit{Shadow RAM} területére írás történjen, ha ezt mégis megtesszük, akkor a \textit{Work RAM} azonos bájtja is átíródik ugyanarra a bájtra, amit a \textit{Shadow RAM}-ba írtunk. Szintén érdekes, hogy ha megnézzük, a két RAM területe nem egyezik meg, a \textit{Shadow RAM} 128 bájttal "rövidebb", mint a \textit{Work RAM}. Ennek az az oka, hogy a RAM legfelsõ 128 bájtja a leggyorsabban írható és olvasható \textit{High RAM} számára van fenntartva. \\
-Az utolsó egység tehát a memóriában a \textit{High RAM}, amely az \texttt{0xFE00} - \texttt{0xFFFF} területet foglalja el. Itt található nagyon sok fontos adat, regiszter és \textit{flag}. Az \texttt{0xFE00} - \texttt{0xFE9F} területen az OAM, vagy \textit{Sprite Attribute Table} található. A Game Boy képernyõjén megjelenõ mozgó objektumok az itt eltárolt \textit{sprite}-okból épülnek fel. \\
-A kijelzõ, hanggenerátor, soros port, \textit{joypad}, és az idõzítõk fontos attribútumait és mûködési elemeit tartalmazza az \texttt{0xFF00} - \texttt{0xFF7F} szakasz. A diplomamunka további részében a megfelelõ helyeken ezekrõl bõvebben lesz szó. \\
+Az utolsó egység tehát a memóriában a \textit{High RAM}, amely az \texttt{0xFE00} - \texttt{0xFFFF} területet foglalja el. Itt található nagyon sok fontos adat, regiszter és \textit{flag}. Az \texttt{0xFE00} - \texttt{0xFE9F} területen az OAM, vagy \textit{Sprite Attribute Table} található. A Game Boy képernyõjén meg\-je\-le\-nõ mozgó objektumok az itt eltárolt \textit{sprite}-okból épülnek fel. \\
+A kijelzõ, hanggenerátor, soros port, \textit{joypad}, és az idõzítõk fontos attribútumait és mû\-kö\-dé\-si elemeit tartalmazza az \texttt{0xFF00} - \texttt{0xFF7F} szakasz. A diplomamunka további részében a megfelelõ helyeken ezekrõl bõvebben lesz szó. \\
 Az \texttt{0xFF80} - \texttt{0xFFFE} részt a \textit{High RAM} programozók által saját célra használható (gyors elérésû) része foglalja el. \\
 A \texttt{0xFFFF} címen lévõ bájt a korábban már említett \textit{Interrupt Enable} regiszter.
 
 \subsection{DMA}
-A DMA vagy \textit{Direct Memory Access} (Közvetlen Memóriaelérés) a Game Boy architektúrájának egy olyan eljárása, amely segítségével adatot lehet másolni a fentebb említett \textit{Sprite Attribute Table}-be. Egy játék akkor tudja alkalmazni a DMA eljárást, ha az \texttt{0xFF46}-es memóriacímre ír. Ahhoz, hogy ezt a mûködést emulálni tudjuk, készíteni kell egy csapdát a memória írást megvalósító függvénybe:
+A DMA vagy \textit{Direct Memory Access} (Közvetlen Memóriaelérés) a Game Boy ar\-chi\-tek\-tú\-rá\-já\-nak egy olyan eljárása, amely segítségével adatot lehet másolni a fentebb említett \textit{Sprite Attribute Table}-be. Egy játék akkor tudja alkalmazni a DMA eljárást, ha az \texttt{0xFF46}-es memóriacímre ír. Ahhoz, hogy ezt a mûködést emulálni tudjuk, készíteni kell egy csapdát a memória írást megvalósító függvénybe:
 \begin{minted}{rust}
     pub fn write_ram(&mut self, address : u16, value : u8) {
 
@@ -364,16 +367,17 @@ Mielõtt azonban a feltett kérdésre adott választ taglalnám, fontos bemutatni, ho
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{|>{\columncolor{GameBoyBlue}}l|l|l|l|} 
+  {\renewcommand{\arraystretch}{1.3}
+  \begin{tabu}{|>{\columncolor{GameBoyBlue}}l|[2pt]l|l|l|} 
    \hline
-   \cellcolor{GameBoyBlue} Memóriacím & \cellcolor{GameBoyBlue} Adat & \cellcolor{GameBoyBlue} Méret & \cellcolor{GameBoyBlue}Részletek \\ \hline
+   \cellcolor{GameBoyBlue} \textbf{Memóriacím} & \cellcolor{GameBoyBlue} \textbf{Adat} & \cellcolor{GameBoyBlue} \textbf{Méret} & \cellcolor{GameBoyBlue} \textbf{Részletek} \\ \tabucline[2pt]{-}
    \texttt{0x100 - 0x103} & Belépési pont & 4 Byte & Általában: \texttt{NOP JP 0x150}. \\ \hline
    \texttt{0x104 - 0x133} & Nintendo logó & 48 Byte & Másolásvédelmi célokra. \\ \hline
    \texttt{0x134 - 0x143} & Cím & 16 Byte & Nagybetûkkel, 0-kal közölve. \\ \hline
    \texttt{0x144 - 0x145} & Kiadó & 2 Byte & Az újabb játékoknál használatos. \\ \hline
    \texttt{0x146} & SGB \textit{flag} & 1 Byte & SGB támogatás. \\ \hline 
    \texttt{0x147} & Cartridge típusa & 1 Byte & MBC típusa és egyéb extrák. \\ \hline 
-   \texttt{0x148} & ROM méret & 1 Byte & Méret = \texttt{32 KB} \; \verb|<<| \texttt{[0x148]} \\ \hline
+   \texttt{0x148} & ROM méret & 1 Byte & Méret = \texttt{32 KB} \; \url{<<} \texttt{[0x148]} \\ \hline
    \texttt{0x149} & RAM méret & 1 Byte & A külsõ RAM mérete. \\ \hline
    \texttt{0x14A} & Forgalmazás & 1 Byte & Japán piac: 0, egyébként 1. \\ \hline
    \texttt{0x14B} & Kiadó & 1 Byte & A régebbi játékoknál használatos. \\ \hline
@@ -381,7 +385,7 @@ Mielõtt azonban a feltett kérdésre adott választ taglalnám, fontos bemutatni, ho
    \texttt{0x14D} & Fejléc összeg & 1 Byte & A betöltés elõtt leellenõrizendõ. \\ \hline
    \texttt{0x14E - 0x14F} & Globális összeg & 2 Byte & Egyszerû összegzés. \\ \hline
    \texttt{0x150h} & \multicolumn{3}{c|}{A játék kódjának kezdete.} \\ \hline
-  \end{tabular}
+  \end{tabu}}
   \caption{\textit{A ROM-ok fejlécének adatai}}
   \label{table:3}
 \end{table}
@@ -392,19 +396,20 @@ A Game Boy 32KB méretû ROM-jának elsõ 16 kB-ja le van fixálva: itt helyezkedik e
 A ROM és RAM \textit{bankok} ki-, illetve bekapcsolását, illetve betöltését és kivételét úgy oldották meg, hogy elõre meghatározott \textit{magic number}-öket kell írni elõre meghatározott memóriaterületekre -- így váltak elérhetõvé a kívánt \textit{bankok}. Az MBC mûködésének részletesebb taglalására nem fog sor kerülni, mert az implementált emulátor ezt nem tartalmazza -- az MBC nélküli alap rendszer is képes játékokat futtatni, így az idõ szûke miatt a Memory Bank Controller implementálására már nem maradt idõ. 
 
 \section{Idõzítõk}
-A Game Boy hardver architektúrájának elengedhetetlen részét képezik az idõzítõk. Ahhoz hogy a rendszer egyes elemei között meglegyen a tökéletes együttmûködés, szinkronizált végrehajtásra van szükség. Erre jelentenek megoldást a \textit{timerek} (idõzítõk), amelyek se\-gít\-sé\-gé\-vel meg lehet teremteni a modulok közti kohéziót. \\
+A Game Boy hardver architektúrájának elengedhetetlen részét képezik az idõzítõk. Ah\-hoz hogy a rendszer egyes elemei között meglegyen a tökéletes együttmûködés, szinkronizált végrehajtásra van szükség. Erre jelentenek megoldást a \textit{timerek} (idõzítõk), amelyek se\-gít\-sé\-gé\-vel meg lehet teremteni a modulok közti kohéziót. \\
 Két típusú \textit{timer} áll rendelkezésre az architektúrában: a \texttt{TIMA} (\textit{Timer Counter}), illetve a \texttt{DIV} (\textit{Divider Register}). Ezek alapjaikban ugyan megegyeznek, és így egymással össze\-ha\-son\-lít\-ha\-tók, viszont különbözõ feladatok ellátására szolgálnak, ebbõl kifolyólag pedig a mûködésük végsõ soron mégis eltérõ -- ezt a továbbiakban látni fogjuk. Ami az imp\-le\-men\-tá\-lást illeti, mindkét idõzítõ esetén a processzor minden mûveletet követõen leellenõrzi hogy szükséges-e léptetni az idõzítõt. A részletesebb bemutatást a \texttt{TIMA}-val kezdjük, majd pedig a \texttt{DIV} fog következni.
 
 \subsection{TIMA}
 A \textit{Timer Counterhez}, vagy \texttt{TIMA}-hoz három memóriacím, azaz három folyton változó adat kapcsolható. Ezeket a következõ táblázatban gyûjtöttem össze:
 \begin{table}[h!]
   \centering
-  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|c| } 
+  {\renewcommand{\arraystretch}{1.3}
+  \begin{tabu}{ |>{\columncolor{GameBoyBlue}}l|[2pt]c| } 
    \hline
-   \texttt{TIMA} \; & \; \texttt{0xFF05} \; \\ \hline
-   \texttt{TMA} \; & \; \texttt{0xFF06} \; \\ \hline
-   \texttt{TMC} \; & \; \texttt{0xFF07} \; \\ \hline
-  \end{tabular}
+   \texttt{\textbf{TIMA}} \; & \; \texttt{0xFF05} \; \\ \hline
+   \texttt{\textbf{TMA}} \; & \; \texttt{0xFF06} \; \\ \hline
+   \texttt{\textbf{TMC}} \; & \; \texttt{0xFF07} \; \\ \hline
+  \end{tabu}}
   \caption{\textit{A \texttt{TIMA} idõzítõhöz köthetõ adatok memóriacímei}}
   \label{table:4}
 \end{table}
@@ -413,14 +418,15 @@ A \textit{Timer Counterhez}, vagy \texttt{TIMA}-hoz három memóriacím, azaz három
 Az idõzítõ leegyszerûsített mûködése könnyen megérthetõ és implementálható. Ha elég idõ telt el ahhoz hogy léptessük az idõzítõt, akkor megtesszük ezt a léptetést. A léptetés során azonban figyelni kell arra, hogy túlcsordulás történik-e: ha az idõzítõ új értéke nagyobb mint 255 (egy byte) akkor 2-es számú megszakítási kérést kell küldeni a pro\-cesszor\-nak, és be kell olvasni az idõzítõ új, bázis értékét -- ez az az érték, ahonnan folytatódni fog a számlálás. Ha nincs túlcsordulás, akkor a léptetésen kívül nincs további teendõ. \\
 Persze felmerülhet több kérdés is. \textit{Honnan olvassuk ki az új bázis értéket? Honnan tudjuk hogy milyen gyakorisággal kell léptetni?} A fenti \ref{table:4}-ös táblázatban szereplõ adatok fogják megadni ezekre a kérdésekre a válaszokat. \\
 A \texttt{TMA}, vagy \textit{Timer Modulo} az az érték, amelyet a fentebb taglalt idõzítõ eljárás során is használtunk: ebbõl olvassuk ki az idõzítõ túlcsordulás utáni új bázis értékét, melyet abba a \texttt{TIMA} regiszterbe töltünk, amely az idõzítõ aktuális állapotát tartalmazza, és amelyet folyton inkrementálunk. Azzal, hogy nem egyszerûen mindig 0-ról kezdjük újra a szá\-mo\-zást, modulálni lehet a Game Boy idõzítõjét. \\
-A másik kérdésre a \texttt{TMC}, azaz a \textit{Timer Control} fogja megadni a választ. Ez a byte tar\-tal\-maz\-za az idõzítõ frekvenciáját, illetve segítségével ki-be lehet kapcsolni a \textit{timer} mû\-kö\-dé\-sét. Ez utóbbi funkció 1 bittel (a \ref{table:5}-os ábrán \textcolor{GameBoyRed}{\texttt{T}}), míg az aktuális frekvencia sebessége 2 bittel van ábrázolva (a \ref{table:5}-os ábrán \textcolor{GameBoyDarkBlue}{\texttt{F}}) -- így a \texttt{TMC} egy három bites regiszter. A bitek kiosztása a következõk szerint alakul:
+A másik kérdésre a \texttt{TMC}, azaz a \textit{Timer Control} fogja megadni a választ. Ez a byte tar\-tal\-maz\-za az idõzítõ frekvenciáját, illetve segítségével ki-be lehet kapcsolni a \textit{timer} mû\-kö\-dé\-sét. Ez utóbbi funkció 1 bittel (a \ref{table:5}-os ábrán \textcolor{GameBoyRed}{\texttt{\textbf{T}}}), míg az aktuális frekvencia sebessége 2 bittel van ábrázolva (a \ref{table:5}-os ábrán \textcolor{GameBoyDarkBlue}{\texttt{\textbf{F}}}) -- így a \texttt{TMC} egy három bites regiszter. A bitek kiosztása a következõk szerint alakul:
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{ |c|c|c|c|c|>{\columncolor{GameBoyBlue}}c|>{\columncolor{GameBoyBlue}}c|>{\columncolor{GameBoyBlue}}c| } 
+  {\renewcommand{\arraystretch}{1.3}
+  \begin{tabu}{ |c|c|c|c|c|>{\columncolor{GameBoyBlue}}c|>{\columncolor{GameBoyBlue}}c|>{\columncolor{GameBoyBlue}}c| } 
    \hline
-   \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \textcolor{GameBoyRed}{\texttt{T}} & \textcolor{GameBoyDarkBlue}{\texttt{F}} & \textcolor{GameBoyDarkBlue}{\texttt{F}} \\ \hline
-  \end{tabular}
+   \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & \textcolor{GameBoyRed}{\texttt{\textbf{T}}} & \textcolor{GameBoyDarkBlue}{\texttt{\textbf{F}}} & \textcolor{GameBoyDarkBlue}{\texttt{\textbf{F}}} \\ \hline
+  \end{tabu}}
   \caption{\textit{A \texttt{TMC} regiszter bitjeinek kiosztása}}
   \label{table:5}
 \end{table}
@@ -429,14 +435,15 @@ A másik kérdésre a \texttt{TMC}, azaz a \textit{Timer Control} fogja megadni a v
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|c| } 
+  {\renewcommand{\arraystretch}{1.3}
+  \begin{tabu}{ |>{\columncolor{GameBoyBlue}}l|[2pt]l| } 
    \hline
-   \textcolor{GameBoyDarkBlue}{\textbf{\texttt{FF}}} \; & \; \textbf{Frequency} \; \\ \hline
+   \textcolor{GameBoyDarkBlue}{\textbf{\texttt{FF}}} \; & \; \cellcolor{GameBoyBlue}\textbf{Frequency} \; \\ \tabucline[2pt]{-}
    \texttt{00} \; & \; 4096 Hz \; \\ \hline
    \texttt{01} \; & \; 262144 Hz \; \\ \hline
    \texttt{10} \; & \; 65536 Hz \; \\ \hline
    \texttt{11} \; & \; 16384 Hz \; \\ \hline
-  \end{tabular}
+  \end{tabu}}
   \caption{\textit{A választható frekvencia opciók és az ábrázolási értékeik}}
   \label{table:6}
 \end{table}
@@ -474,5 +481,5 @@ A \texttt{TIMA} idõzítõ implementálása tehát mindent összevetve így alakul:
 
 \subsection{DIV}
 
-A \texttt{DIV} idõzítõ, ahogy már említésre került, úgy mûködésben, mint viselkedésben eltér a \texttt{TIMA}-tól. A \texttt{DIV} minden tekintetben sokkal egyszerûbb, mint a társa: nem lehet változtatni a frekvenciáját, és modulálni sem lehet. \\
+A \texttt{DIV} idõzítõ, ahogy már említésre került, úgy mûködésben, mint viselkedésben eltér a \texttt{TIMA}-tól. A \texttt{DIV} minden tekintetben sokkal egyszerûbb, mint a társa: nem lehet vál\-toz\-ta\-tni a frekvenciáját, és modulálni sem lehet. \\
 A frekvencia fixen 16384 Hz, ami azt jelenti, hogy minden 256 CPU ciklus után kell inkrementálni az idõzítõ értékét. A moduláció hiánya pedig abból fakad, hogy túlcsordulás esetén nem egy másik memóriahelyrõl töltünk értéket a \texttt{DIV}-be, hanem alapértelmezés szerint 0-ról kezdjük ismételten a számlálást. A \texttt{TIMA}-tól eltérõen ennek az idõzítõnek nincsen egyéb adata, egyedül a \textit{counter} értéke adott.

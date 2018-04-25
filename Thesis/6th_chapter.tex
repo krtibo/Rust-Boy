@@ -19,7 +19,7 @@ A program használata nagyon egyszerû, parancssorból indítható. A parancssori ind
                 ./rust_boy rom/mario.gb -X4
 \end{minted}
 
-\noindent A skálázás segítségével nagyítani lehet az eredetileg 160$\times$144-es felbontáson, hogy jobban látszódjon mi történik az emulátoron -- az \texttt{X2}-es beállítással ez 320$\times$288-as, az \texttt{X4}-es beállítással pedig 640$\times$576 pixeles nagyságú lesz a renderelt kép. A nagyítás \textit{Nearest Neighbor} interpolációval történik, így nem mosódnak el a pixelek, minden tûéles marad. \\
+\noindent A skálázás segítségével nagyítani lehet az eredetileg 160$\times$144-es felbontáson, hogy job\-ban látszódjon mi történik az emulátoron -- az \texttt{X2}-es beállítással ez 320$\times$288-as, az \texttt{X4}-es beállítással pedig 640$\times$576 pixeles nagyságú lesz a renderelt kép. A nagyítás \textit{Nearest Neighbor} interpolációval történik, így nem mosódnak el a pixelek, minden tûéles marad. \\
 A program indítását követõen elõször az eredeti hardverhez hasonlóan beúszik a Nintendo logó, majd betöltõdik a játék ROM-ja, ezzel egyidõben pedig az emulátor ablakának címsorában megjelenik a betöltött játék címe (amelyet a ROM \textit{headerjébõl} olvas ki a program).
 
 \section{Tesztelés}
@@ -62,7 +62,7 @@ A Game Boy emulátorok tesztelésére többféle módszer létezik. Írhatunk saját magu
   \item \textbf{\texttt{04-op r,imm:}} ez a teszt olyan mûveletek helyességét ellenõrzi, amelyek e\-se\-té\-ben a második operandus egy konkrét bájt (nem memóriacímként megadott hivatkozás).
   \item \textbf{\texttt{05-op rp:}} ez a teszt csomag azokat a mûveleteket ellenõrzi, amelyek esetében 16 bites értékeken, azaz a \texttt{BC}, \texttt{DE}, \texttt{HL} regiszter párokon végzünk feladatokat. 
   \item \textbf{\texttt{06-ld r,r:}} ezzel a teszttel az összes -- regiszterek közti -- \mintinline{asm}{LD} mûveletet tudjuk ellenõrizni.
-  \item \textbf{\texttt{07-jr,jp,call,ret,rst:}} ennek a teszthalmaznak a neve sokat elárul: eljárás utasításokat, vagyis ugrásokat, és feltételes ugrásokat, eljáráshívásokat, visszaté\-ré\-se\-ket, és a \textit{reset} mûveleteket ellenõrzi.
+  \item \textbf{\texttt{07-jr,jp,call,ret,rst:}} ennek a teszthalmaznak a neve sokat elárul: el\-já\-rás utasításokat, vagyis ugrásokat, és feltételes ugrásokat, eljáráshívásokat, visszaté\-ré\-se\-ket, és a \textit{reset} mûveleteket ellenõrzi.
   \item \textbf{\texttt{08-misc instrs:}} ez a teszt csomag azon mûveletek helyességét ellenõrzi, amelyek semelyik más kategóriába sem fértek be: a \mintinline{asm}{PUSH}-t és \mintinline{asm}{POP}-ot, valamint a speciális betöltõ utasításokat.
   \item \textbf{\texttt{09-op r,r:}} ezzel a teszttel fõként az aritmetikai mûveleteket lehet el\-le\-nõ\-riz\-ni: az összes összeadás, kivonás, logikai mûvelet, forgatás, csere, eltolás variációra tartalmaz teszt esetet.
   \item \textbf{\texttt{10-bit ops:}} ez a teszt az összes bitmûveletet ellenõrzi: a bit lekéréseket, \textit{resetet}, \textit{setet} egyaránt.
@@ -87,7 +87,8 @@ Kijelenthetõ, hogy az általam fejlesztett emulátor (a megszakítások idõzítését k
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{ |>{\columncolor{GameBoyBlue}}l|l|} 
+  {\renewcommand{\arraystretch}{1.3}
+  \begin{tabu}{ |>{\columncolor{GameBoyBlue}}l|[2pt]l|} 
    \hline
    \textbf{Rust Boy} & \textbf{10/11 teszt sikeres, 2./4. teszt sikertelen} \\ \hline
    BGB & 11/11 teszt sikeres \\ \hline
@@ -96,13 +97,13 @@ Kijelenthetõ, hogy az általam fejlesztett emulátor (a megszakítások idõzítését k
    MESS & 11/11 teszt sikeres \\ \hline
    no\$gmb & 9/11 teszt sikeres, 3./1. és 5./1. tesztek sikertelenek \\ \hline
    VBA & 11/11 teszt sikeres \\ \hline
-  \end{tabular}
+  \end{tabu}}
   \caption{\textit{Emulátorok pontossági összehasonlítása a tesztek alapján}}
   \label{table:1}
 \end{table}
 
 \noindent A fentiek alapján tehát látható, hogy a diplomamunkaként fejlesztett \textit{Rust Boy} felveszi a versenyt a népszerû emulátorokkal, sõt, némelyiknél pontosabb emulálást is kínál. A sokak által használt emulátorok többsége azért a tesztek alapján hibátlan, viszont az egy sikertelen tesztnyi lemaradás nem tekinthetõ nagy különbségnek. \\
 Az emulátor sebessége a fejlesztés elõtt tervezett 60 FPS-nek megfelel, folyékony, a\-ka\-do\-zás\-men\-tes a kép, a billentyûleütésekre is azonnal reagál a program -- ezzel együtt a játékélmény az eredeti konzolnak megfelelõ. \\
-Ami a hiányosságokat illeti -- két dologról lehet említést tenni. Az elsõ, és kisebb elmaradás a különbözõ MBC technológiák és megoldások adaptálása, amelyek lehetõvé teszik a 32kB-nál nagyobb méretû játékok futtatását az emulátoron. Természetesen enélkül is játszhatóak játékok, viszont csak azok, amelyeknek mérete nem haladja meg az elõbb említett korlátot. Az MBC különféle verzióinak implementálása azért maradt el, mert egyrészt sok van belõlük (5 darab), és mindegyik máshogy mûködik, így érthetõ módon a fejlesztésük nagyon sokáig tartott volna. \\
+Ami a hiányosságokat illeti -- két dologról lehet említést tenni. Az elsõ, és kisebb el\-ma\-ra\-dás a különbözõ MBC technológiák és megoldások adaptálása, amelyek lehetõvé teszik a 32kB-nál nagyobb méretû játékok futtatását az emulátoron. Természetesen enélkül is játszhatóak játékok, viszont csak azok, amelyeknek mérete nem haladja meg az elõbb említett korlátot. Az MBC különféle verzióinak implementálása azért maradt el, mert egyrészt sok van belõlük (5 darab), és mindegyik máshogy mûködik, így érthetõ módon a fejlesztésük nagyon sokáig tartott volna. \\
 A másik hiányzó modul a hang. A \textit{sound processing} részt a fejlesztés elejétõl kezdve az implementáció legvégére hagytam, majd miután komolyabban utánanéztem annak, hogy a Game Boy-ban milyen bonyolult 4 csatornás, sztereo hanggenerálás van, úgy határoztam hogy ehelyett inkább a sokkal elemibb, alapvetõbb funkciók fejlesztésére szánom az erõforrásokat. A hangok emulációja nélkül is mûködik az emulátor, persze az élmény nem egyezik meg az eredeti hardverével, viszont a hangfeldolgozás témaköre nagyon bonyolult, szinte mégegy teljes diplomamunkát is kitenne, így a lehetõségekhez mérten próbáltam a fél évnyi fejlesztési idõt enélkül a modul nélkül végigvinni. A jövõben mindenképpen megpróbálom megvalósítani az emulátor számára ezt a modult, egyrészt a hangfeldolgozás területén való tapasztalatlanságom -- és ebbõl kifolyólag a tapasztalat\-gyûj\-tés -- és a teljesség igénye miatt.\\
 Mindent összevetve nagyon hosszú, bonyolult, de annál tanulságosabb úton vagyok túl. Ez volt a második projektem a \textit{Rust} programozási nyelv használatával, soha nem írtam még ekkora programot -- a refaktorálások után összesen \url{~}11000 sor kóddal sikerült imp\-le\-men\-tál\-ni az emulátort. Nem csak a kódsorok mennyiségét tekintve, hanem strukturálisan is nagy rendszert kellett megvalósítani, amit egyben fejben tartani embert próbáló feladat -- bebizonyosodott számomra hogy az emulátorfejlesztés közel sem gyalog galopp. Ha most újrakezdeném természetesen már teljesen máshogy csinálnám az egészet, és talán a fenti szám háromnegyedébõl megoldanám a projekt fejlesztését. A megszámlálhatatlan órányi kutatás és \textit{debuggolás} egyrészt megtanított rá, hogy sokkal jobban értékeljem a "régmúlt" digitális eszközeit, hiszen nagyon sok esetben rengeteg okos trükköt kellett alkalmazni a technológia fejletlensége miatt, vagy éppen más okokból. A gépközeli, \textit{as\-sem\-bly} és \textit{bytecode} programozásba is széleskörû belátást tudtam nyerni, amit sok te\-rü\-le\-ten tudok majd alkalmazni a továbbiakban. \textit{Ha visszamehetnék az idõben, és újra diplomamunka témát választhatnék, semmin sem változtatnék.}

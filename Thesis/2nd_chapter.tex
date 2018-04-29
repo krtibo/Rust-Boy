@@ -1,11 +1,11 @@
 \chapter{A fejlesztési folyamat}
 
 Ahogy már az elõzõ fejezetekben is említésre került, az emulátor fejlesztõi szubkultúrában többé-kevésbé kialakult egyfajta irányelv, amit érdemes követni az emulátor fejlesztésénél. Természetesen olyan leírást nem lehet készíteni ami bármilyen konzol emulátorának fej\-lesz\-té\-sé\-re használható -- a hardverek különbözõsége és a speciális megoldások nem teszik ezt lehetõvé. Azt viszont meg lehet tenni, hogy egy általános tervezési mintát meg\-ha\-tá\-ro\-zunk, és a tervezésnél - implementálásnál ezt követjük. \\
-Az elsõ teendõ mindenképpen a lehetõ legtöbb tudásanyag összeszedése ilyen-olyan for\-rá\-sok\-ból: internetrõl, régi szaklapokból, esetleg magát a hardvert tanulmányozva. Nagy segítséget jelenthet például ha már valaki belekezdett ugyanazon hardver emulátorának fejlesztésébe, hiszen fontos információkkal szolgálhat. Egyes hardver emulátorok köré közösségek is összegyûlnek: így van ez a Game Boy esetén is. Ez a közösség egy honlapon gyûjtötte egybe az elérhetõ összes -- eddig fellelt -- információt a konzolról. A legfontosabb dokumentum azonban minden emulátor fejlesztése kapcsán a processzor dokumentációja, hiszen -- ahogy majd látni a késõbbiekben erre ki is térek -- ezt fogjuk elõször imp\-le\-men\-tál\-ni. Mielõtt az implementációs szakaszba lépnénk, célszerû átgondolni az emulátor leendõ struktúráját, mûködését, illetve az alkalmazott eszközöket. Továbbá az elvárt mûködést, az \textit{inputot} és az \textit{outputot} is át kell gondolni a tényleges fejlesztési munkálatok elõtt. \\
+Az elsõ teendõ mindenképpen a lehetõ legtöbb tudásanyag összeszedése ilyen-olyan for\-rá\-sok\-ból: internetrõl, régi szaklapokból, esetleg magát a hardvert tanulmányozva. Nagy segítséget jelenthet például ha már valaki belekezdett ugyanazon hardver emulátorának fejlesztésébe, hiszen fontos információkkal szolgálhat. Egyes hardver emulátorok köré közösségek is összegyûlnek: így van ez a Game Boy esetén is. Ez a közösség egy honlapon gyûjtötte egybe az elérhetõ összes -- eddig fellelt -- információt a konzolról. A legfontosabb dokumentum azonban minden emulátor fejlesztése kapcsán a processzor dokumentációja, hiszen -- ahogy majd látni a késõbbiekben erre ki is térek -- ezt fogjuk elõször imp\-le\-men\-tál\-ni. Mielõtt az implementációs szakaszba lépnénk, célszerû átgondolni az emulátor leendõ struktúráját, mûködését, illetve az alkalmazott eszközöket. Továbbá az elvárt mûködést, az \textit{inputot} és az \textit{outputot} is át kell gondolni a tényleges fejlesztési munkálatok elõtt.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\textwidth, height=6.5cm]{./Resources/placeholder.eps}
+    \includegraphics[width=\textwidth, trim={0 0.5cm 0 0.5cm},clip]{./Resources/v2/eps/emuarch.eps}
     \caption{\textit{Az emulátor architektúrája}}
     \label{fig:emuarch}
 \end{figure}
@@ -79,8 +79,8 @@ Amint látható, négy kötelezõen megadandó paramétere van a \texttt{Window} strukt
 
 \begin{itemize}
   \item \texttt{borderless}: ezzel megadható, hogy az ablaknak legyen-e kerete vagy sem,
-  \item \texttt{title}: ezzel megadható, hogy az ablaknak legyen-e címe vagy sem
-  \item \texttt{resize}: ezzel megadható, hogy az ablak átméretezhetõ legyen-e vagy sem
+  \item \texttt{title}: ezzel megadható, hogy az ablaknak legyen-e címe vagy sem,
+  \item \texttt{resize}: ezzel megadható, hogy az ablak átméretezhetõ legyen-e vagy sem,
   \item \texttt{scale}: ezzel a struktúrával megadható, hogy az ablak mekkora nagyítással je\-len\-jen meg, választható opciók: \texttt{X1}, \texttt{X2}, \texttt{X4}, \texttt{X8}, \texttt{X16}, \texttt{X32}.
 \end{itemize}
 
@@ -132,7 +132,7 @@ A \textit{debugger} jobb oldalában foglal helyet a regiszterek nézete, itt talál
     \label{fig:memorymap}
 \end{figure}
 
-\noindent A \textit{debugger} mellett a másik sokat használt eszköz a memóriatérkép. Ebben az ablakban megjelenik a Game Boy memóriájának összes bájtja, egy-egy pixel által reprezentálva. Az adott pixel világos, ha a bájt nulla, egyébként pedig sötétebb árnyalatú. A \ref{fig:memorymap}-es ábrán megfigyelhetõ, hogy több féle szín is megjelenik -- ezek jelölik az egyes fontosabb, elkülönölõ részeket a memóriában. A színeket is bevonva a reprezentációba a \textit{debuggerhez} hasonlóan ennél az eszköznél is ránézésre leolvashatók adatok. Ahhoz, hogy pontosan megtudjuk egy adott bájt értékét és pozícióját a memóriában, rá kell kattintani, és a terminál ablakban kiírásra kerülnek a szükséges információk. A kiírt adatok a következõ formában jelennek meg a terminál ablakban:
+\noindent A \textit{debugger} mellett a másik sokat használt eszköz a memóriatérkép. Ebben az ablakban megjelenik a Game Boy memóriájának összes bájtja, egy-egy pixel által reprezentálva. Az adott pixel világos, ha a bájt nulla, egyébként pedig sötétebb árnyalatú. A \ref{fig:memorymap}-es ábrán megfigyelhetõ, hogy több féle szín is megjelenik -- ezek jelölik az egyes fontosabb, elkülönülõ részeket a memóriában. A színeket is bevonva a reprezentációba a \textit{debuggerhez} hasonlóan ennél az eszköznél is ránézésre leolvashatók adatok. Ahhoz, hogy pontosan megtudjuk egy adott bájt értékét és pozícióját a memóriában, rá kell kattintani, és a terminál ablakban kiírásra kerülnek a szükséges információk. A kiírt adatok a következõ formában jelennek meg a terminál ablakban:
 
 \begin{center}
   \texttt{BYTE: 0x46 0b01000110 -- POSITION: 0x7984} \\
@@ -158,4 +158,4 @@ Inputnak tekinthetõk még az emulált \textit{joypaden} történõ gombnyomások is, m
 
 \noindent \textit{Az output elvárt formai és tartalmi követelményei}: \\
 Az emulátor több féle \textit{outputot} is elõállít. A legfontosabb az emulált kijelzõre renderelt kép, amelynek meg kell egyeznie az eredeti konzol által kirajzolt képpel. A korhûség érdekében célszerû a 4 féle árnyalatot a konzol folyadékkristályos kijelzõjének jellegzetes zöld színeivel megegyezõ színekkel megjeleníteni. \\
-Egyéb \textit{outputnak} tekinthetjük a \textit{debugger}, és a memóriatérkép által adott információkat is, hiszen az emulátor aktuális állapotáróla dnak visszajelzéseket. Természetesen ezek elhanyagolhatóak, de a hibakeresést -- és így a fejlesztést -- segítik.
+Egyéb \textit{outputnak} tekinthetjük a \textit{debugger}, és a memóriatérkép által adott információkat is, hiszen az emulátor aktuális állapotáról adnak visszajelzéseket. Természetesen ezek elhanyagolhatóak, de a hibakeresést -- és így a fejlesztést -- segítik.

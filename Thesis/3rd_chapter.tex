@@ -2,7 +2,7 @@
 
 \begin{wrapfigure}{l!}{\textwidth/2}
     \centering
-    \includegraphics[width=\textwidth/2-0.5cm, trim={2cm 2.5cm 2cm 5.5cm},clip]{./Resources/cpu.eps}
+    \includegraphics[width=\textwidth/2-0.5cm, trim={2cm 2.5cm 2cm 5.5cm},clip]{./Resources/v2/eps/GBCPUpatent.eps}
     \caption{\textit{A Game Boy szabadalmában ábrázolt processzor felépítés} \cite{ninpat}}
     \label{fig:patentcpu}
 \end{wrapfigure}
@@ -135,7 +135,7 @@ Alapvetõen 5 féle hardveres megszakítást különböztetünk meg \cite{ninprog}:
   \label{table:3}
 \end{table}
 
-\noindent Elõfordulhat, hogy egyszerre több megszakítás érkezik. Ebben az esetben a prioritási sorrend az \textit{Interrupt Flag} regiszterben elfoglalt helyek alapján alakul: a \textit{V-Blank interrupt} a legfontosabb, míg a \textit{Joypad} megszakítás marad utoljára. Miután a prioritás alapján a megszakításvezérlõ kiválasztotta, hogy melyik megszakítás következzen, a \ref{table:3}-as táb\-lá\-za\-ton szereplõ adatoknak megfelelõen az adott megszakításhoz tartozó memóriacímre ugrik a vezérlés. \\
+\noindent Elõfordulhat, hogy egyszerre több megszakítás érkezik. Ebben az esetben a prioritási sorrend az \textit{Interrupt Flag} regiszterben elfoglalt helyek alapján alakul: a \textit{V-Blank interrupt} a legfontosabb, míg a \textit{Joypad} megszakítás marad utoljára. Miután a prioritás alapján a megszakításvezérlõ kiválasztotta, hogy melyik megszakítás következzen, a 3.3-as táb\-lá\-za\-ton szereplõ adatoknak megfelelõen az adott megszakításhoz tartozó memóriacímre ugrik a vezérlés. \\
 Ami az implementálást illeti, a megszakítás vezérlõ feladatait az \texttt{Interrupt} struktúra, és annak függvényei látják el. Az \texttt{IRQ} függvény segítségével tudnak az egyes modulok (PPU, idõzítõ, stb.) megszakítást kérni, melyet aztán a \texttt{handler} függvény dolgoz fel. A feldolgozás oly módon történik, hogy minden CPU mûvelet után a fõ ciklusban meg\-hí\-vó\-dik az \texttt{interrupt\_checker} függvény, amely folyamatosan ellenõrzi, hogy érkezett-e új megszakítás, és hogy az engedélyezve van-e az \textit{Interrupt Enable} regiszterben 
  -- ha igen, akkor a megszakítás azonosítóját paraméterként átadva meghívja a \texttt{handler} függvényt, amely a megszakításhoz tartozó memóriacímre ugrasztja a CPU-t.
 
@@ -195,7 +195,7 @@ Az aritmetikai utasítások alatt ezen az architektúrán az összeadás, kivonás, ink
 amely értelemszerûen az \texttt{A} regiszter értékét teszi egyenlõvé az \texttt{A} és \texttt{B} regiszterek ér\-té\-ke\-i\-nek összegével.
 
 \subsubsection{Összeadás}
-Két típusú összeadást megvalósító mûvelet áll a programozók rendelkezésére: az \mintinline{asm}{ADD}, és az \mintinline{asm}{ADC}. Ezen utasítások esetében közös probléma a túlcsordulás -- hogyan kezeljük ha az összeg nagyobb, mint 255, azaz nem fér bele az \mintinline{rust}{u8} adattípusba? Szerencsére a Rust nyelv biztosít erre egy olyan megoldást, amely a hardver viselkedésével megegyezik. A két \mintinline{rust}{u8} típusú operandust nem a hagyományos módon (\mintinline{rust}{u8} + \mintinline{rust}{u8}) adjuk össze, hanem a \mintinline{rust}{wrapping_add} függvény segítségével a következõ módon:
+Két típusú összeadást megvalósító mûvelet áll a programozók rendelkezésére: az \mintinline{asm}{ADD}, és az \mintinline{asm}{ADC}. Ezen utasítások esetében közös probléma a túlcsordulás -- \textit{hogyan kezeljük ha az összeg nagyobb, mint 255, azaz nem fér bele az \mintinline{rust}{u8} adattípusba?} Szerencsére a Rust nyelv biztosít erre egy olyan megoldást, amely a hardver viselkedésével megegyezik. A két \mintinline{rust}{u8} típusú operandust nem a hagyományos módon (\mintinline{rust}{u8} + \mintinline{rust}{u8}) adjuk össze, hanem a \mintinline{rust}{wrapping_add} függvény segítségével a következõ módon:
 \begin{minted}{rust}
   let a : u8 = 5;
   let b : u8 = 6;
@@ -218,7 +218,7 @@ A \textit{half-carry} avagy fél-túlcsordulás detektálása a következõ képpen tört
       cpu.reset_flag("H");
   }
 \end{minted}
-Látható, hogy az elágazás logikai kifejezésének bal oldalán a két operandus értékének vesszük külön-külön az alsó 4 bitjét (\mintinline{rust}{a & 0xF},\;  \mintinline{rust}{b & 0xF}), majd ha azok összege nagyobb, mint 15 (binárisan \texttt{00001111}), akkor fél-túlcsordulás következett be. Ekkor állítsuk a \texttt{H} \textit{flaget} 1-re, egyébként pedig 0-ra. \\
+Látható, hogy az elágazás logikai kifejezésének bal oldalán a két operandus értékének vesszük külön-külön az alsó 4 bitjét (\mintinline{rust}{a & 0xF},\;  \mintinline{rust}{b & 0xF}), majd ha azok összege nagyobb, mint 15 (binárisan $\texttt{00001111}_2$), akkor fél-túlcsordulás következett be. Ekkor állítsuk a \texttt{H} \textit{flaget} 1-re, egyébként pedig 0-ra. \\
 A \texttt{C}-vel jelölt túlcsordulás ellenõrzése triviális. \\
 A különbség az \mintinline{asm}{ADD}, és az \mintinline{asm}{ADC} mûveletek között az, hogy -- mint az a \textit{mnemonikból} is kikövetkeztethetõ -- az \mintinline{asm}{ADC} az egyszerû összeadás mellett az összeghez hozzáadja a \texttt{C} \textit{flag} értékét is (\textit{ADD with Carry}). A \textit{flag} értékének hozzádását szintén a \mintinline{rust}{wrapping_add} függvénnyel tesszük.
 
@@ -249,7 +249,7 @@ Az inkrementálást (\mintinline{asm}{INC}) és a dekrementálást (\mintinline{asm}{
 
 \subsection{Logikai utasítások - \texttt{AND, XOR, OR, CP}}
 Az \textit{és} (\mintinline{asm}{AND}), \textit{kizáró vagy} (\mintinline{asm}{XOR}), \textit{vagy} (\mintinline{asm}{OR}), és összehasonlító (\mintinline{asm}{CP}, \textit{compare}) mûveletek is legalább olyan alapvetõek, és fontosak mint az elõzõekben tárgyalt aritmetikai mûveletek. Közülük az elsõ hármat nagyon egyszerû megvalósítani, hiszen a legtöbb programozási nyelv képes ezen mûveletek elvégzésének reprezentálására az \& (\textit{és}), \^{} (\textit{kizáró vagy}), és a | (\textit{vagy}) operátorok segítségével. \\
-Az fent említett elsõ három mûvelet implementálása tehát könnyû feladat, a \textit{flagek} be\-ál\-lí\-tá\-sa pedig szintén egyszerû. A \mintinline{asm}{XOR} és \mintinline{asm}{OR} \textit{flag} kezelése megegyezik: ha a végeredmény 0, akkor a \texttt{Z} flag legyen 1 (egyébként 0), az összes többi \textit{flaget} pedig állítsuk 0-ra. Az \mintinline{asm}{AND} esetén is hasonló a helyzet, annyi különbséggel, hogy a \texttt{H} flaget minden esetben 1-ra kell állítani. \\
+Az fent említett elsõ három mûvelet implementálása tehát könnyû feladat, a \textit{flagek} be\-ál\-lí\-tá\-sa pedig szintén egyszerû. A \mintinline{asm}{XOR} és \mintinline{asm}{OR} \textit{flag} kezelése megegyezik: ha a végeredmény 0, akkor a \texttt{Z} flag legyen 1 (egyébként 0), az összes többi \textit{flaget} pedig állítsuk 0-ra. Az \mintinline{asm}{AND} esetén is hasonló a helyzet, annyi különbséggel, hogy a \texttt{H} flaget minden esetben 1-re kell állítani. \\
 A \mintinline{asm}{CP} mûvelet kicsit különbözik a többitõl -- maga a mûvelet összehasonlít két értéket, és ha az értékük megegyezik, a \texttt{Z} \textit{flaget} 1-re állítja. Ennek mûködése tulajdonképpen megegyezik a kivonás mûveletével, csak a különbséget nem tároljuk sehol, a \textit{flagek} be\-ál\-lí\-tá\-sa a fontos -- ebben a tekintetben teljesen ekvivalens az összehasonlítás a kivonással.
 
 \subsection{Verem utasítások - \texttt{PUSH, POP}}
@@ -272,8 +272,8 @@ A \mintinline{asm}{RET} utasítás az elõzõ (\mintinline{asm}{CALL}) utasítással k
 
 \subsection{Bitmanipulációs utasítások - \texttt{BIT, RES, SET, SWAP}}
 Rendelkezésre állnak bitmanipulációs utasítások, amelyekkel regiszterek, vagy a me\-mó\-ri\-á\-ban lévõ bájtok bitjeivel végezhetünk mûveleteket: változtathatjuk (\mintinline{asm}{RES}, \mintinline{asm}{SET}, \mintinline{asm}{SWAP}), vagy lekérhetjük (\mintinline{asm}{BIT}) õket. Ezek természetesen fontos mûveletek, így a többi CPU utasításhoz hasonlóan törekedni kell a pontos emulációjukra. \\
-A \mintinline{asm}{RES} és \mintinline{asm}{SET} esetében rendre 0 (\textit{reset}) vagy 1 (\textit{set}) értéket adhatunk az utasítás pa\-ra\-mé\-te\-re\-i\-ben\footnote{Paraméter alatt jelen esetben nem külön beolvasott bájtokat tekintünk, hanem a konkrét mûvelethez (a processzor architektúrájának részeként) specifikált paramétereket.} megadott bitnek. Az \textit{elsõ pa\-ra\-mé\-ter} a módosítandó bit indexe az adott bájtban, a \textit{második paraméter} pedig maga a mondosítandó bitet tartalmazó regiszter vagy \texttt{(HL)} regiszterpárral megadott memóriacím. Ezek az utasítások nincsenek hatással az \texttt{F} \textit{flag} regiszterre. Az implementációt tekintve egy egyszerû bitmaszkolással, majd \textit{vagy}, ill. \textit{és} mûveletekkel lehet elérni egy-egy bit módosítását egy \mintinline{rust}{u8} változó esetén.\\
-A \mintinline{asm}{BIT} mûvelettel lehet lekérni egy konkrét bit értékét -- az utasítás az eredményét a \texttt{Z} \textit{flag} segítségével tudjuk kiolvasni: amennyiben az eredmény 0 volt, a \texttt{Z} 1-gyel lesz egyenlõ, egyébként pedig 0-val. Ami a további \textit{flageket} illeti, az \texttt{N} \textit{flaget} mindig \textit{reseteli}, a \texttt{H}-t pedig mindig beállítja az utasítás. Implementációban bitmaszkolással tudjuk megkapni egy adott bit értékét. \\
+A \mintinline{asm}{RES} és \mintinline{asm}{SET} esetében rendre 0 (\textit{reset}) vagy 1 (\textit{set}) értéket adhatunk az utasítás pa\-ra\-mé\-te\-re\-i\-ben\footnote{Paraméter alatt jelen esetben nem külön beolvasott bájtokat tekintünk, hanem a konkrét mûvelethez (a processzor architektúrájának részeként) specifikált paramétereket.} megadott bitnek. Az \textit{elsõ pa\-ra\-mé\-ter} a módosítandó bit indexe az adott bájtban, a \textit{második paraméter} pedig maga a módosítandó bitet tartalmazó regiszter vagy \texttt{(HL)} regiszterpárral megadott memóriacím. Ezek az utasítások nincsenek hatással az \texttt{F} \textit{flag} regiszterre. Az implementációt tekintve egy egyszerû bitmaszkolással, majd \textit{vagy}, ill. \textit{és} mûveletekkel lehet elérni egy-egy bit módosítását egy \mintinline{rust}{u8} változó esetén.\\
+A \mintinline{asm}{BIT} mûvelettel lehet lekérni egy konkrét bit értékét -- az utasítás eredményét a \texttt{Z} \textit{flag} segítségével tudjuk kiolvasni: amennyiben az eredmény 0 volt, a \texttt{Z} 1-gyel lesz egyenlõ, egyébként pedig 0-val. Ami a további \textit{flageket} illeti, az \texttt{N} \textit{flaget} mindig \textit{reseteli}, a \texttt{H}-t pedig mindig beállítja az utasítás. Implementációban bitmaszkolással tudjuk megkapni egy adott bit értékét. \\
 A \mintinline{asm}{SWAP} utasítás esetében egy paraméter adott: a módosítani kívánt regiszter. Maga a mûvelet nagyon egyszerû: fel kell cserélni a regiszterrel vagy memóriacímmel megadott bájt felsõ és alsó 4 bitjét egymással, így tehát például a $\texttt{11110000}_2$ bájtból a \mintinline{asm}{SWAP} elvégzése után $\texttt{00001111}_2$ lesz. Ha a végeredmény nullával egyenlõ, akkor az utasítás beállítja a \texttt{Z} \textit{flaget} 1-re, egyébként pedig nullára. A maradék három \textit{flag} minden esetben \textit{resetelésre} kerül.
 
 \subsection{\textit{Rotate} és \textit{Shift} - \texttt{RLC, RRC, RL, RR, SLA, SRA, SRL}}
@@ -314,7 +314,7 @@ A megszakítások letiltására és engedélyezésére a \mintinline{asm}{DI} és \mintin
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\textwidth]{./Resources/mmu-map.eps}
+    \includegraphics[width=\textwidth, trim={2cm 0 0 0},clip]{./Resources/v2/eps/MMUmap.eps}
     \caption{\textit{A memória térkép} \cite{ninpat}}
     \label{fig:mmumap}
 \end{figure}

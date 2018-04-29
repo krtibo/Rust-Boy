@@ -1,6 +1,6 @@
 \chapter{A kijelzõ és a PPU implementációja}
-A processzor és memória modulok után következik a Game Boy emulátor legnehezebb moduljának, a PPU-nak a fejlesztése. Ennek bonyolultsága abban rejlik, hogy rendkívül sok attribútummal, és egyéb jellemzõkkel, mini-mechanizmusokkal rendelkezik, amelyek között meg kell teremteni az együttmûködést és kohéziót. Ezeket természetesen egyenként, pontosan kell megvalósítani annak érdekében, hogy az emuláció és ezzel együtt a meg\-je\-le\-ní\-tés is pontos legyen. Természetesen ez elvárható, hiszen ez azon kevés modulok közé tartozik, amelyek közvetlenül tartják a kapcsolatot a felhasználóval, így minden apró eltérés szembeötlõ lehet. \\
-A \textit{Pixel Feldolgozó Egység (Pixel Processing Unit)} implementációja elõtt azonban annak "keretrendszerét" kell megvalósítani, az LCD kijelzõ mûködését, állapotainak rep\-re\-zen\-tá\-ci\-ó\-ját. Ezek nélkül a PPU nem tudna mûködni, hiszen a kijelzõ státusz állapotainak megfelelõen történik a kirajzolás.
+A processzor és memória modulok után következik a Game Boy emulátor legnehezebb moduljának, a PPU-nak a fejlesztése. Ennek bonyolultsága abban rejlik, hogy rendkívül sok attribútummal, és egyéb jellemzõkkel, mini-mechanizmusokkal rendelkezik, amelyek között meg kell teremteni az együttmûködést és kohéziót. Ezeket természetesen egyenként, pontosan kell megvalósítani annak érdekében, hogy az emuláció és ezzel együtt a meg\-je\-le\-ní\-tés is pontos legyen. Természetesen ez elvárható, hiszen a PPU azon kevés modulok közé tartozik, amelyek közvetlenül tartják a kapcsolatot a felhasználóval, így minden apró eltérés szembeötlõ lehet. \\
+A \textit{Pixel Feldolgozó Egység (Pixel Processing Unit)} implementációja elõtt azonban annak ``keretrendszerét'' kell megvalósítani, az LCD kijelzõ mûködését, állapotainak rep\-re\-zen\-tá\-ci\-ó\-ját. Ezek nélkül a PPU nem tudna mûködni, hiszen a kijelzõ státusz állapotainak megfelelõen történik a kirajzolás.
 
 \section{Az LCD kijelzõ}
 
@@ -11,28 +11,28 @@ A \textit{Pixel Feldolgozó Egység (Pixel Processing Unit)} implementációja elõtt
     \label{fig:blank}
 \end{wrapfigure}
 
-A Game Boy kijelzõjérõl a hardver specifikáció ismertetése során már volt szó -- ahogy ott is megemlítésre került, a szóban forgó LCD kijelzõ 166 $\times$ 144 pixel felbontású, 4 árnyalat megjelenítésére képes. A képernyõre renderelt képpontokat a \texttt{minifb} könyvtárral fogjuk megjelení\-te\-ni, amelynek struktúráit, és alapvetõ funkcióit az 1.2.2.-es rész taglalja. Ahhoz azonban, hogy a renderelést megfelelõ módon eltudjuk végezni, oda kell figyelni az LCD kijelzõ állapotaira, meg\-sza\-kí\-tá\-sok\-ra, egyéb jellemzõkre. \\
-A konzol hardverének tervezése során a mérnökök több képernyõfrissítési módszert és megoldást a -- már akkor korosnak számító -- CRT technológiából vettek kölcsön. Mint az ismeretes, a katódsugárcsöves megjelenítõk esetében a képernyõt sorról sorra pásztázta végig egy elektronnyaláb, majd az utolsó sor végeztével a mûveletet újból a legelsõ sorral folytatta. Azonban -- ahogy a \ref{fig:blank}-es ábrán is megfigyelhetõ -- a CRT-nek több idõre van szüksége ahhoz, hogy kirajzolja a megfelelõ képpontokat a megfelelõ helyre, nem csak végigszalad rajtuk. Idõ kell tehát ahhoz, hogy az egyes sorok végérõl a sugárnyaláb átvándoroljon a következõ sor elejére, ahogy az is idõbe kerül, hogy a nyaláb a képernyõ utolsó pixelérõl (jobb alsó sarok) visszamenjen a legelsõhöz (bal felsõ sarok). Természetesen ez utóbbi sokkal tovább fog tartani mint az elõbbi -- ezeket egyébként \textit{horizontális üresjáratnak} (vagy \textit{HBlank}-nak) illetve \textit{vertikális üresjáratnak} (vagy \textit{VBlank}-nak) nevezzük \cite{ninprog}. \\
+A Game Boy kijelzõjérõl a hardver specifikáció ismertetése során már volt szó -- ahogy ott is megemlítésre került, a szóban forgó LCD kijelzõ 166 $\times$ 144 pixel felbontású, 4 árnyalat megjelenítésére képes. A képernyõre renderelt képpontokat a \texttt{minifb} könyvtárral fogjuk megjelení\-te\-ni, amelynek struktúráit, és alapvetõ funkcióit az 1.2.2.-es rész taglalja. Ahhoz azonban, hogy a renderelést megfelelõ módon el tudjuk végezni, oda kell figyelni az LCD kijelzõ állapotaira, meg\-sza\-kí\-tá\-sok\-ra, egyéb jellemzõkre. \\
+A konzol hardverének tervezése során a mérnökök több képernyõfrissítési módszert és megoldást a -- már akkor korosnak számító -- CRT technológiából vettek kölcsön. Mint az ismeretes, a katódsugárcsöves megjelenítõk esetében a képernyõt sorról sorra pásztázta végig egy elektronnyaláb, majd az utolsó sor végeztével a mûveletet újból a legelsõ sorral folytatta. Azonban -- ahogy a \ref{fig:blank}-es ábrán is megfigyelhetõ -- a CRT-nek több idõre van szüksége ahhoz, hogy kirajzolja a megfelelõ képpontokat a megfelelõ helyre, nem csak végigszalad rajtuk. Idõ kell tehát ahhoz, hogy az egyes sorok végérõl a sugárnyaláb átvándoroljon a következõ sor elejére, ahogy az is idõbe kerül, hogy a nyaláb a képernyõ utolsó pixelérõl (jobb alsó sarok) visszamenjen a legelsõhöz (bal felsõ sarok). Természetesen ez utóbbi sokkal tovább fog tartani mint az elõbbi -- ezeket egyébként \textit{horizontális üresjáratnak} (vagy \textit{HBlank}-nak), illetve \textit{vertikális üresjáratnak} (vagy \textit{VBlank}-nak) nevezzük \cite{ninprog}. \\
 Ezek az üresjáratok nagyban meghatározzák a PPU emulációjának ritmusát, több dolgot is szûk intervallumon belül kell elvégezni. Az LCD kijelzõ által meghatározott intervallumokat, illetve pontos szinkronizációs idõpontokat az alábbi táblázat tartalmazza.
 
 \begin{table}[h!]
   \centering
   {\renewcommand{\arraystretch}{1.3}
-  \begin{tabu}{|>{\columncolor{GameBoyBlue}}l|[2pt]c|c|} 
+  \begin{tabu}{|>{\columncolor{GameBoyBlue}}l|[2pt]c|p{3cm}|} 
    \hline
-  \textbf{Esemény} & \cellcolor{GameBoyBlue} \textbf{PPU mód azonosító} & \cellcolor{GameBoyBlue} \textbf{Igénybevett idõ} \\ \tabucline[2pt]{-}
-  \textit{Scanline} (OAM elérése) & 2 & 80 órajelciklus \\ \hline
-  \textit{Scanline} (VRAM elérése) & 3 & 172 órajelciklus \\ \hline
-  Horizontális üresjárat & 0 & 204 órajelciklus \\ \hline
-  Egy sor kirajzolása &  & \textbf{456 órajelciklus} \\ \hline
-  Vertikális üresjárat & 1 & 4560 órajelciklus \\ \hline
-  Képkocka (letapogatások és üresjáratok) &  & 70224 órajelciklus \\ \hline
+  \textbf{Esemény} & \cellcolor{GameBoyBlue} \textbf{PPU mód azonosító} & \centering \cellcolor{GameBoyBlue} \textbf{Igénybe vett idõ}\newline \textbf{(Órajelciklus)} \\ \tabucline[2pt]{-}
+  \textit{Scanline} (OAM elérése) & 2 & \centering 80 \\ \hline
+  \textit{Scanline} (VRAM elérése) & 3 & \centering 172 \\ \hline
+  Horizontális üresjárat & 0 & \centering 204 \\ \hline
+  Egy sor kirajzolása &  & \centering \textbf{456} \\ \hline
+  Vertikális üresjárat & 1 & \centering 4560 \\ \hline
+  Képkocka (letapogatások és üresjáratok) &  & \centering 70224 \\ \hline
   \end{tabu}}
   \caption{\textit{A PPU idõzítése}}
-  \label{table:1}
+  \label{table:41}
 \end{table}
 
-\noindent Ez alapján tehát rekonstruálni tudjuk az LCD kijelzõ és a PPU idõzítéseinek mûködését, és azt, hogy egymással és a processzorral hogyan tudjuk szinkronban tartani õket. Ehhez szükség lesz egy, a CPU fõ ciklusában minden alkalommal meghívott valamilyen ak\-tu\-a\-li\-zá\-ló függvényre, ahol ellenõrzés alatt lehet tartani a CPU és PPU együttmûködését, szin\-kro\-ni\-zá\-ci\-ó\-ját. Ez a függvény az \texttt{update\_n\_sync} lesz, melynek tartalma a következõ:
+\noindent Ez alapján tehát rekonstruálni tudjuk az LCD kijelzõ és a PPU idõzítéseinek mûködését, és azt, hogy egymással és a processzorral hogyan tudjuk szinkronban tartani õket. Ehhez szükség lesz egy, a CPU fõ ciklusában minden alkalommal meghívott valamilyen ak\-tu\-a\-li\-zá\-ló függvényre, ahol ellenõrzés alatt lehet tartani a CPU és PPU együttmûködését, szink\-ro\-ni\-zá\-ci\-ó\-ját. Ez a függvény az \texttt{update\_n\_sync} lesz, melynek tartalma a következõ:
 
 \begin{minted}{rust}
   self.lcd_status_update(cpu);
@@ -60,23 +60,23 @@ Ezek az üresjáratok nagyban meghatározzák a PPU emulációjának ritmusát, több dol
 \noindent A fenti programrészlet tehát menedzseli a renderelést: a megfelelõ idõben meghívja a megfelelõ függvényeket, miközben frissíti a megfelelõ változókat. Kicsit bõvebben ez annyit tesz, hogy elõször is meghívja az \texttt{lcd\_status\_update} függvényt (késõbb bemutatásra kerül), majd hozzáadja az utolsó CPU operáció mûveletidejét egy szám\-lá\-ló\-hoz (\texttt{scanline\_count}), amellyel számon tudjuk tartani, hogy mennyi mûvelet elvégzése szükséges a következõ pixelsor kirendereléséig. Ha ez a számláló nagyobb egyenlõ, mint 456, akkor további ellenõrzéseket végzünk. \\
 Elõször is lenullázzuk a számláló változót, majd megnézzük, hogy a \texttt{0xFF44} me\-mó\-ri\-a\-cí\-men található érték elérte-e a 144-es értéket. Ha nem, akkor rajzoljuk ki a sort. Az elõbb említett \texttt{0xFF44}-es címen található érték azt mutatja, hogy a PPU éppen melyik sornál jár a kirajzolásban, ezért hasonlítjuk össze 144-gyel: pontosan ennyi sora van a kijelzõnek. \\
 Ha a \texttt{0xFF44}-es érték megegyezik 144-gyel, tehát az utolsó sor is ki lett rajzolva a képernyõre, 0-s azonosítójú megszakítási kérést kell küldeni a processzornak, ez lé\-nye\-gé\-ben a \textit{VBlank} mûvelet elvégzését takarja. Ezeket az elágazásokat követõen növelni kell a \texttt{0xFF44}-en található értéket (\textit{scanline}, letapogató) eggyel, hiszen a következõ sorra lépünk. \\
-A következõ, végsõ \texttt{if} elágazás igen érdekes: a \textit{scanline} értékét vizsgálja, azt nézi meg, hogy nagyobb-e mint 153. \textit{De miért pont 153?} Egész pontosan azért, mert a \ref{table:1}-es táb\-lá\-zat\-ban ismertetettek szerint a \textit{VBlank} mûvelet végrehatjási ideje pontosan 10-szerese az egy sor kirajzolásáénak. A képernyõn lévõ sorok számát 0-tól indexeljük, így lesz a 144-bõl 143, amihez ha hozzáadunk 10-et, amíg a \textit{VBlank} tart, megkapjuk a 153-as számot. Amint elértük a 153. sort (vagyis befejezõdött a \textit{VBlank} mûvelet), kezdhetjük a következõ képkocka renderelését a 0. sortól. 
+A következõ, végsõ \texttt{if} elágazás igen érdekes: a \textit{scanline} értékét vizsgálja, azt nézi meg, hogy nagyobb-e, mint 153. \textit{De miért pont 153?} Egész pontosan azért, mert a \ref{table:41}-es táb\-lá\-zat\-ban ismertetettek szerint a \textit{VBlank} mûvelet végrehajtási ideje pontosan 10-szerese az egy sor kirajzolásáénak. A képernyõn lévõ sorok számát 0-tól indexeljük, így lesz a 144-bõl 143, amihez ha hozzáadunk 10-et, amíg a \textit{VBlank} tart, megkapjuk a 153-as számot. Amint elértük a 153. sort (vagyis befejezõdött a \textit{VBlank} mûvelet), kezdhetjük a következõ képkocka renderelését a 0. sortól. 
 
 \subsection{Az LCD státuszok}
 A következõkben a fent említett \texttt{lcd\_status\_update} által elvégzett feladatokat, azaz az LCD kijelzõ státuszait és az azokra való reagálást fogom bemutatni. \\
-Az kijelzõ aktuális állapotát a \texttt{0xFF41} memóriacímen található LCD Státusz Regiszter tárolja a 0. és 1. biteken -- ebbõl következik hogy 4 ($2^2$) ilyen állapot létezik:
+Az kijelzõ aktuális állapotát a \texttt{0xFF41} memóriacímen található LCD Státusz Regiszter tárolja a 0. és 1. biteken -- ebbõl következik, hogy 4 ($2^2$) ilyen állapot létezik:
 
 \begin{itemize}
-  \item \texttt{00}: \textit{HBlank}
-  \item \texttt{01}: \textit{VBlank}
-  \item \texttt{10}: \textit{Sprite} adatok keresése a memóriában (OAM)
-  \item \texttt{11}: Adatok másolása a PPU számára a VRAM-ba
+  \item \texttt{00}: \textit{HBlank},
+  \item \texttt{01}: \textit{VBlank},
+  \item \texttt{10}: \textit{Sprite} adatok keresése a memóriában (OAM),
+  \item \texttt{11}: Adatok másolása a PPU számára a VRAM-ba.
 \end{itemize}
 
-\noindent Mihelyst a \textit{scanline} újra kezdi a képkocka kirajzolását az elsõ sortól, a következõ mû\-ve\-le\-tek ciklusát hajtja végre újra és újra: elõször is \texttt{10}-ra állítódik az állapot, majd \texttt{11}-re, végül pedig \texttt{00}-ra. Amikor elér a \textit{VBlank} mûvelethez, a státusz \texttt{01} lesz egészen az üresjárat végéig. Ezt követõen ismét az \texttt{10} állapotot veszi fel, és folytatódik a ciklus a fentiek szerint. Az egyes állapotokhoz tartozó végrehajtási idõket tartalmazza a \ref{table:1}-es táblázat. 
+\noindent Mihelyst a \textit{scanline} újra kezdi a képkocka kirajzolását az elsõ sortól, a következõ mû\-ve\-le\-tek ciklusát hajtja végre újra és újra: elõször is \texttt{10}-ra állítódik az állapot, majd \texttt{11}-re, végül pedig \texttt{00}-ra. Amikor elér a \textit{VBlank} mûvelethez, a státusz \texttt{01} lesz egészen az üresjárat végéig. Ezt követõen ismét az \texttt{10} állapotot veszi fel, és folytatódik a ciklus a fentiek szerint. Az egyes állapotokhoz tartozó végrehajtási idõket tartalmazza a \ref{table:41}-es táblázat. 
 
 \subsection{Az LCD interruptjai és flagje}
-Abban a pillanatban, amikor az LCD kijelzõ állapota megváltozik, és a \texttt{00}, \texttt{01} vagy \texttt{10} módba kerül (a fent ismertetetteknek megfelelõen), interrupt hívás következhet be. Az LCD Státusz Regiszter 3., 4. és 5. bitjei felelnek az elõbb említett 3 mód megszakításainak engedélyezéséért vagy letiltásáért (a \texttt{0xFFFF}-en található \textit{Interrupt Enable} regiszterhez hasonlóan), viszont ezeket nem az emulátor, hanem a játék fejlesztõi állíthatták be az igényeknek megfelelõen. A megszakítások LCD módokra való megfeleltetése a követ\-ke\-zõk szerint alakul \cite{ninprog}:
+Abban a pillanatban, amikor az LCD kijelzõ állapota megváltozik, és a \texttt{00}, \texttt{01} vagy \texttt{10} módba kerül (a fent ismertetetteknek megfelelõen), interrupt hívás következhet be. Az LCD Státusz Regiszter 3., 4. és 5. bitjei felelnek az elõbb említett három mód megszakítá\-sa\-i\-nak engedélyezéséért vagy letiltásáért (a \texttt{0xFFFF}-en található \textit{Interrupt Enable} re\-gisz\-ter\-hez hasonlóan), viszont ezeket nem az emulátor, hanem a játék fejlesztõi állíthatták be az igényeknek megfelelõen. A megszakítások LCD módokra való megfeleltetése a követ\-ke\-zõk szerint alakul \cite{ninprog}:
 
 \begin{itemize}
   \item 3. bit: \texttt{00}-s LCD mód megszakításának engedélyezése, tiltása,
@@ -84,15 +84,15 @@ Abban a pillanatban, amikor az LCD kijelzõ állapota megváltozik, és a \texttt{00
   \item 5. bit: \texttt{10}-s LCD mód megszakításának engedélyezése, tiltása.
 \end{itemize}
 
-\noindent Fontos megjegyezni, hogy az LCD módok közül feltétlenük implementálni kell a kijelzõ kikapcsolásakor a \texttt{01}-es módra való váltást, mert ha ezt nem tesszük meg, több játék is meg fog akadni a megszakítás elvégzésének hiánya miatt. \\
+\noindent Fontos megjegyezni, hogy az LCD módok közül feltétlenül implementálni kell a kijelzõ kikapcsolásakor a \texttt{01}-es módra való váltást, mert ha ezt nem tesszük meg, több játék is meg fog akadni a megszakítás elvégzésének hiánya miatt. \\
 
-\noindent Ötletes megoldást tesz lehetõvé az LCD Státusz Regiszter 2. és 6. bitje. A második bitet \textit{Coincidence Flag}nek nevezzük, és akkor állítjuk 1-re, ha a \textit{scanline} aktuális sor értéke (\texttt{0xFF44}) megegyezik az \texttt{0xFF45}-ös memóriacímen található értékkel. A hatodik bit azt szabályozza, hogy ha a \textit{Coincidence Flag} be van állítva, akkor legyen-e megszakítás kérés. Ennek a megoldásnak a segítségével tudtak a játékfejlesztõk különféle speciális effekteket leprogramozni, hiszen a \textit{Coincidence Flag} segítségével lehetett vizsgálni és interruptot kérni egy konkrét sor esetén.
+\noindent Ötletes megoldást tesz lehetõvé az LCD Státusz Regiszter 2. és 6. bitje. A második bitet \textit{Coincidence Flagnek} nevezzük, és akkor állítjuk 1-re, ha a \textit{scanline} aktuális sor értéke (\texttt{0xFF44}) megegyezik az \texttt{0xFF45}-ös memóriacímen található értékkel. A hatodik bit azt szabályozza, hogy ha a \textit{Coincidence Flag} be van állítva, akkor legyen-e megszakításkérés. Ennek a megoldásnak a segítségével tudtak a játékfejlesztõk különféle speciális effekteket leprogramozni, hiszen a \textit{Coincidence Flag} segítségével lehetett vizsgálni és interruptot kérni egy konkrét sor esetén.
 
-\section{PPU - Pixel Feldolgozó Egység}
-Az elõzõ alfejezetben ismertetésre került a Game Boy kijelzõjének viselkedése, az ehhez felhasznált eszközök, módszerek, és a keretrendszer ami emögött mûködik. Az idõzítés, megszakítások, módok és egyebek azonban önmagukban nem elegek ahhoz hogy az e\-mu\-lá\-tor kirenderelhesse a képet a \textit{framebuffer} ablakba, ehhez további vizsgálatok, és implementáció szükséges. A sorrend a következõ: elõször is a megjelenítéshez szükséges alapvetõ ismeretekrõl lesz szó, majd a \textit{tile}-ok, vagy csempék renderelésén keresztül fogom bemutatni azokat a módszereket amikre figyelni kell. A \textit{sprite} renderelést tartalmazó rész a \textit{tile} rendereléshez viszonyított különbségeket fogja tartalmazni.
+\section{PPU -- Pixel Feldolgozó Egység}
+Az elõzõ alfejezetben ismertetésre került a Game Boy kijelzõjének viselkedése, az ehhez felhasznált eszközök, módszerek, és a keretrendszer, ami emögött mûködik. Az idõzítés, megszakítások, módok és egyebek azonban önmagukban nem elegek ahhoz, hogy az e\-mu\-lá\-tor kirenderelhesse a képet a \textit{framebuffer} ablakba, ehhez további vizsgálatok, és implementáció szükséges. A sorrend a következõ: elõször a megjelenítéshez szükséges alapvetõ ismeretekrõl lesz szó, majd a \textit{tile}-ok, vagy csempék renderelésén keresztül fogom bemutatni azokat a módszereket, amikre figyelni kell. A \textit{sprite} renderelést tartalmazó rész a \textit{tile} rendereléshez viszonyított különbségeket fogja tartalmazni.
 
 \subsection{Alapvetõ tudnivalók}
-A Game Boy a grafikák megjelenítéséhez \textit{tile}-okat és \textit{sprite}-okat használ, ezek se\-gít\-sé\-gé\-vel állítja össze a kívánt mintát a rendereléshez. Itt mindjárt két definícióval is találkozunk, ezek a következõket jelentik: a \textit{tile}-ok a játék hátterét alkotó, leginkább ismétlõdõ mintákat ábrázoló csempék, amelyek statikusak, a játéknak a kontextust adják meg, míg a \textit{sprite}-ok a mozgó, folyton helyet változtató, villogó részek a képernyõn, illetve az irányítható karakterek. Mindkettejükrõl elmondható, hogy általában 8$\times$8 pixel méretûek, viszont elõfordulhatnak nagyobb, 8$\times$16 pixelesek is, melyek többnyire a játszható karaktereket ábrázolták (pl. Mario). \\
+A Game Boy a grafikák megjelenítéséhez \textit{tile}-okat és \textit{sprite}-okat használ, ezek se\-gít\-sé\-gé\-vel állítja össze a kívánt mintát a rendereléshez. Itt mindjárt két definícióval is találkozunk, ezek a következõket jelentik: a \textbf{\textit{tile}}-ok a játék hátterét alkotó, leginkább ismétlõdõ mintákat ábrázoló csempék, amelyek statikusak, a játéknak a kontextust adják meg, míg a \textbf{\textit{sprite}}-ok a mozgó, folyton helyet változtató, villogó részek a képernyõn, illetve az irányítható karakterek. Mindkettejükrõl elmondható, hogy általában 8$\times$8 pixel méretûek, viszont elõfordulhatnak nagyobb, 8$\times$16 pixelesek is, melyek többnyire a játszható karaktereket ábrázolták (pl. Mario). \\
 
 \begin{figure}[h!]
     \centering
@@ -101,31 +101,31 @@ A Game Boy a grafikák megjelenítéséhez \textit{tile}-okat és \textit{sprite}-oka
     \label{fig:screenmap}
 \end{figure}
 
-\noindent Az már többször is említésre került, hogy a hardver kijelzõjének felbontása 160$\times$144 pixel méretû, viszont \textit{virtuális} tekintetben 256$\times$256 pixel a rajzolható terület mérete, amely ekvivalens 32$\times$32 darab 8$\times$8 méretû csempével. Ebbõl a nagyobb, 1:1 arányú méretbõl aztán úgy lesz a már sokat emlegetett 160$\times$144, hogy egy pontosan ekkora méretû részt mozgatunk a 256$\times$256 méretû területen. A mozgatott "ablak" koordinátái külön el vannak tárolva egy regiszterben, ezt a jétékfejlesztõk szabadon használhat\-ták. A fenti, \ref{fig:screenmap}-es ábra mutatja a fent ismertetett \textit{scroll} mechanizmust. \\
+\noindent Az már többször is említésre került, hogy a hardver kijelzõjének felbontása 160$\times$144 pixel méretû, viszont \textit{virtuális} tekintetben 256$\times$256 pixel a rajzolható terület mérete, amely ekvivalens 32$\times$32 darab 8$\times$8 méretû csempével. Ebbõl a nagyobb, 1:1 arányú méretbõl aztán úgy lesz a már sokat emlegetett 160$\times$144, hogy egy pontosan ekkora méretû részt mozgatunk a 256$\times$256 méretû területen. A mozgatott ``ablak'' koordinátái külön el vannak tárolva egy regiszterben, ezt a jétékfejlesztõk szabadon használhat\-ták. A fenti, \ref{fig:screenmap}-es ábra mutatja az elõzõleg ismertetett \textit{scroll} mechanizmust. \\
 Fontos még megemlíteni, hogy létezik egy harmadik típusú ábrázolási mód, ez pedig a \textit{window} (ablak). Ennek segítségével a megjelenített pixelek a háttér \textit{tile}-ok elõtt, viszont a \textit{sprite}-ok mögött foglalnak helyet. A programozók ezt a megjelenítési módot al\-kal\-maz\-hat\-ták a játékaik felhasználói felületeinek HUD\footnote{\textit{Heads-Up Display}: más néven \textit{status bar}, általában a játékos állapotának, illetve a játékban elért pontszámának közlésére szolgáló felület, az UI szerves része.}-jaként, melyekre tetszõleges ábrákat, szöveget helyezhettek el.
 
 \subsection{Az LCD Control Register}
-Az elõzõ alfejezetben említett LCD Státusz Regiszterhez hasonló, szintén az LCD kijelzõ állapotait és a megjelenítést segítõ regiszter az \textit{LCD Control Register}, amelynek me\-mó\-ri\-a\-cí\-me a \texttt{0xFF40} és amely inkább a rendereléshez áll közelebb: számos, a PPU által aktívan használt paramétert tartalmaz. Ezek rendre a következõk \cite{ninprog}:
+Az elõzõ alfejezetben említett LCD Státusz Regiszterhez hasonló, szintén az LCD kijelzõ állapotait és a megjelenítést segítõ regiszter az \textit{LCD Control Register}, amelynek me\-mó\-ri\-a\-cí\-me a \texttt{0xFF40}, és amely inkább a rendereléshez áll közelebb: számos, a PPU által aktívan használt paramétert tartalmaz. Ezek rendre a következõk \cite{ninprog}:
 
 \begin{itemize}
   \item \textbf{7. bit:} Ezzel a bittel lehet állítani, hogy az LCD kijelzõ ki-, vagy be legyen-e kapcsolva. Amennyiben nincs bekapcsolva (értéke 0), nem rajzolunk semmit sem. Ezt az elõzõ, LCD kijelzõ funkcióit implementáló kódrész kezeli le.
 
-  \item \textbf{6. bit:} Ez a bit azt mondja meg, hogy a játék a memória mely részében keresse a \textit{window} kirajzolásához szükséges \textit{tile}-ok bájtjait. Ezek a bájtok az adott csempék azonosítóit tárolják, minden csempéhez pontosan egy azonosító tartozik. A\-meny\-nyi\-ben az értéke 0, úgy az intervallum \texttt{0x9800 - 0x9BFF}, egyébként pedig \texttt{0x9C00 - 0x9FFF}.
+  \item \textbf{6. bit:} Ez a bit azt mondja meg, hogy a játék a memória mely részében keresse a \textit{window} kirajzolásához szükséges \textit{tile}-ok bájtjait. Ezek a bájtok az adott csempék azonosítóit tárolják, minden csempéhez pontosan egy azonosító tartozik. A\-meny\-nyi\-ben az értéke 0, úgy az intervallum \texttt{0x9800--0x9BFF}, egyébként pedig \newline \texttt{0x9C00--0x9FFF}.
 
   \item \textbf{5. bit:} Ez a bit szolgál a megjelenített \textit{frame}-en belüli \textit{window}-k ki-, illetve be\-kap\-cso\-lá\-sá\-ra. 0 érték esetén nem rajzoljuk ki ezeket, egyébként igen.
 
-  \item \textbf{4. bit:} Ezzel a bittel lehet állítani, hogy a háttérként, illetve \textit{window}-ként kirajzolt \textit{tile}-ok bájtjai merre találhatóak. Ezek a bájtok a konkrét csempéket tárolják. 0 érték esetén a \textit{tile}-ok helye a memóriában \texttt{0x8800 - 0x97FF}, 1-es érték esetén pedig \texttt{0x9C00 - 0x9FFF}. Érdekesség, hogy amennyiben az 0-s érték által reprezentált módban vagyunk, úgy a 6-os bitnél említett azonosító bájtok elõjeles bájtok, ér\-ték\-kész\-le\-tük pedig ennek megfelelõen a $[ -128, 128 ]$-as intervallum.
+  \item \textbf{4. bit:} Ezzel a bittel lehet állítani, hogy a háttérként, illetve \textit{window}-ként kirajzolt \textit{tile}-ok bájtjai merre találhatóak. Ezek a bájtok a konkrét csempéket tárolják. 0 érték esetén a \textit{tile}-ok helye a memóriában \texttt{0x8800--0x97FF}, 1-es érték esetén pedig \texttt{0x9C00--0x9FFF}. Érdekesség, hogy amennyiben az 0-s érték által reprezentált módban vagyunk, úgy a 6-os bitnél említett azonosító bájtok elõjeles bájtok, ér\-ték\-kész\-le\-tük pedig ennek megfelelõen a $[ -128, 128 ]$-as intervallum.
 
-  \item \textbf{3. bit:} Ez a bit azt mondja meg, hogy a játék a memória mely részében keresse a háttér kirajzolásához szükséges \textit{tile}-ok bájtjait. Ezek a bájtok is az adott csempék azonosítóit tárolják, a 6-os bithez hasonló módon. Ha az értéke 0, akkor az in\-ter\-val\-lum \texttt{0x9800 - 0x9BFF}, egyébként pedig \texttt{0x9C00 - 0x9FFF}.
+  \item \textbf{3. bit:} Ez a bit azt mondja meg, hogy a játék a memória mely részében keresse a háttér kirajzolásához szükséges \textit{tile}-ok bájtjait. Ezek a bájtok is az adott csempék azonosítóit tárolják, a 6-os bithez hasonló módon. Ha az értéke 0, akkor az in\-ter\-val\-lum \texttt{0x9800--0x9BFF}, egyébként pedig \texttt{0x9C00--0x9FFF}.
 
   \item \textbf{2. bit:} Ezzel a bittel azt lehet megadni, hogy a kirajzolandó \textit{sprite}-ok mérete a már említettek szerint 8$\times$8-as legyen (0 értékû bit esetén), vagy pedig 8$\times$16-os (1-es értékû bit esetén).
 
   \item \textbf{1. bit:} Ez a bit az 5-ös bithez hasonló módon azt tudja szabályozni, hogy kirajzoljuk-e a vonatkozó adatokat. A konkrét adatok itt természetesen nem a \textit{window}-hoz fognak tartozni, hanem a \textit{sprite}-okhoz: 0-s érték esetén ezek renderelését lehet letiltani, illetve 1-es érték esetén engedélyezni.
 
-  \item \textbf{0. bit:} Ez a bit elõzõhöz, és az 5-ös bithez hasonlóan a kirajzolandó adatokat korlátozza: ebben az esetben a hátteret alkotó \textit{tile}-ok renderelését lehet letiltani 0-s értékkel, vagy engedélyezni 1-essel.
+  \item \textbf{0. bit:} Ez a bit az elõzõhöz, és az 5-ös bithez hasonlóan a kirajzolandó adatokat korlátozza: ebben az esetben a hátteret alkotó \textit{tile}-ok renderelését lehet letiltani 0-s értékkel, vagy engedélyezni 1-essel.
 \end{itemize}
 
-\noindent Most, hogy ismerjük a fenti, LCD Control Register által tárolt beállításokat, és el lehet kezdeni implementálni a hátteret alkotó \textit{tile}-ok kirajzolását végzõ eljárás(oka)t. Elõtte azonban készíthetünk egy, az adott sor renderelését menedzselõ, egyszerû függvényt:
+\noindent Most, hogy ismerjük a fenti, \textit{LCD Control Register} által tárolt beállításokat, és el lehet kezdeni implementálni a hátteret alkotó \textit{tile}-ok kirajzolását végzõ eljárás(oka)t. Elõtte azonban készíthetünk egy, az adott sor renderelését menedzselõ, egyszerû függvényt:
 
 \begin{minted}{rust}
     fn draw_line(&mut self, cpu : &mut CPU) {
@@ -157,7 +157,7 @@ Az elõzõ alfejezetben említett LCD Státusz Regiszterhez hasonló, szintén az LCD 
 Az elsõ fontos kérdés ami felmerülhet, hogy \textit{az említésre került 256$\times$256 méretû virtuális területnek pontosan melyik 160$\times$144 nagyságú részletét jelenítsük meg a képernyõn?} A korábbi, \ref{fig:screenmap}-es ábrán, és az ahhoz tartozó leírásban már volt erre vonatkozó utalás: a \textit{hasznos} területet a \textit{ScrollX} és \textit{ScrollY} regiszterek segítségével kaphatjuk meg. A rendre \texttt{0xFF42} és \texttt{0xFF43}-as címeken elérhetõ, X és Y koordinátákat tároló bájtok mutatják az ominózus 160$\times$144-es renderelendõ terület bal felsõ sarkának távolságát az origótól (a teljes, 256$\times$256 méretû terület bal felsõ sarka). Amennyiben \textit{window} renderelésére is szükség van, annak megjelenítési helyét hasonló módon, két regiszter segítségével (\textit{WindowX}: \texttt{0xFF4B}, \textit{WindowY}: \texttt{0xFF4A}) tehetjük meg, viszont itt a látható, 160$\times$144-es terület bal felsõ sarka a kiindulópont, origó.
 
 \subsubsection{A \textit{tile} adatainak meghatározása, algoritmus}
-Most, hogy megvannak a regiszterek, amelyek segítségével kiszámítható, hogy a virtuális terület mely része lesz konkrétan látható, következhet a renderelés következõ szakasza. Az LCD Control Registerbõl ki kell olvasni a fentebb említett, megfelelõ biteket, és ezek alapján be kell állítani a \textit{tile} azonosítók, és a konkrét \textit{tile} leírók memóriában elhelyezkedõ kezdõcímét. A biteket megvizsgálva ez egyszerû elágazásokkal megtehetõ. Ezt követõen meg kell határozni a virtuális, teljes felbontáson értelmezett pozíciót, és a \textit{tile} el\-he\-lyez\-ke\-dé\-sét (sorát) a 32$\times$32-es csempetérképen a következõ módon:
+Most, hogy megvannak a regiszterek, amelyek segítségével kiszámítható, hogy a virtuális terület mely része lesz konkrétan látható, következhet a renderelés következõ szakasza. Az \textit{LCD Control Registerbõl} ki kell olvasni a fentebb említett, megfelelõ biteket, és ezek alapján be kell állítani a \textit{tile} azonosítók, és a konkrét \textit{tile} leírók memóriában elhelyezkedõ kezdõcímét. A biteket megvizsgálva ez egyszerû elágazásokkal megtehetõ. Ezt követõen meg kell határozni a virtuális, teljes felbontáson értelmezett pozíciót, és a \textit{tile} el\-he\-lyez\-ke\-dé\-sét (sorát) a 32$\times$32-es csempetérképen a következõ módon:
 
 \begin{minted}{rust}
     if !using_window {
@@ -187,7 +187,7 @@ Most, hogy megvannak a regiszterek, amelyek segítségével kiszámítható, hogy a vi
 \end{enumerate}
 \end{enumerate}
 
-\noindent Az X koordinátát egyszerûen a ciklusváltozót a \texttt{scroll\_x}-hez hozzáadva megkaphatjuk. Ennek segítségével pedig kiszámolható a \textit{tile} oszlopa: egyszerûen el kell osztani 8-cal (mert egy \textit{tile} mérete 8$\times$8). A memóriacím meghatározása úgy történik, hogy a kez\-dõ\-cím\-hez hozzáadjuk a már fent kiszámolt \texttt{tile\_row}-t és az imént kiszámolt \textit{tile} oszlopát \newline (\texttt{tile\_col}). \\
+\noindent Az X koordinátát egyszerûen megkaphatjuk, ha a ciklusváltozót a \texttt{scroll\_x}-hez hoz\-zá\-ad\-juk. Ennek segítségével pedig kiszámolható a \textit{tile} oszlopa: egyszerûen el kell osztani 8-cal (mert egy \textit{tile} mérete 8$\times$8). A memóriacím meghatározása úgy történik, hogy a kez\-dõ\-cím\-hez hozzáadjuk a már fent kiszámolt \texttt{tile\_row}-t és az imént kiszámolt \textit{tile} oszlopát \newline (\texttt{tile\_col}). \\
 A csempe pontos helyének meghatározása a következõk szerint történik:
 
 \begin{minted}{rust}
@@ -212,11 +212,11 @@ Az aktuális sorhoz tartozó két bájtot immár ki tudjuk olvasni a memóriából a köv
 \end{minted}
 
 \noindent A \texttt{line} segítségével megkapjuk a 32$\times$32-es csempetérkép-beli sorszámot (ezért a 8-cal való osztás), majd ezt ket\-tõ\-vel felszorozzuk, mert -- ahogy már említésre került -- két bájt tartozik egy sorhoz. Ezt a változót hozzáadva az elõbb kiszámított memóriacímhez megkapjuk az elsõ bájt címét, ahhoz egyet adva pedig a másodikét. \\
-A következõ feladat a fentihez hasonló módon szintén egy modulo 8-as mûvelet -- de ez esetben az X koordinátán, hogy megtudjuk hogy a csempe aktuális során belül melyik pixelt keressük. Itt viszont egy apró trükkre van szükségünk: a csempe sorát leíró két bájt fordítva tárolja a szín értékeket, így "inverzet" kell vennünk (7-bõl 0 lesz, 6-ból 1, stb.). Amennyiben ezzel megvagyunk, már csak a leíró bájtok által meghatározott színt kell visszakeresni a palettának megfelelõen, majd pedig ezt az értéket a \texttt{framebuffer} memóriába (VRAM) kell írni. 
+A következõ feladat a fentihez hasonló módon szintén egy modulo 8-as mûvelet -- de ez esetben az X koordinátán, hogy megtudjuk, hogy a csempe aktuális során belül melyik pixelt keressük. Itt viszont egy apró trükkre van szükségünk: a csempe sorát leíró két bájt fordítva tárolja a szín értékeket, így ``inverzet'' kell vennünk (7-bõl 0 lesz, 6-ból 1, stb.). Amennyiben ezzel megvagyunk, már csak a leíró bájtok által meghatározott színt kell visszakeresni a palettának megfelelõen, majd pedig ezt az értéket a \texttt{framebuffer} memóriába (VRAM) kell írni. 
 
 \subsubsection{A színek és a paletta}
 
-A fentiekben említettek szerint tehát egy \textit{tile} minden sorához két bájtnyi leíró adat tartozik. Ezeknek valamilyen kombinációja szükséges ahhoz, hogy a sorban lévõ mind a 8 pixel színét el lehessen tárolni. A Game Boy kijelzõje 4 féle színt tud megjeleníteni, 4 féle állapotot pedig 2 bittel tudunk ábrázolni. Minden pixelhez tehát két bit kell hogy tar\-toz\-zon... és pont két bájtunk van! Az egyes pixelek színeit az alábbiak alapján tudjuk kiolvasni:
+A fentiekben említettek szerint tehát egy \textit{tile} minden sorához két bájtnyi leíró adat tartozik. Ezeknek valamilyen kombinációja szükséges ahhoz, hogy a sorban lévõ mind a 8 pixel színét el lehessen tárolni. A Game Boy kijelzõje 4-féle színt tud megjeleníteni, 4-féle állapotot pedig 2 bittel tudunk ábrázolni. Minden pixelhez tehát két bit kell hogy tar\-toz\-zon... és pont két bájtunk van! Az egyes pixelek színeit az alábbiak alapján tudjuk kiolvasni:
 
 \newpage
 
@@ -234,13 +234,13 @@ A fentiekben említettek szerint tehát egy \textit{tile} minden sorához két bájtn
   \label{table:2}
 \end{table}
 
-\noindent A fenti \ref{table:2}-es táblázat alsó sorában szereplõ értékeket úgy lehet megkapni, hogy a felette lévõ két sor azonos oszlopaiban szereplõ értékeket egymás után összeolvassuk. Figyelni kell rá, hogy az elsõ bit a második bájtból jön, nem az elsõbõl, tehát fordított sorrendet alkalmaztak a tervezés során a Nintendo mérnökei. Ezek a kiolvasott értékek decinális számmá alakíthatók, ezek adják meg azt, hogy a palettából melyik színt kell használni. Az alapértelmezett paletta (illetve annak szürkeárnyalatos analógiája):
+\noindent A fenti \ref{table:2}-es táblázat alsó sorában szereplõ értékeket úgy lehet megkapni, hogy a felette lévõ két sor azonos oszlopaiban szereplõ értékeket egymás után összeolvassuk. Figyelni kell rá, hogy az elsõ bit a második bájtból jön, nem az elsõbõl, tehát fordított sorrendet alkalmaztak a tervezés során a Nintendo mérnökei. Ezek a kiolvasott értékek decimális számmá alakíthatók, ezek adják meg azt, hogy a palettából melyik színt kell használni. Az alapértelmezett paletta (illetve annak szürkeárnyalatos analógiája):
 
 \begin{itemize}
-  \item \texttt{00}: fehér
-  \item \texttt{01}: világosszürke
-  \item \texttt{10}: szürke
-  \item \texttt{11}: fekete
+  \item \texttt{00}: fehér,
+  \item \texttt{01}: világosszürke,
+  \item \texttt{10}: szürke,
+  \item \texttt{11}: fekete.
 \end{itemize}
 
 \noindent A programozók azonban megadhattak, és definiálhattak saját palettát, melyet az \texttt{0xFF47}-es címen lehetett elérni. A fenti, decimálissá alakított szín azonosítókkal lehetett elérni a definiált színeket: 0-s érték esetén a paletta 0. és 1. bitjén tárolt színt kell használni, 1-es érték esetén a 2., illetve 3. bitet, és így tovább. Ezeket a konverziókat és visszakereséseket az emulátorban a \texttt{PPU} struktúra \texttt{select\_colors} függvénye végzi el. A megfelelõ szín megkeresése után, annak értékét beírva a \texttt{framebuffer}-be, a ciklus végére jutottunk, sikerült kirajzolni egy pixelt. \\
@@ -267,23 +267,23 @@ Az idáig ismertetett megoldások és modulok implementálásával az emulátor már le 
     \label{fig:megaman}
 \end{wrapfigure}
 
-Ahhoz, hogy ne csak a Boot ROM, illetve az egyszerûbb, csak \textit{tile renderinget} használó játékok fussanak megfelelõen, további renderelési módszerek implementálására van szük\-ség. A mozgó, villogó, in\-ter\-ak\-tív elemek az elõzõekben már említett ún. \textit{sprite}-ok, melyek megjelenítésükben kü\-lön\-böz\-nek a \textit{tile}-októl. A \textit{sprite}-ok adatai a RAM felosztását taglaló fejezetben már em\-lí\-tet\-tek szerint a \texttt{0x8000 - 0x8FFF} területen vannak el\-tá\-rol\-va, a \ref{fig:megaman}-ös ábrán látható erre egy példa: a Megaman játék által tartalmazott összes \textit{sprite}-ot figyelhetjük itt meg. Sze\-ren\-csé\-re esetükben csak elõjel nélküli, \texttt{unsigned} azonosítókról beszélhetünk, tehát az elõjeles esetek lekezelésével nem kell foglalkozni. A fenti memória területen 40 darab \textit{sprite} adata fér el, renderelés során ezeken kell végigmenni, és a megfelelõeket az \textit{att\-ri\-bú\-tu\-ma\-ik\-nak} megfelelõen kirajzolni. Ezek az attribúrumok a SAT-ban, vagyis a \textit{Sprite Attribute Table}-ben találhatók, a \texttt{0xFE00 - 0xFE9F} területen. Itt minden \textit{sprite}-hoz pontosan 4 bájtnyi attribútum van eltárolva. Ezek a következõk \cite{ninprog}:
+Ahhoz, hogy ne csak a Boot ROM, illetve az egyszerûbb, csak \textit{tile renderinget} használó játékok fussanak megfelelõen, további renderelési módszerek implementálására van szük\-ség. A mozgó, villogó, in\-ter\-ak\-tív elemek az elõzõekben már említett ún. \textit{sprite}-ok, melyek megjelenítésükben kü\-lön\-böz\-nek a \textit{tile}-októl. A \textit{sprite}-ok adatai a RAM felosztását taglaló fejezetben már em\-lí\-tet\-tek szerint a \texttt{0x8000 - 0x8FFF} területen vannak el\-tá\-rol\-va, a \ref{fig:megaman}-ös ábrán látható erre egy példa: a Megaman játék által tartalmazott összes \textit{sprite}-ot figyelhetjük itt meg. Sze\-ren\-csé\-re esetükben csak elõjel nélküli, \texttt{unsigned} azonosítókról beszélhetünk, tehát az elõjeles esetek lekezelésével nem kell foglalkozni. A fenti memória területen 40 darab \textit{sprite} adata fér el, renderelés során ezeken kell végigmenni, és a megfelelõeket az \textit{att\-ri\-bú\-tu\-ma\-ik\-nak} megfelelõen kirajzolni. Ezek az attribútumok a SAT-ban, vagyis a \textit{Sprite Attribute Table}-ben találhatók, a \texttt{0xFE00 - 0xFE9F} területen. Itt minden \textit{sprite}-hoz pontosan 4 bájtnyi attribútum van eltárolva. Ezek a következõk \cite{ninprog}:
 
 \begin{itemize}
   \item \textbf{A \textit{sprite} Y koordinátája}: a látható kijelzõn értelmezett Y koordináta mínusz 16 (a 8$\times$16-os \textit{sprite}-ok miatt).
   \item \textbf{A \textit{sprite} X koordinátája}: a látható kijelzõn értelmezett X koordináta mínusz 8 (a 8$\times$16-os \textit{sprite}-ok miatt).
-  \item \textbf{\textit{Sprite} azonosító}: ezt az azonosítót használva tudjuk megtalálni a megfelelõ adatot a \texttt{0x8000 - 0x8FFF} területen.
+  \item \textbf{\textit{Sprite} azonosító}: ezt az azonosítót használva tudjuk megtalálni a megfelelõ adatot a \texttt{0x8000--0x8FFF} területen.
   \item \textbf{Attribútumok}: egyéb, a \textit{sprite}-ok kinézetét és renderelését szabályozó opciókat tároló regiszter.
 \end{itemize}
 
 \noindent A fentiek közül az elsõ három bájt triviális, hiszen a \textit{tile renderingnél} is voltak hasonló értékek, azonban az attribútum regiszter újdonság. Nézzük ezen regiszter bitjeit \cite{ninprog}:
 
 \begin{itemize}
-  \item \textbf{7. bit:} más néven Prioritás bit, vagy \textit{Priority Flag}, amennyiben ennek az értéke 1, akkor a \textit{sprite} a háttér és/vagy \textit{window} alá fog kerülni, és így nem lesz látható, azzal a kivétellel, ha az elõbbiek közül valamelyik színe fehér -- ebben az esetben látható lesz. Ha a bit értéke 0, akkor mindig a háttér és/vagy \textit{window} fölött fog megjelenni a \textit{sprite}.
+  \item \textbf{7. bit:} más néven prioritás bit, vagy \textit{Priority Flag}, amennyiben ennek az értéke 1, akkor a \textit{sprite} a háttér és/vagy \textit{window} alá fog kerülni, és így nem lesz látható, azzal a kivétellel, ha az elõbbiek közül valamelyik színe fehér -- ebben az esetben látható lesz. Ha a bit értéke 0, akkor mindig a háttér és/vagy \textit{window} fölött fog megjelenni a \textit{sprite}.
   \item \textbf{6. bit:} ez a bit az Y flip bit, ha az értéke 1, akkor az aktuális \textit{sprite} fejjel lefelé fog kirajzolódni (tükrözõdik az Y tengely mentén). Ezzel az attribútummal van megvalósítva például a Mario játékban az, mikor rááugrunk egy teknõsre, ami ettõl felfordul a szó szoros és átvitt értelmében is.
-  \item \textbf{5. bit:} ez a bit az X flip bit, ha az értéke 1, akkor az aktuális \textit{sprite} X tengely menti tükörképe fog menjelenni a kijelzõn. Ezzel lehetséges a karakter \textit{sprite}-ját mindig a menetiránnyal megegyezõ irányban kirajzolni.
-  \item \textbf{4. bit:} ezzel a bittel az aktuális \textit{sprite} kirajzolásához szükséges palettát tudjuk megadni, 0 értéke esetén a \texttt{0xFF48} címen található bájt lesz a palette, egyébként pedig a \texttt{0xFF49}.
-  \item \textbf{3. - 0. bitek:} nincsenek használatban.
+  \item \textbf{5. bit:} ez a bit az X flip bit, ha az értéke 1, akkor az aktuális \textit{sprite} X tengely menti tükörképe fog megjelenni a kijelzõn. Ezzel lehetséges a karakter \textit{sprite}-ját mindig a menetiránnyal megegyezõ irányban kirajzolni.
+  \item \textbf{4. bit:} ezzel a bittel az aktuális \textit{sprite} kirajzolásához szükséges palettát tudjuk megadni, 0 értéke esetén a \texttt{0xFF48} címen található bájt lesz a paletta, egyébként pedig a \texttt{0xFF49}.
+  \item \textbf{0--3. bitek:} nincsenek használatban.
 \end{itemize}
 
 \noindent Az attribútumok ismertetésével minden információ a birtokunkban van ahhoz, hogy imp\-le\-men\-tál\-juk a \textit{sprite renderinget}. A renderelõ ciklus leegyszerûsített pszeudokódja a kö\-vet\-ke\-zõ:
@@ -292,14 +292,14 @@ Ahhoz, hogy ne csak a Boot ROM, illetve az egyszerûbb, csak \textit{tile renderi
   \item[0.] \texttt{Nézzük meg a sprite méretet.}
   \item \texttt{i=0-tõl 40-ig egyesével:}
   \begin{enumerate}
-  \item[1.1] \texttt{Számoljuk ki az sprite attribútumainak címét az i \\ se\-gít\-sé\-gé\-vel.}
+  \item[1.1] \texttt{Számoljuk ki a sprite attribútumainak címét az i \\ se\-gít\-sé\-gé\-vel.}
   \item[1.2] \texttt{Mentsük le a sprite X és Y pozícióit tartalmazó \\ re\-gisz\-terek értékeit.}
   \item[1.3] \texttt{Mentsük le a sprite azonosítóját és az \\ attribútumait.}
   \item[1.4] \texttt{Ellenõrizzük le, hogy az aktuális sprite rajta \\ van-e az aktuális scanline-on. Ha nem: GOTO 1.}
   \item[1.5] \texttt{Határozzuk meg a sprite jelenleg kirajzolandó sorát.}
   \item[1.6] \texttt{Határozzuk meg a sprite jelenlegi sorának adatait \\ tar\-tal\-ma\-zó byte-ok kezdõcímét, és mentsük le õket.}
   \item[1.7] \texttt{Vegyük ki a két bájt által tárolt adatokból a \\kurrens pixel színének értékét.}
-  \item[1.8] \texttt{Határozzuk meg a színpaletta alapján hogy az adott \\
+  \item[1.8] \texttt{Határozzuk meg a színpaletta alapján, hogy az adott \\
   szín pontosan milyen.}
   \item[1.9] \texttt{Írjuk a framebuffer megfelelõ helyére a megfelelõ \\ szín értékét, majd GOTO 1.}
 \end{enumerate}

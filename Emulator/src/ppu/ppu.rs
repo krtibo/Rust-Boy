@@ -16,9 +16,10 @@
 #![allow(non_snake_case)]
 
 use cpu::CPU;
+use memorymap::MemoryMap;
 use interrupt::Interrupt;
 extern crate minifb;
-use self::minifb::{WindowOptions, Window, Scale};
+use self::minifb::{WindowOptions, Window, Scale, MouseMode, MouseButton};
 
 pub struct PPU {
     scanline_count : u16,
@@ -72,8 +73,10 @@ impl PPU {
         //self.lcd_status_update(cpu);
         self.scanline_count += cycle as u16;
 
-        if self.scanline_count >= 456 {
 
+
+        if self.scanline_count >= 456 {
+        
             self.scanline_count = 0;
 
             if cpu.RAM[0xFF44] < 144 {
@@ -87,6 +90,31 @@ impl PPU {
 
             if cpu.RAM[0xFF44] > 153 {
                 cpu.RAM[0xFF44] = 0;
+            }
+
+            self.mouse_handler(cpu);
+        }
+    }
+
+    pub fn mouse_handler(&mut self, cpu : &mut CPU) {
+        let mut mouse_x : f32 = 0.0;
+        let mut mouse_y : f32 = 0.0;
+        
+        self.window.get_mouse_pos(MouseMode::Pass).map(|mouse| {
+            // println!("x {} y {}", mouse.0, mouse.1);
+            mouse_x = mouse.0;
+            mouse_y = mouse.1;
+        });
+
+        if !(mouse_x < 0.0 || mouse_y < 0.0 || mouse_x > 160.0 || mouse_y > 144.0) {
+            for i in 160*144-160*30..160*144 {
+                match self.framebuffer[i] {
+                    0xFF9BBC0F => { self.framebuffer[i] = 0xFF3D4B13; continue; },
+                    0xFF8BAC0F => { self.framebuffer[i] = 0xFF374512; continue; },
+                    0xFF306230 => { self.framebuffer[i] = 0xFF142716; continue; },
+                    0xFF0F380F => { self.framebuffer[i] = 0xFF09180A; continue; },
+                    _          => continue,
+                }
             }
         }
     }

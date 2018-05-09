@@ -103,7 +103,7 @@ loop {  // endless loop
 
 \section{Interrupt kezelés}
 Az utasításkészlet részletes bemutatása elõtt fontos szót ejteni a Game Boy \textit{interrupt} kezelésérõl -- több utasítás kapcsán is elõ fog jönni ez a téma. \\
-Adott események bekövetkezése (ez hardverenként eltér) \textit{interruptot}, vagy \textbf{megszakítást} vált ki, ezzel kényszeríti a CPU-t, hogy az éppen futó programot azonnal felfüggessze, és egy speciális eljárást, a \textbf{megszakításkezelõt} végrehajtsa, amely a hibaellenõrzést és egyéb speciális teendõket elvégezve értesíti a vezérlõt, hogy a megszakítás befejezõdött.\cite{Tanenbaum} \\
+Adott események bekövetkezése (ez hardverenként eltér) \textit{interruptot}, vagy \textbf{megszakítást} vált ki, ezzel kényszeríti a CPU-t, hogy az éppen futó programot azonnal felfüggessze, és egy speciális eljárást, a \textbf{megszakításkezelõt} végrehajtsa, amely a hibaellenõrzést és egyéb  teendõket elvégezve értesíti a vezérlõt, hogy a megszakítás be\-fe\-je\-zõ\-dött \cite{Tanenbaum}. \\
 A Nintendo Game Boy architektúrájában kétféle megszakítást különböztetünk meg: lé\-te\-zik szoftveres, és hardveres megszakítás is. Ami a szoftveres megszakításokat illeti, ezeket a hardver programozói használhatták, az egyes \texttt{RST} (a \texttt{RESET} rövidítése) mû\-ve\-le\-tek\-kel lehet elõre definiált memóriacímekre ugrani. A hardveres megszakítások témaköre már kicsit bonyolultabb. \\
 Alapvetõen 5-féle hardveres megszakítást különböztetünk meg \cite{ninprog}:
 \begin{itemize}

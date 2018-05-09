@@ -21,31 +21,60 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() == 1 {
-        println!("* * * * * * * * * * * * * * * * * * * * * * * * * * * *");
-        println!("* No ROM supplied, please insert a ROM via argument!  *");
-        println!("* * * * * * * * * * * * * * * * * * * * * * * * * * * *");
+        println!("╭─────────────────────────────────────────────────────╮");
+        println!("╞══════════════    THIS IS RUST BOY    ═══════════════╡");
+        println!("├─────────────────────────────────────────────────────┤");
+        println!("│ USAGE:                                              │");
+        println!("│                                                     │");
+        println!("│ If BOOT ROM is supplied, and placed next to the     │");
+        println!("│ executable:                                         │");
+        println!("│                                                     │");
+        println!("│ ./rust_boy /path/rom.gb -X1                         │");
+        println!("│                                                     │");
+        println!("│ * 1st argument is the path of the Game ROM          │");
+        println!("│ * 2nd argument is the scale constant (X1, X2, X4)   │");
+        println!("│                                                     │");
+        println!("├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤");
+        println!("│ If BOOT ROM is not supplied:                        │");
+        println!("│                                                     │");
+        println!("│ ./rust_boy /path/boot_rom.gb /path/rom.gb -X1       │");
+        println!("│                                                     │");
+        println!("│ * 1st argument is the path of the BOOT ROM          │");
+        println!("│ * 2nd argument is the path of the Game ROM          │");
+        println!("│ * 3rd argument is the scale constant (X1, X2, X4)   │");
+        println!("│                                                     │");
+        println!("╰─────────────────────────────────────────────────────╯");
         return
-    }
-
-    if args.len() == 2 && args[1] != "-d" && args[1] != "-r" {
-        let path = args[1].clone();
-        rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 1);
-        rust_boy.load_bootrom();
-        rust_boy.load_rom();
-        rust_boy.cycle();
     }
 
     if args.len() == 3 {
         let path = args[1].clone();
 
         match args[2].as_ref() {
-            "-X1" => rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 1),
-            "-X2" => rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 2),
-            "-X4" => rust_boy = CPU::new(String::from("./rom/boot_rom.gb"), path, 4),
+            "-X1" => rust_boy = CPU::new(String::from("boot_rom.gb"), path, 1),
+            "-X2" => rust_boy = CPU::new(String::from("boot_rom.gb"), path, 2),
+            "-X4" => rust_boy = CPU::new(String::from("boot_rom.gb"), path, 4),
             _    => {
-                println!("* * * * * * * * * * * * * * * * * *");
                 println!("* Your argument is invalid: {:?}  *", args[2]);
-                println!("* * * * * * * * * * * * * * * * * *");
+                return
+            }
+        }
+
+        rust_boy.load_bootrom();
+        rust_boy.load_rom();
+        rust_boy.cycle();
+    }
+
+    if args.len() == 4 {
+        let path = args[2].clone();
+        let bootrom_path = args[1].clone();
+
+        match args[3].as_ref() {
+            "-X1" => rust_boy = CPU::new(bootrom_path, path, 1),
+            "-X2" => rust_boy = CPU::new(bootrom_path, path, 2),
+            "-X4" => rust_boy = CPU::new(bootrom_path, path, 4),
+            _    => {
+                println!("* Your argument is invalid: {:?}  *", args[2]);
                 return
             }
         }

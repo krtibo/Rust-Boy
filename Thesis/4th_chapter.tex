@@ -187,7 +187,7 @@ Most, hogy megvannak a regiszterek, amelyek segítségével kiszámítható, hogy a vi
 \end{enumerate}
 \end{enumerate}
 
-\noindent Az X koordinátát egyszerûen megkaphatjuk, ha a ciklusváltozót a \texttt{scroll\_x}-hez hoz\-zá\-ad\-juk. Ennek segítségével pedig kiszámolható a \textit{tile} oszlopa: egyszerûen el kell osztani 8-cal (mert egy \textit{tile} mérete 8$\times$8). A memóriacím meghatározása úgy történik, hogy a kez\-dõ\-cím\-hez hozzáadjuk a már fent kiszámolt \texttt{tile\_row}-t és az imént kiszámolt \textit{tile} oszlopát \newline (\texttt{tile\_col}). \\
+\noindent Az X koordinátát egyszerûen megkaphatjuk, ha a ciklusváltozót a \texttt{scroll\_x}-hez hoz\-zá\-ad\-juk. Ennek segítségével pedig kiszámolható a \textit{tile} oszlopa: egyszerûen el kell osztani 8-cal (mert egy \textit{tile} mérete 8$\times$8). A memóriacím meghatározása úgy történik, hogy a kez\-dõ\-cím\-hez hozzáadjuk a már fent kiszámolt \texttt{tile\_row}-t és az imént kiszámolt \textit{tile} oszlopát (\texttt{tile\_col}). \\
 A csempe pontos helyének meghatározása a következõk szerint történik:
 
 \begin{minted}{rust}

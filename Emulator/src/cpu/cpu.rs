@@ -30,7 +30,7 @@ use ppu::PPU;
 use timer::Timer;
 use joypad::Joypad;
 use interrupt::Interrupt;
-// use memorymap::MemoryMap;
+use memorymap::MemoryMap;
 extern crate minifb;
 // use self::minifb::{Key, KeyRepeat};
 
@@ -88,7 +88,7 @@ impl CPU {
         let mut debug_data : DebugData = DebugData::new();
         let mut ppu : PPU = PPU::new(self.options);
         // let mut debugger : Debugger = Debugger::new();
-        // let mut mem : MemoryMap = MemoryMap::new();
+        let mut mem : MemoryMap;
         let mut timer : Timer = Timer::new();
         let mut joypad : Joypad = Joypad::new();
         let mut interrupt : Interrupt = Interrupt::new();
@@ -104,6 +104,7 @@ impl CPU {
                     self.boot_rom = true;
                     self.load_rom_header();
                     ppu.window.set_title(&self.title);
+                    mem = MemoryMap::new();
                 }
 
                 // scan for any pressed button BEFORE any operation begins
@@ -145,6 +146,9 @@ impl CPU {
             // update the debugger, memory map and render the PPU VRAM
             // debugger.update_window(&debug_data);
             // mem.print_ram(self);
+            if self.boot_rom {
+                mem.print_ram(self);
+            }
             ppu.render();
             cycle = 0;
 
@@ -157,7 +161,7 @@ impl CPU {
 
         // open the Boot ROM
         let mut f = File::open(&self.boot_rom_path)
-        .expect("Error with file loading!");
+        .expect("\n Error with file loading! \n");
 
         // read the Boot ROM to rom_buffer
         f.read_to_end(&mut rom_buffer)

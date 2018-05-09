@@ -6,17 +6,18 @@ Az elõzõ fejezetekben taglalt implementációs rész lezárult, ebben a fejezetben a
 
 A program fejlesztéséhez Linux rendszert használtam, ennek ellenére a program maga multiplatform -- Windows rendszeren is lefordítható és futtatható a megfelelõ fordító \textit{targetet} megadva. Az operációs rendszert tehát nem tekinthetjük függõségnek. A program fejlesztéséhez összesen két \textit{libraryt} használtam fel, a már taglalt \texttt{minifb} és \texttt{rand} könyv\-tá\-ra\-kat. \\
 A \texttt{minifb} könyvtár esetén elmondható, hogy sajnos nem tartalmaz olyan megoldást, amellyel programkód segítségével be lehetne zárni egy ablakot. Ennek az lett a kö\-vet\-kez\-mé\-nye, hogy az eredeti terv szerint kapcsolókkal be-, és kikapcsolható \textit{debugger} és \textit{memory map} ablakokat ki kellett vennem a \textit{release} változatból, így azok nem elérhetõek. \\
-A program használata nagyon egyszerû, parancssorból indítható. A parancssori indításhoz két paramétert kell megadni: 
+A program használata nagyon egyszerû, parancssorból indítható. A parancssori indításhoz három paramétert kell megadni: 
 
 \begin{itemize}
+  \item a Boot ROM elérési útvonalát,
   \item az indítandó játék ROM-jának elérési útvonalát,
-  \item a program skálázásának mértékét: ez lehet \texttt{X1}, \texttt{X2}, és \texttt{X4}.
+  \item és a program skálázásának mértékét: ez lehet \texttt{X1}, \texttt{X2}, és \texttt{X4}.
 \end{itemize}
 
-\noindent Az emulátor mellé kell helyezni a Boot ROM-ot, enélkül a játékok ROM-jai nem fut\-tat\-ha\-tók. Egy példa az emulátor indítására:
+\noindent Két lehetõségünk van: vagy az emulátor mellé kell helyezni a Boot ROM-ot, vagy pedig az elsõ paraméterben kell megadni --  enélkül a játékok ROM-jai nem fut\-tat\-ha\-tók. Egy példa az emulátor indítására:
 
 \begin{minted}{bash}
-                ./rust_boy rom/mario.gb -X4
+     ./rust_boy ./rom/boot_bom.gb ./rom/mario.gb -X4
 \end{minted}
 
 \noindent A skálázás segítségével nagyítani lehet az eredetileg 160$\times$144-es felbontáson, hogy job\-ban látszódjon, mi történik az emulátoron -- az \texttt{X2}-es beállítással 320$\times$288, az \texttt{X4}-es beállítással pedig 640$\times$576 pixel nagyságú lesz a renderelt kép. A nagyítás \textit{Nearest Neigh\-bor} interpolációval történik, így nem mosódnak el a pixelek, minden tûéles marad. \\
@@ -24,7 +25,7 @@ A program indítását követõen elõször az eredeti hardverhez hasonlóan beúszik a N
 
 \section{Tesztelés}
 
-A Game Boy emulátorok tesztelésére többféle módszer létezik. Írhatunk saját magunk teszteket, amelyek a programmal együttmûködve ellenõrzik az egyes mûveletek utáni állapotot, viszont ebben az esetben az összes CPU mûveletet lefedõ tesztesethalmazt kell írni, ami nagyon idõigényes. Természetesen emellé még külön oda kell figyelni az \textit{edge-casekre}, amelyek ritkán fordulnak ugyan elõ, de hektikus viselkedést idézhetnek elõ -- így már alsó hangon is minimum ezer tesztesetrõl beszélünk, ami igen sok, fõleg egy fejlesztõre. Így hát maradnak az alternatív megoldások. Szerencsére léteznek a közösség által elfogadott, szinte tökélyre fejlesztett teszt ROM-ok, amelyek minden utasítást, re\-gisz\-ter\-vi\-sel\-ke\-dést lefednek. Ezek nemcsak azért jók, mert nem kell magunknak külön tesz\-te\-ket írni, hanem mert az egyes emulátorok összehasonlíthatóvá válnak, akár tel\-je\-sít\-mény, vagy emuláció pontosság szempontjából is. Ilyen, nagyrészt a közösség által használt ROM kollekció, a Blargg-féle teszt ROM csomag. Az alábbi, \ref{fig:tests}-es ábrán lát\-ha\-tó\-ak az egyes teszt ROM-ok eredményei. Fontos megjegyezni, hogy egy ROM több tesztesetet is tartalmaz, a logikailag egybetartozó utasítások vannak egy ROM-ba al\-lo\-kál\-va.
+A Game Boy emulátorok tesztelésére többféle módszer létezik. Írhatunk saját magunk teszteket, amelyek a programmal együttmûködve ellenõrzik az egyes mûveletek utáni állapotot, viszont ebben az esetben az összes CPU mûveletet lefedõ tesztesethalmazt kell írni, ami nagyon idõigényes. Természetesen emellé még külön oda kell figyelni az \textit{edge-casekre}, amelyek ritkán fordulnak ugyan elõ, de hektikus viselkedést idézhetnek elõ -- így már alsó hangon is minimum ezer tesztesetrõl beszélünk, ami igen sok, fõleg egy fejlesztõre. Így hát maradnak az alternatív megoldások. Szerencsére léteznek a közösség által elfogadott, szinte tökélyre fejlesztett teszt ROM-ok, amelyek minden utasítást, re\-gisz\-ter\-vi\-sel\-ke\-dést lefednek. Ezek nemcsak azért jók, mert nem kell magunknak külön tesz\-te\-ket írni, hanem mert az egyes emulátorok összehasonlíthatóvá válnak, akár tel\-je\-sít\-mény, vagy emuláció pontosság szempontjából is. Ilyen, nagyrészt a közösség által használt ROM kollekció, a Blargg-féle teszt ROM csomag \cite{blargg}. Az alábbi, \ref{fig:tests}-es ábrán lát\-ha\-tó\-ak az egyes teszt ROM-ok eredményei. Fontos megjegyezni, hogy egy ROM több tesztesetet is tartalmaz, a logikailag egybetartozó utasítások vannak egy ROM-ba al\-lo\-kál\-va.
 
 \begin{figure}[h!]%
     %\centering
@@ -49,11 +50,11 @@ A Game Boy emulátorok tesztelésére többféle módszer létezik. Írhatunk saját magu
     \subfloat[\textit{Bitmûveleti u\-ta\-sí\-tá\-sok}]{\includegraphics[width=0.22\textwidth, trim={0 0 0 2.5cm},clip]{./Resources/Tests/10.eps}}
     \quad
     \subfloat[\textit{Utasítások me\-mó\-ri\-a\-cí\-mek\-kel}]{\includegraphics[width=0.22\textwidth, trim={0 0 0 2.5cm},clip]{./Resources/Tests/11.eps}}
-    \caption{\textit{A Blargg-féle ROM tesztek és eredményeik}}
+    \caption{\textit{A Blargg-féle ROM tesztek \cite{blargg} és eredményeik}}
     \label{fig:tests}
 \end{figure}
 
-\noindent A ROM-ok futásuk során minden sikertelen tesztesetet kiírnak, néhol több, de inkább kevesebb hibainformációval szolgálva. Az természetesen vitán felül áll, hogy ezekkel a ROM-okkal párhuzamosan ajánlott fejleszteni az emulátort, hiszen megmentheti a prog\-ra\-mo\-zót a késõbbi fejfájásoktól, amit az egyes utasításokban rejlõ bugok okoznak. Sikeres esetben a \textit{Passed} felirat jelenik meg a képernyõn. Mint a fenti ábra alapján is látszik, 11 darab teszt ROM van, összesen több száz tesztesettel. Az általam fejlesztett emulátor az összes elérhetõ Blargg-féle teszt ROM-ot sikeres eredménnyel zárja, egyetlen kivétellel: a megszakításokkal kapcsolatos \texttt{02-interrupts} nevû teszt 4. tesztesetét nem tudja sikeresen elvégezni. Az emellé kapott hibaüzenet nem sokat segít -- a ``\textit{Timer doesn't work}'' üzenet egyszerûen nem igaz, az idõzítõk mûködnek. Sok kutatás után arra a kö\-vet\-kez\-te\-tés\-re jutottam, hogy a megszakítások idõzítése valószínûleg nem tökéletes, sok emulátor megbukik ezen a teszten, szigorú feltételeknek kell eleget tenni. Mivel sem magamtól, sem pedig az interneten nem találtam megoldást erre, így nem sikerült ezt kijavítani. Az egyes teszt ROM-ok által tartalmazott utasításokat a következõ felsorolás foglalja össze \cite{blargg}:
+\noindent A ROM-ok futásuk során minden sikertelen tesztesetet kiírnak, néhol több, de inkább kevesebb hibainformációval szolgálva. Az természetesen vitán felül áll, hogy ezekkel a ROM-okkal párhuzamosan ajánlott fejleszteni az emulátort, hiszen megmentheti a prog\-ra\-mo\-zót a késõbbi fejfájásoktól, amit az egyes utasításokban rejlõ bugok okoznak. Sikeres esetben a \textit{Passed} felirat jelenik meg a képernyõn. Mint a fenti ábra alapján is látszik, 11 darab teszt ROM van, összesen több száz tesztesettel. Az általam fejlesztett emulátor az összes elérhetõ Blargg-féle teszt ROM-ot \cite{blargg} sikeres eredménnyel zárja, egyetlen kivétellel: a megszakításokkal kapcsolatos \texttt{02-interrupts} nevû teszt 4. tesztesetét nem tudja sikeresen elvégezni. Az emellé kapott hibaüzenet nem sokat segít -- a ``\textit{Timer doesn't work}'' üzenet egyszerûen nem igaz, az idõzítõk mûködnek. Sok kutatás után arra a kö\-vet\-kez\-te\-tés\-re jutottam, hogy a megszakítások idõzítése valószínûleg nem tökéletes, sok emulátor megbukik ezen a teszten, szigorú feltételeknek kell eleget tenni. Mivel sem magamtól, sem pedig az interneten nem találtam megoldást erre, így nem sikerült ezt kijavítani. Az egyes teszt ROM-ok által tartalmazott utasításokat a következõ felsorolás foglalja össze \cite{blargg}:
 
 \begin{itemize}
   \item \textbf{\texttt{01-special:}} ez a tesztcsomag a speciális ugrás és betöltõ mûveleteket, valamint a \mintinline{asm}{DAA} mûveletet ellenõrzi -- ez utóbbit az \texttt{A} regiszter összes lehetséges állapotában és a \textit{flagek} minden lehetséges permutációjával. 
@@ -72,7 +73,7 @@ A Game Boy emulátorok tesztelésére többféle módszer létezik. Írhatunk saját magu
 \section{Az elért eredmények, összegzés}
 
 Az emulátor fejlesztési projektúgy kezdõdött, hogy célként azt állítottam magam elé, hogy olyan emulátort fejlesztek, ami legalább a Boot ROM-ot tudja futtatni. Ezt jócskán sikerült túlszárnyalni. \\
-Kijelenthetõ, hogy az általam fejlesztett emulátor (a megszakítások idõzítését kivéve) processzor mûveletei órajel pontosságúak, ami azt jelenti, hogy azok idõzítése meg\-e\-gye\-zik az eredeti konzolban található processzoréval -- ezt a \textit{Blargg}-féle teszt ROM-ok tesztelik minden utasítás esetén. A mûveletek eredményei kifogástalanok, az eredeti processzor mûködésével teljesen megegyeznek. Továbbá az alább látható \ref{fig:drmario}-es ábrán is meg\-fi\-gyel\-he\-tõ, hogy az imp\-le\-men\-tált PPU által renderelt kép megegyezik az eredeti hardver által kirajzolttal -- a \textit{Dr. Mario} mellett a többi, általam tesztelt játék esetén is ezt tapasztaltam.
+Kijelenthetõ, hogy az általam fejlesztett emulátor (a megszakítások idõzítését kivéve) processzor mûveletei órajel pontosságúak, ami azt jelenti, hogy azok idõzítése meg\-e\-gye\-zik az eredeti konzolban található processzoréval -- ezt a \textit{Blargg}-féle teszt ROM-ok \cite{blargg} tesztelik minden utasítás esetén. A mûveletek eredményei kifogástalanok, az eredeti processzor mûködésével teljesen megegyeznek. Továbbá az alább látható \ref{fig:drmario}-es ábrán is meg\-fi\-gyel\-he\-tõ, hogy az imp\-le\-men\-tált PPU által renderelt kép megegyezik az eredeti hardver által kirajzolttal -- a \textit{Dr. Mario} mellett a többi, általam tesztelt játék esetén is ezt tapasztaltam.
 
 \begin{figure}[h!]%
     %\centering

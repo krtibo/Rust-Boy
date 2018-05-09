@@ -14,7 +14,7 @@ Az elsõ teendõ mindenképpen a lehetõ legtöbb tudásanyag összeszedése ilyen-olyan
 
 \section{A fõ ciklus}
 
-A fõ ciklus a Game Boy utasítás-végrehajtását emulálja, aminek egy leegyszerûsített modellje bármilyen Neumann-elvû számítógép processzorára illeszkedni fog. Ezt a fõ ciklust elterjedtebb nevén \textbf{betöltõ-dekódoló-végrehajtó} ciklusnak is nevezik. Lépései a következõk\cite{Tanenbaum}:
+A fõ ciklus a Game Boy utasítás-végrehajtását emulálja, aminek egy leegyszerûsített modellje bármilyen Neumann-elvû számítógép processzorára illeszkedni fog. Ezt a fõ ciklust elterjedtebb nevén \textbf{betöltõ-dekódoló-végrehajtó} ciklusnak is nevezik. Lépései a következõk \cite{Tanenbaum}:
 
 \begin{enumerate}
   \item[(1)] A soron következõ utasítás betöltése a memóriából az utasításregiszterbe.
@@ -47,13 +47,13 @@ A programozási nyelv mellett a \textit{debuggolást} nagyban megkönnyíti egy \tex
 
 \subsection{A Rust programozási nyelv}
 Az emulátor fejlesztéséhez a Rust programozási nyelvet választottam, több okból. Egy\-részt ez elõtt egy kisebb emulátor projekten dolgoztam a nyelvvel, és már akkor meg\-tet\-szett az egyszerûsége, a környezete, a nyelv köré alakult közösség. Másrészt a nyelvet az ehhez hasonló performancia-orientált feladatokra tervezték.\\
-A \textbf{Rust} a fejlesztõk weboldala szerint egy 2006 óta fejlesztett, rendszerfejlesztésre ké\-szí\-tett nyelv, amely villámgyorsan dolgozik, megelõzi a szegmentációs hibákat, és ga\-ran\-tál\-tan gátolja a versenyhelyzetek kialakulását. Erõsen típusos nyelv, szintaktikailag a \texttt{C++}-hoz hasonlít, viszont hozzá képest biztonságosabb memóriakezelést biztosít a sebesség meg\-tar\-tá\-sá\-val. A Rust világában tehát nincsen \textit{null pointer}, lógó \textit{pointer}, és versenyhelyzet sem. A fejlesztését és tervezését a Mozilla kutatói részlege kezdte el, majd idõvel kö\-zös\-sé\-gi projektté alakult. Jelenleg \texttt{1.24.1}-es jelzésû az aktuális verzió. \cite{Rust} \\
-Fontos még megemlíteni, hogy a \textit{Stack Overflow} weboldalon megrendezett éves fejlesztõi kérdõív kitöltések alapján 2016-ban, 2017-ben és 2018-ban is a Rust nyerte a ``leginkább kedvelt programozási nyelv'' kategóriát. Egyéb érdekesség, hogy jól megfigyelhetõ, hogy az emulátor fejlesztõ közösség túlnyomó többsége  \texttt{C++}-ban, vagy Rust-ban fejleszt -- ez a nyelv kényelmességének, eleganciájának és sokoldalúságának is köszönhetõ. \\
+A \textbf{Rust} a fejlesztõk weboldala szerint egy 2006 óta fejlesztett, rendszerfejlesztésre ké\-szí\-tett nyelv, amely villámgyorsan dolgozik, megelõzi a szegmentációs hibákat, és ga\-ran\-tál\-tan gátolja a versenyhelyzetek kialakulását. Erõsen típusos nyelv, szintaktikailag a \texttt{C++}-hoz hasonlít, viszont hozzá képest biztonságosabb memóriakezelést biztosít a sebesség meg\-tar\-tá\-sá\-val. A Rust világában tehát nincsen \textit{null pointer}, lógó \textit{pointer}, és versenyhelyzet sem. A fejlesztését és tervezését a Mozilla kutatói részlege kezdte el, majd idõvel kö\-zös\-sé\-gi projektté alakult. Jelenleg \texttt{1.24.1}-es jelzésû az aktuális verzió \cite{Rust}. \\
+Fontos még megemlíteni, hogy a \textit{Stack Overflow} weboldalon megrendezett éves fejlesztõi kérdõív kitöltések alapján 2016-ban, 2017-ben és 2018-ban is a Rust nyerte a ``leginkább kedvelt programozási nyelv'' kategóriát \cite{So}. Egyéb érdekesség, hogy jól megfigyelhetõ, hogy az emulátor fejlesztõ közösség túlnyomó többsége  \texttt{C++}-ban, vagy Rust-ban fejleszt -- ez a nyelv kényelmességének, eleganciájának és sokoldalúságának is köszönhetõ. \\
 Maga a nyelv szépsége azonban még nem minden -- a nyelv mellett a \textbf{Cargo} eszköz egy fontos szempont. A Cargo nyilvántartja és rezolválja a Rust projektekben összeszedett függõségeket, illetve \textit{buildeli} a projektet. Két \textit{metadata} fájlban tárolja a projekttel kap\-cso\-la\-tos információkat, melyek alapján beszerzi és buildeli a projekt függõségeit. Ezt követõen meghívja és futtatja a \texttt{rustc} fordítót a megfelelõ paraméterekkel. A Cargo a külsõ \textit{libraryket}, illetve függõségeket a \textit{crates.io} közösségi központi repozitóriumból szerzi be. 
 
 \subsection{A \texttt{minifb} könyvtár} 
 Mivel grafikus programról beszélünk, ezért az ablakkezelés és az emulátor vizuális \textit{out\-put\-ja} fontos tényezõ. Ehhez -- ha lehetséges -- minél egyszerûbb és gyorsabb külsõ könyv\-tá\-rat kell használnunk, ha szeretnénk megkönnyíteni és felgyorsítani a mun\-ka\-fo\-lya\-ma\-tun\-kat. A \texttt{minifb} \textit{crate} ezt teszi lehetõvé, hiszen ez egy platformfüggetlen, Rust-ban írt \textit{library}, amivel az operációs rendszer által kínált natív ablakokat lehet megnyitni, és feltölteni egy 32 bites \textit{bufferrel}. Támogatja a billentyûzet és egér eseménykezelést, és némely operációs rendszer esetén (Windows, macOS) a menürendszereket. \\
-A használata nagyon egyszerû\cite{minifb}: 
+A használata nagyon egyszerû \cite{minifb}: 
 
 \begin{minted}{rust}
 window : Window::new("RUST BOY",           // name

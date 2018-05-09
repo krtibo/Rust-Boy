@@ -92,7 +92,7 @@ impl PPU {
                 cpu.RAM[0xFF44] = 0;
             }
 
-            self.mouse_handler(cpu);
+            //self.mouse_handler(cpu);
         }
     }
 

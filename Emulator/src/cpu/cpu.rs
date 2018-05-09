@@ -30,7 +30,7 @@ use ppu::PPU;
 use timer::Timer;
 use joypad::Joypad;
 use interrupt::Interrupt;
-use memorymap::MemoryMap;
+// use memorymap::MemoryMap;
 extern crate minifb;
 // use self::minifb::{Key, KeyRepeat};
 
@@ -88,7 +88,7 @@ impl CPU {
         let mut debug_data : DebugData = DebugData::new();
         let mut ppu : PPU = PPU::new(self.options);
         // let mut debugger : Debugger = Debugger::new();
-        let mut mem : MemoryMap;
+        //let mut mem : MemoryMap;
         let mut timer : Timer = Timer::new();
         let mut joypad : Joypad = Joypad::new();
         let mut interrupt : Interrupt = Interrupt::new();
@@ -104,7 +104,7 @@ impl CPU {
                     self.boot_rom = true;
                     self.load_rom_header();
                     ppu.window.set_title(&self.title);
-                    mem = MemoryMap::new();
+                    //mem = MemoryMap::new();
                 }
 
                 // scan for any pressed button BEFORE any operation begins
@@ -147,7 +147,7 @@ impl CPU {
             // debugger.update_window(&debug_data);
             // mem.print_ram(self);
             if self.boot_rom {
-                mem.print_ram(self);
+                //mem.print_ram(self);
             }
             ppu.render();
             cycle = 0;

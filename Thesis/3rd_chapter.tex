@@ -346,7 +346,7 @@ A DMA vagy \textit{Direct Memory Access} (Közvetlen Memóriaelérés) a Game Boy ar
     }
 \end{minted}
 A \texttt{0xFF46}-os címre kérelmezett írás esetén tehát maga az írás nem történik meg, hanem a vezérlés a fenti csapdába kerül. A DMA-t aktiváló memóriacímre írandó adat adódik át a DMA függvénynek \cite{ninprog}. \\
-A \textit{Sprite Attribute Table} a \texttt{0xFE00}--\texttt{0xFE9F} memóriacímek között helyezkedik el, tehát 160 bájtot tárol. Ezt a 160 bájtot kell feltölteni az új adattal úgy, hogy a DMA függvény paraméterében átadott érték alapján kiszámoljuk a kezdõcímet, ahonnan a 160 darab bájt másolása fog megtörténni. Ennek a kezdõcímnek a kiszámolása könnyû feladat: el kell osztani 100-zal, vagy ha gyorsabb végrehajtást szeretnénk, \textit{shifteljük} el balra 8-cal. A DMA függvény tehát a következõk szerint alakul:
+A \textit{Sprite Attribute Table} a \texttt{0xFE00}--\texttt{0xFE9F} memóriacímek között helyezkedik el, tehát 160 bájtot tárol. Ezt a 160 bájtot kell feltölteni az új adattal úgy, hogy a DMA függvény paraméterében átadott érték alapján kiszámoljuk a kezdõcímet, ahonnan a 160 darab bájt másolása fog megtörténni. Ennek a kezdõcímnek a kiszámolása könnyû feladat: \textit{shifteljük} el balra 8-cal. A DMA függvény tehát a következõk szerint alakul:
 \newpage
 \begin{minted}{rust}
     pub fn dma(&mut self, value : u8) {
